@@ -7,16 +7,18 @@ Instead of using jquery ready use iignition. Iignition must be loaded before you
     // Use this instead of 
     // $(function(){ // jquery loaded });
     $i.ready(function(){
-        console.log('ignition has loaded');
+        console.log('iignition has loaded');
         // Your iignition code goes here
     });
 ```
 
+# Examples
+Examples showing how to use iignition.js. All examples are using Bootstrap 4 and jQuery v3.2.1 where applicable.
 ## Get JSON from an API then display it on screen in a template of your choice
 
 In this example ```#splashExample1``` refers to a predesigned 'template' that will be cloned and 'splashed' with data.
 
-### Example - table
+## Example - table
 ### HTML
 This shows a simple Bootstrap table that will be splashed with the needed data being each new ```tr```
 ```html
@@ -56,7 +58,7 @@ function splashExample1() {
 | 2 | my title | sunt aut facere repellat provident occaecati |
 | 3 | my title | sunt aut facere repellat provident occaecati |
 
-### Example - Select(dropdown)
+## Example - Select(dropdown)
 
 ### HTML
 
@@ -78,6 +80,80 @@ function splashExample1() {
             $i.Splash.setSelected('#selectCountry', 'DZ');
         });
     });
+```
+
+## Example - Splashing forms
+You can splash a JSON object onto a form so that a use can edit the data before saving it back to your API/Server.
+- splashing of forms happen via using an attribute ```[data-splash]``` on your HTML.
+- ```data-splash``` can be used to splash and apply various things to your HTML element for example,
+    - consider the following JSON object
+        ```json 
+                {
+                    "id": 5,
+                    "name": "Chelsey Dietrich",
+                    "username": "Kamren",
+                    "email": "Lucio_Hettinger@annie.ca",
+                    "address": {
+                        "street": "Skiles Walks",
+                        "suite": "Suite 351",
+                        "city": "Roscoeview",
+                        "zipcode": "33263",
+                        "geo": {
+                        "lat": "-31.8129",
+                        "lng": "62.5342"
+                        }
+                    },
+                    "phone": "(254)954-1289",
+                    "website": "demarco.info",
+                    "company": {
+                        "name": "Keebler LLC",
+                        "catchPhrase": "User-centric fault-tolerant solution",
+                        "bs": "revolutionize end-to-end systems"
+                    }
+                }
+        ```
+    - ```data-splash="name"```
+        - This will splash an ```data-``` attribute on your element with the value of this property for example,
+            - ```<input data-name="Chelsey Dietrich" />```
+    - ```data-splash="value-name"```
+        - This will splash the value into your textbox and make it available for editing.
+            - ```<input value="Chelsey Dietrich" />```                
+    - ```data-splash="value-name,name"```
+        - This will splash both an ```data-``` attribute and the value into your textbox and make it available for editing.
+            - ```<input data-name="Chelsey Dietrich" value="Chelsey Dietrich" />```    
+            - This is so that when you post or change the ```value=``` attribute you will know what the initial value was when the data was splashed.
+    - ```data-splash="name,email,address.zipcode"```
+        - This will splash ```data-``` attribute 3 times where each ```data-``` attribute will be on your HTML element.
+          - ```<input data-name="Chelsey Dietrich" data-email="" data-address.zipcode="33263" />```
+### HTML
+
+```html
+    <form>
+        <div>
+            <div data-splashtemplate="">
+                <p>ID: 5
+                    <span data-splash="id"></span>
+                    <span class="help-block">This will be hidden from the user, just shown for example. Dont show ids to user in UI.</span>
+                </p>
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" class="form-control" name="name" id="name" aria-describedby="helpName" placeholder="e.g. Name" data-splash="value=name,name" data-name="Chelsey Dietrich" value="Chelsey Dietrich">
+                    <small id="helpSuite" class="form-text text-muted">Help text</small>
+                </div>
+            </div>
+        </div>
+    <form>
+      
+```
+### Javascript
+```javascript 
+   function splashExample1() {
+    $i.Data.getData('https://jsonplaceholder.typicode.com/posts', null, function (data) {
+        $i.Splash.map('#formSplashExample', data, null, function () {
+            /// Onsuccess of splash this is called
+        })
+    });
+}
 ```
 
 ## Loading views
@@ -123,7 +199,7 @@ Create a section in your html with an attribute ```data-viewContainer``` this te
         });    
 ```
 
-## Navigation and Routing
+# Navigation and Routing
 
 Iignition has a sense of navigation and routing which you can use through the use of displaying views in a ```data-viewContainer```.
 
@@ -180,5 +256,6 @@ In the following example the we used [data-link] to distinguish which links are 
         return false;
     }
 ```
+
 
 --- 

@@ -91,7 +91,6 @@ var $i = iignition = (function () {
             }
         }
         $i.options.view = undefined;
-
     }
 
     /** needed for IE **///
@@ -206,12 +205,14 @@ var $i = iignition = (function () {
                 _load(container, view, function (viewhtml) {
                     _bind(container, data, rowbindcallback, function () {
                         _constructor(view, callback);
+                        _preventDoublePosting();
                     });
                 });
             }
             else {
                 _show(container, view, data, rowbindcallback, function () {
                     _constructor(view, callback);
+                    _preventDoublePosting();
                 });
             }
 
@@ -424,14 +425,14 @@ $i.Data = (function () {
             var formData = new FormData();
             processData = false;
             $.each(data, function (
-                    key,
-                    value) {
+                key,
+                value) {
                 formData.append(key, value);
             });
 
             $.each(files, function (
-                    key,
-                    value) {
+                key,
+                value) {
                 formData.append(key, value);
             });
         } else {

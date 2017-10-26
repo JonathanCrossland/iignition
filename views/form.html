@@ -1,0 +1,72 @@
+<div data-view="form">
+    <script>
+        function form() {
+            updateStatus("form loaded");
+            $i.ready(function () {
+                formExample1();
+                formExample2();
+            });
+        }
+        function _form() {
+            updateStatus("form unloaded");
+        }
+    </script>
+
+    <div class="row">
+        <div class="col col-md-6">
+            <div class="container">
+                <h1> Form example </h1>
+                <form name="formExample1" id="formExample1" action="/form" method="POST">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Email address</label>
+                        <input class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" type="text" />
+                        <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Password</label>
+                        <input class="form-control" id="exampleInputPassword1" placeholder="Password" type="text" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+        <div class="col col-md-6">
+            <p> Forms do not double post. When you click
+                <code>submit</code> the first time an attribute is applied to the form and next time you click it, it wont fire the form again.
+            </p>
+        </div>
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="col col-md-6">
+            <div class="container">
+                <h1> Form example 2</h1>
+                <form name="formExample2" id="formExample2" action="/form" method="POST">
+                    <div class="form-group">
+                        <label for="selectCountry">Country</label>
+                        <select class="form-control" id="selectCountry" name="selectCountry" aria-describedby="countryHelp">
+                            <option value="0">Select an option</option>
+                            <option data-splashtemplate="" data-splash="value=code, name"></option>
+                        </select>
+                        <small id="countryHelp" class="form-text text-muted">Select your country from the list</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+        <div class="col col-md-6">
+            <p>
+                Dynamically splash a select box and set the selected value using
+                <code>$i.splash</code>
+            </p>
+            <p>
+            <code>
+                    $i.Splash.map('#selectCountry', data, null, function () {
+                        updateStatus('select was splashed');
+                        $i.Splash.setSelected('#selectCountry', 'DZ');
+                    });
+               </code>
+            </p>
+        </div>
+    </div>
+</div>

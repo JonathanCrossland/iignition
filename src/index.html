@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="iignition.js"></script>
+    <style>
+        table {
+            background: gray;
+        }
+
+        table td {
+            border: 1px solid #444;
+            background: #222;
+            
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+
+        $i.ready(function () {
+
+            // $i.Cache.Data('Test','LO World');
+            // var d = $i.Cache.Data('Test');
+            // console.log(d);
+
+            // var obj = JSON.parse('[{ "title":"Mr", "name": "Jonathan", "age": "toothless years old", "city":"Cape Town"}]'); 
+
+            
+            $i.Data.getData('test.json', null, function (data) {
+                obj = data.Resultset;
+                // $i.Splash.map('#table', obj);
+                $i.Splash.map('#table', obj);
+            });
+
+           
+        });
+
+    </script> 
+
+<div id="custom" data-splashscaffold="[Title, Year]">
+    <table>
+        <tbody>
+            <tr data-splashtemplate>
+
+            </tr>
+        </tbody>
+    </table>
+    
+</div>
+
+    <div id="container">
+        <div data-splashtemplate>
+            <span data-splash="Title"></span>
+            <span data-splash="Year"></span>
+            <span data-splash="Director">
+                <p data-splash="content">
+            </span>
+        </div>
+    </div>
+    <div id="table">
+        <table>
+            <thead>
+                <th>Title</th>
+                <th>Year</th>
+                <th>Director</th>
+                <th>Content</th>
+            </thead>
+            <tbody>
+                <tr data-splashtemplate>
+                    <td data-splash="Title"></td>
+                    <td data-splash="Year"></td>
+                    <td data-splash="Director"></td>
+                    <td data-splash="content"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+   
+
+    <div id="form">
+        <form data-splashtemplate>
+            <input type="text" value="go click" data-splash="name" />
+            <input type="submit" value="Submit" />
+        </form>
+    </div>
+</body>
+
+</html>

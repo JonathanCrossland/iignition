@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="iignition.js"></script>
+    
+</head>
+<body>
+    <script>
+
+    $i.ready(function(){ 
+
+        $i.Cache.Data('Test','LO World');
+        var d = $i.Cache.Data('Test');
+        console.log(d);
+        
+        var obj = JSON.parse('[{ "title":"John", "age":30, "city":"New York"}]'); 
+        // $i.Splash.map('#container', obj);
+        $i.Splash.map('#custom', obj);
+        // var c = document.querySelector('#container');
+        //console.log(c.querySelectorAll('input'));
+        //console.log(c.querySelectorAll('[data-splashtemplate]:not([data-splashx])'));
+    });
+
+    </script>
+    <div >
+            <div id="custom"  data-splashtemplate data-splashscaffold >
+        
+            </div>
+        </div>
+
+    <div id="container">
+        <div data-splashtemplate>
+        <span data-splash="title"></span>
+    </div>
+    </div>
+    <div id="table">
+    <table data-splashtemplate> 
+            <thead>
+                <th>Title</th>
+                <th>Year</th>
+                <th>Director</th>
+        <th>Content</th>
+            </thead>
+            <tbody>
+                <td data-splash="title,title=title,data-id=Title"></td>
+                <td data-splash="age"></td>
+                <td data-splash="Title"></td>
+                <td ><textarea data-splash="content"></textarea></td>
+            </tbody>
+        </table>
+    </div>
+    <form id="form">
+            <input type="text" value="go click"/>
+            <input type="submit" value="Submit" />
+        </form>
+</body>
+</html>

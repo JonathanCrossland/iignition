@@ -125,6 +125,7 @@ var $i = iignition = (function () {
         $view.appendTo($(container));
 
         _bind(container, data, rowbindcallback, function () {
+           
             _constructor(view, callback);
         });
     }

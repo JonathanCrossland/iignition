@@ -14,24 +14,42 @@
 
     $i.ready(function(){ 
 
-        $i.Cache.Data('Test','LO World');
-        var d = $i.Cache.Data('Test');
-        console.log(d);
+        // $i.Cache.Data('Test','LO World');
+        // var d = $i.Cache.Data('Test');
+        // console.log(d);
         
-        var obj = JSON.parse('[{ "title":"John", "age":30, "city":"New York"}]'); 
+        // var obj = JSON.parse('[{ "title":"John", "age":30, "city":"New York"}]'); 
         // $i.Splash.map('#container', obj);
-        $i.Splash.map('#custom', obj);
+       //$i.Splash.map('#custom', obj);
         // var c = document.querySelector('#container');
         //console.log(c.querySelectorAll('input'));
         //console.log(c.querySelectorAll('[data-splashtemplate]:not([data-splashx])'));
+
+        $i.Data.getData('../prototype/countries.json', null, function(data){
+                $i.Splash.map('#selectCountry', data, null, function(){
+                    $i.Splash.setSelected('#selectCountry', 'DZ');
+                });
+            });
+
+        
+
     });
 
     </script>
+
+    <div data-viewContainer>
+
+    </div>
     <div >
             <div id="custom"  data-splashtemplate data-splashscaffold >
         
             </div>
         </div>
+
+        <select class="form-control" id="selectCountry" name="selectCountry" aria-describedby="countryHelp">
+            <option value="0">Select an option</option>
+            <option data-splashtemplate="" data-splash="value=code, name"></option>
+        </select>
 
     <div id="container">
         <div data-splashtemplate>

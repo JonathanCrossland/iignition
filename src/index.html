@@ -35,14 +35,23 @@
             
             $i.Data.getData('test.json', null, function (data) {
                 obj = data.Resultset;
-                // $i.Splash.map('#table', obj);
                 $i.Splash.map('#table', obj);
             });
 
-           
+            $i.Data.getData('../prototype/countries.json', null, function(data){
+                    
+                $i.Splash.map('#selectCountry', data, null, function(){
+                    $i.Splash.setSelected('#selectCountry', 'DZ');
+                });
+            });
+
+            $i.show("[data-viewContainer]", "../views/form.html");
         });
 
+       
     </script> 
+
+<div data-viewContainer></div>
 
 <div id="custom" data-splashscaffold="[Title, Year]">
     <table>
@@ -54,6 +63,11 @@
     </table>
     
 </div>
+
+<select class="form-control" id="selectCountry" name="selectCountry" aria-describedby="countryHelp">
+    <option value="0">Select an option</option>
+    <option data-splashtemplate="" data-splash="value=code, name"></option>
+</select>
 
     <div id="container">
         <div data-splashtemplate>

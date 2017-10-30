@@ -1,5 +1,6 @@
-<div data-view="home">
+<div data-view="splash">
     <script>
+<<<<<<< HEAD:views/home.html
         function home() {
             //updateStatus("home loaded");
             //splashExample1();      
@@ -13,6 +14,15 @@
         // $i.ready(function(){
         //     splashExample1();            
         // });
+=======
+        function splash() {
+            updateStatus("splash loaded");
+            splashExample1();  
+        }
+        function _splash() {
+            updateStatus("splash unloaded");
+        }        
+>>>>>>> 2e419e0966b18b517e1436c7b6144da65e4fb94c:views/splash.html
     </script>
     <style>
        [data-id]:hover{
@@ -24,21 +34,34 @@
            
         <div class="col col-md-6">
             <h1> iignition </h1>
+<<<<<<< HEAD:views/home.html
             <div class="table-responsive">
            
+=======
+            <div class="table-responsive table-hover">
+>>>>>>> 2e419e0966b18b517e1436c7b6144da65e4fb94c:views/splash.html
                 <table class="table">
                     <thead>
-                        <tr>
-                            <th>id</th>
-                            <th>title</th>
-                            <th>body</th>
+                        <tr>                            
+                            <th>Name</th>
+                            <th>UserName</th>
+                            <th>Email</th>
+                            <th>Phone</th>
                         </tr>
                     </thead>
                     <tbody id="splashExample1">
+<<<<<<< HEAD:views/home.html
                         <tr data-splashtemplate data-splash="data-id=id">
                             <td scope="row" data-splash="id"></td>
                             <td data-splash="title"></td>
                             <td ><span data-splash="body"></span></td>
+=======
+                        <tr data-splashtemplate="" data-splash="id">
+                            <td scope="row" data-splash="name"></td>
+                            <td data-splash="username"></td>
+                            <td data-splash="email"></td>                            
+                            <td data-splash="phone"></td>                            
+>>>>>>> 2e419e0966b18b517e1436c7b6144da65e4fb94c:views/splash.html
                         </tr>
                        
                     </tbody>

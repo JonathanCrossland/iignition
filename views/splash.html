@@ -2,7 +2,7 @@
     <script>
         function splash() {
             updateStatus("splash loaded");
-            splashExample1();  
+            splashExample1();
         }
         function _splash() {
             updateStatus("splash unloaded");
@@ -14,7 +14,7 @@
             <div class="table-responsive table-hover">
                 <table class="table">
                     <thead>
-                        <tr>                            
+                        <tr>
                             <th>Name</th>
                             <th>UserName</th>
                             <th>Email</th>
@@ -25,8 +25,8 @@
                         <tr data-splashtemplate="" data-splash="id">
                             <td scope="row" data-splash="name"></td>
                             <td data-splash="username"></td>
-                            <td data-splash="email"></td>                            
-                            <td data-splash="phone"></td>                            
+                            <td data-splash="email"></td>
+                            <td data-splash="phone"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -34,6 +34,7 @@
         </div>
         <div class="col col-md-6">
             <p>Basic template splash of data from an external API</p>
+            <pre>
             <code>
                 $i.Data.getData('https://jsonplaceholder.typicode.com/posts', null, function (data) 
                 { 
@@ -43,6 +44,7 @@
                     });
                 });
             </code>
+        </pre>
         </div>
     </div>
 </div>

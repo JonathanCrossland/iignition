@@ -7,7 +7,7 @@ var $i = iignition = (function () {
 
     var onReadyCallbacks = [];
     var onViewChangedCallbacks = [];
-    var consoleLines = [];
+    
     var fireReady = false;
     var options = { preventDoublePosting: true };
     fireOnReady = function () {
@@ -26,7 +26,7 @@ var $i = iignition = (function () {
         }
     };
 
-    // window.consoleSuppress = window.console;
+    
     $(function () {
 
         //_init();
@@ -46,18 +46,6 @@ var $i = iignition = (function () {
         if ($i.Cache) {
             $.ajaxSetup({ cache: $i.options.enablecache, preventDoublePosting: true });
         }
-
-        //if ($i.options.debug === false) {
-        //    window.console = {};
-        //    window.console.log = function () {
-        //         consoleLines.push(arguments);
-        //    };
-        //}
-        //else {
-        //    window.console = window.consoleSuppress;
-        //}
-
-
 
     }
 
@@ -109,6 +97,7 @@ var $i = iignition = (function () {
     function _load(container, view, callback) {
 
         $(container).load(view, function (responseText, textStatus, XMLHttpRequest) {
+            $i.currentView = view;
             if (textStatus === "success") {
                 if (callback)
                     callback(responseText);
@@ -158,6 +147,21 @@ var $i = iignition = (function () {
         }
     };
 
+    function _deconstructor(view, callback) {
+        view = view.substr(view.lastIndexOf("/") + 1);
+        view = view.replace(".html", "");
+        view = view.replace(".xml", "");
+
+        if (window[view]) {
+            if (typeof window[view] === 'function') {
+                window['_'+view]();
+            }
+        };
+        if (callback) {
+            callback();
+        }
+    };
+
     /***end of IE *****/
     return {
         options: { debug: false, enablecache: false, preventDoublePosting: true },
@@ -200,10 +204,11 @@ var $i = iignition = (function () {
             /// <arg name="callback">the callback to execute once the view is loaded</arg>
 
             if (view == undefined) { console.log("No View Specified"); return; };
-
+            _deconstructor($i.currentView);
             if (view.endsWith(".html") || view.endsWith(".xml")) {
                 _load(container, view, function (viewhtml) {
                     _bind(container, data, rowbindcallback, function () {
+                       
                         _constructor(view, callback);
                         _preventDoublePosting();
                     });
@@ -211,6 +216,7 @@ var $i = iignition = (function () {
             }
             else {
                 _show(container, view, data, rowbindcallback, function () {
+                    //_deconstructor(view, callback);
                     _constructor(view, callback);
                     _preventDoublePosting();
                 });
@@ -246,6 +252,7 @@ var $i = iignition = (function () {
                 return size;
             }
         },
+        currentView : '',
         isMsg: function (obj) {
             if (typeof obj === "object") {
                 if (obj !== undefined) {
@@ -257,8 +264,7 @@ var $i = iignition = (function () {
                 }
             }
             return false;
-        },
-        silentConsole: consoleLines
+        }
 
     }
 
@@ -424,6 +430,7 @@ $i.Data = (function () {
             contentType = "application/x-www-form-urlencoded";
             var formData = new FormData();
             processData = false;
+
             $.each(data, function (
                 key,
                 value) {

@@ -90,35 +90,22 @@ var $i = iignition = (function () {
                 return this.indexOf(suffix, this.length - suffix.length) !== -1;
             };
         }
-        if (typeof Object.prototype.extend !== 'function') {
-            
-            if (Object.prototype.constructor.toString().indexOf("Array") != -1){
-
-            
-            Object.prototype.extend = function (out) {
-                
-                out = out || {};
-                
-                for (var i = 1; i < arguments.length; i++) {
-                    var obj = arguments[i];
-                
-                    if (!obj) continue;
-                
-                    for (var key in obj) {
-                    if (obj.hasOwnProperty(key)) {
-                        if (typeof obj[key] === 'object')
-                        out[key] = deepExtend(out[key], obj[key]);
-                        else
-                        out[key] = obj[key];
-                    }
-                    }
+        var extend = function ( defaults, options ) {
+            var extended = {};
+            var prop;
+            for (prop in defaults) {
+                if (Object.prototype.hasOwnProperty.call(defaults, prop)) {
+                    extended[prop] = defaults[prop];
                 }
-                return out;
-                  
-            };
             }
-        }
-
+            for (prop in options) {
+                if (Object.prototype.hasOwnProperty.call(options, prop)) {
+                    extended[prop] = options[prop];
+                }
+            }
+            return extended;
+        };
+      
     
         if (typeof String.prototype.startsWith !== 'function') {
             String.prototype.startsWith = function (suffix) {
@@ -135,29 +122,50 @@ var $i = iignition = (function () {
         }
     
         function _load(container, view, callback) {
+            
+            var request = new XMLHttpRequest();
+            request.open('GET', view, true);
+            
+            request.onload = function() {
+              if (request.status >= 200 && request.status < 400) {
+                var e =document.createElement('div');
+                e.innerHTML =request.responseText;
+                 container.appendChild(e.childNodes[0]);
+                if (callback)
+                    callback(request.responseText);
+
+              } else {
+                // We reached our target server, but it returned an error
+            
+              }
+            };
+            
+            request.onerror = function() {
+              // There was a connection error of some sort
+            };
+            
+            request.send();
+          
+
+            // $(container).load(view, function (responseText, textStatus, XMLHttpRequest) {
+            //     if (textStatus === "success") {
+            //         if (callback)
+            //             callback(responseText);
     
-            $(container).load(view, function (responseText, textStatus, XMLHttpRequest) {
-                if (textStatus === "success") {
-                    if (callback)
-                        callback(responseText);
-    
-                }
-            });
+            //     }
+            // });
         }
     
         function _show(container, view, data, rowbindcallback, callback) {
-    
-            var $view = $(view);
-            $view.appendTo($(container));
-    
+           
+            //$container.appendChild($view);
+     
             _bind(container, data, rowbindcallback, function () {
                 _constructor(view, callback);
             });
         }
     
         function _bind(container, data, rowbindcallback, callback) {
-    
-            var $container = $(container);
     
             if (data != undefined && data != null) {
                 $i.Splash.map($container, data, rowbindcallback, function () {
@@ -200,7 +208,7 @@ var $i = iignition = (function () {
                     callback = options;
                 }
                 else {
-                    $i.options.extend(o, options);
+                    $i.options = extend(o,options);
                 }
                 _init();
                 if (callback != undefined) {
@@ -215,8 +223,6 @@ var $i = iignition = (function () {
                 elements.forEach(function(e){
                     e.style.pointerEvents = "auto";
                 })
-                
-    
             },
     
             show: function (container, view, data, rowbindcallback, callback) {
@@ -230,16 +236,21 @@ var $i = iignition = (function () {
                 /// <arg name="callback">the callback to execute once the view is loaded</arg>
     
                 if (view == undefined) { console.log("No View Specified"); return; };
-    
+                
+                var $container;
+                if (typeof container == 'string' ){
+                    $container = document.querySelector(container);
+                }
+                
                 if (view.endsWith(".html") || view.endsWith(".xml")) {
-                    _load(container, view, function (viewhtml) {
-                        _bind(container, data, rowbindcallback, function () {
+                    _load($container, view, function (viewhtml) {
+                        _bind($container, data, rowbindcallback, function () {
                             _constructor(view, callback);
                         });
                     });
                 }
                 else {
-                    _show(container, view, data, rowbindcallback, function () {
+                    _show($container, view, data, rowbindcallback, function () {
                         _constructor(view, callback);
                     });
                 }
@@ -351,8 +362,8 @@ var $i = iignition = (function () {
     
     $i.Data = (function () {
         var o = {};
-    
-        o.getData = function (url, data, successCallback, errorCallback) {
+       
+        o.getData = function (url, data, successCallback, errorCallback, options) {
             /// <summary>
             /// Uses jQuery.ajax to make data calls. Expects JSON
             /// </summary>
@@ -361,7 +372,9 @@ var $i = iignition = (function () {
             /// <arg name="successCallback">callback once data is successfully returned</arg>
             /// <arg name="errorCallback">callback if error on attempt to retrieve data</arg>
             /// <returns type="">the JSON</returns>
-    
+            if (options!==undefined){
+                $i.extend(o.options, options);
+            }
             //load from cache -this needs to be tightened up, but getData should read cache:DATAKEY and get the data as below
             if (url.indexOf("cache:") >= 0) {
     
@@ -386,23 +399,67 @@ var $i = iignition = (function () {
                     url = s[1];
                 }
             }
-    
-            function onSuccess(data) {
-                // if ($i.Cache) {
-                //     $i.Cache.Data(url, data);
-                // }
-    
-                if (successCallback)
-                    successCallback(data);
-    
+
+            var request = new XMLHttpRequest();
+
+            //var httptype = 'GET';
+            //var contentType = 'text/javascript';
+            //var jsonp = true;
+            //var dataType = 'jsonp';
+            if (url.endsWith('.json')) {
+                o.options.dataType = 'json';
+                o.options.contentType = 'application/json';
             }
-    
-    
-            function onError(xhr, status, error) {
+            if (data) {
+                o.options.httptype = "post";
+                o.options.contentType = "application/json";
+            }
+           var hasFiles=false;
+            if (hasFiles === true) {
+                o.options.contentType = "application/x-www-form-urlencoded";
+                var formData = new FormData();
+                processData = false;
+                
+
+                for (var k in data){
+                    if (target.hasOwnProperty(k)) {
+                        formData.append(k,  target[k]);  
+                    }
+                }
+                
+                for (var k in files){
+                    if (target.hasOwnProperty(k)) {
+                        formData.append(k,  target[k]);  
+                    }
+                }
+               
+            } else {
+                formData = JSON.stringify(data);
+            }
+
+            request.setRequestHeader('Content-Type', o.options.contentType);
+            request.open(httptype, url, true);
+            
+            request.onload = function() {
+              if (request.status >= 200 && request.status < 400) {
+                var d = request.responseText;
+                if (o.options.contentType == 'application/json'){
+                    d = JSON.parse(request.responseText);
+                }
+
+                if (successCallback)
+                    successCallback(d);
+
+              } else {
+              
+            
+              }
+            };
+            
+            request.onerror =  function onError(xhr, status, error) {
     
                 if (status === "timeout") {
                     var ret = confirm("Timeout out occurred when trying to retrieve data. Would you like to retry?");
-                    console.log(ret);
                     if (ret === true) {
                         o.getData(url, data, successCallback, errorCallback, fullmsg);
                         return;
@@ -413,94 +470,18 @@ var $i = iignition = (function () {
                     errorCallback(xhr.responseText, error);
             }
     
-            var httptype = "get";
+          
+            request.send(data); 
+            
     
-    
-            var contentType = "text/javascript";
-            var jsonp = true;
-    
-            var dataType = "jsonp";
-            if (url.endsWith(".json")) {
-                dataType = "json";
-                contentType = "application/json";
-                jsonp = false;
-            }
-            if (data) {
-                if (data.DataUrl)
-                    data.DataUrl = "";
-                if (data.ModelData)
-                    data.ModelData = "";
-            }
-    
-    
-            var processData = true;
-    
-            var hasFiles = false;
-            var files = null;
-            if (data) {
-                httptype = "post";
-                contentType = "application/json";
-    
-                if (data.viewName) {
-                    if ($("#" + data.ViewName + " input:file").length > 0) {
-                        hasFiles = true;
-                        $("#" + data.ViewName + " input:file")[0].files;
-                    }
-                } else {
-                    if ($("input:file").length > 0) {
-                        files = $("input:file")[0].files;
-                        if (files.length > 0) {
-                            hasFiles = true;
-                        }
-                    }
-    
-                }
-            }
-    
-            if (hasFiles === true) {
-                contentType = "application/x-www-form-urlencoded";
-                var formData = new FormData();
-                processData = false;
-                $.each(data, function (
-                        key,
-                        value) {
-                    formData.append(key, value);
-                });
-    
-                $.each(files, function (
-                        key,
-                        value) {
-                    formData.append(key, value);
-                });
-            } else {
-                formData = JSON.stringify(data);
-            }
-    
-    
-            if ($i.Cache) {
-                if ($i.options.enablecache === false) {
-                    url += "?icache=" + new Date().getTime();
-                }
-            }
-    
-            $.ajax({
-                url: url,
-                data: formData,
-                type: httptype,
-                dataType: dataType,
-                success: onSuccess,
-                error: onError,
-                timeout: 1000 * 60, //1 minute
-                cache: false,
-                contentType: contentType,
-                processData: processData,
-                beforeSend: function (xhr) {
-    
-                }
-            });
     
         };
     
+        o.options = {
+            httptype: 'GET',
+            contentType : 'text/javascript',
+
+        }
         return o;
     })();
     
@@ -539,22 +520,22 @@ var $i = iignition = (function () {
         };
     
         o.setSelected = function (select, value) {
-            $(select).val(value);
+            select.value = value;
         };
     
         o.setRadio = function (radio, value) {
-            $('input:radio#' + value).prop('checked', true);
+            document.querySelector('input:radio#' + value).checked = value;
         };
     
         o.setCheck = function (checkbox, value) {
     
             if (value) {
                 if (value === 1 || value === "1" || value.toLowerCase() === "true") {
-                    $('input:checkbox#' + checkbox).attr('checked', 'checked');
-                    $('input:checkbox#' + checkbox).val('on');
+                    document.querySelector('input:checkbox#' + checkbox).checked = true;
+                    //document.querySelector('input:checkbox#' + checkbox).val('on');
                 } else {
-                    $('input:checkbox#' + checkbox).removeAttr('checked');
-                    $('input:checkbox#' + checkbox).val('off');
+                    document.querySelector('input:checkbox#' + checkbox).checked = false;
+                   // $('input:checkbox#' + checkbox).val('off');
                 }
             }
     
@@ -591,18 +572,17 @@ var $i = iignition = (function () {
             
             }
     
-            $cloneparent = $template;//.parentNode();
     
-            if ($template.tagName === "TR") {
-                $cloneparent = $template.closest("tbody");
-                // if ($cloneparent.length === 0) {
-                //     $cloneparent = $template.closest("tr");
-                    
-                // }
-            } else if ($template.tagName === "FORM") {
+            if ($template.tagName == 'OPTION')
+            {
+                $cloneparent = $template.parentNode;
+            }
+            else if ($template.tagName === 'TR') {
+                $cloneparent = $template.closest('tbody');
+            } else if ($template.tagName === 'FORM') {
                 $cloneparent = $template;//.closest("[data-form]");
             }
-            else if ($template.tagName === "DIV") {
+            else if ($template.tagName === 'DIV') {
                 $cloneparent = $template.parentNode.closest("div");
             }
     
@@ -617,11 +597,11 @@ var $i = iignition = (function () {
     
                     for (var d in data) {
                         //needs careful redesign
-                        // if (splashTemplate.closest().attr("id") !== $(o.element).attr("id")) {
-                        //     if ($(splashTemplate).get(0).tagName === "OPTION") {
-                        //         continue;
-                        //     }
-                        // } // end redesign
+                         if (splashTemplate.closest('[id]').getAttribute('id') !== o.element.getAttribute('id')) {
+                            if (splashTemplate.tagName === "OPTION") {
+                                continue;
+                            }
+                        } // end redesign
                         var elementClone = splashTemplate.cloneNode(true);
     
                         $cloneparent.appendChild(elementClone);
@@ -817,13 +797,13 @@ var $i = iignition = (function () {
                                         o.setCheck(element.getAttribute("id"), val);
                                     }
                                 } else {
-                                    var t = element.textContent;
+                                    //var t = element.textContent;
 
                                     if (element.tagName == 'INPUT'){
-                                        element.value = t + val;
+                                        element.value = val;
                                     }
                                     else{
-                                        element.textContent = t + val;
+                                        element.innerText = val;
                                     }
                                     
                                 }

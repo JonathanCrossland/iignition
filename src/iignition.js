@@ -272,7 +272,11 @@ var $i = iignition = (function () {
             //     $c.find('[data-view="' + view + '"]').attr('class', 'trƒhisansition animationCenter')
             // }
             $(container).children().remove();
-            
+            var namedView = $c.find('[data-view="' + view + '"]');
+            // if there is a named view lets load that only
+            if (namedView){
+                $c = namedView;
+            }
             $c.appendTo($(container));
             $i.state.currentView = $c;
             //$c.find('[data-view="' + view + '"]').appendTo($(container));

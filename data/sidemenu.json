@@ -1,0 +1,32 @@
+[
+    {
+        "title" : "Home",
+        "link" : "#!home",
+        "items" : [ 
+            {
+                "title" : "Getting Started",
+                "link" : "#!docs/gettingstarted"
+            }
+        ]
+    },
+    {
+        "title" : "Routing",
+        "link" : "#!dir/dir/home.html",
+        "items" : [ 
+            {
+                "title" : "Intro",
+                "link" : "#!dir/dir/home.html"
+            }
+        ]
+    },
+    {
+        "title" : "Nice",
+        "link" : "#!dir/dir/home.html",
+        "items" : [ 
+            {
+                "title" : "Intro",
+                "link" : "#!dir/dir/home.html"
+            }
+        ]
+    }
+]

@@ -81,6 +81,14 @@ function splashExample1() {
         });
     });
 ```
+### Output
+
+<select class="form-control" id="selectCountry" name="selectCountry" aria-describedby="countryHelp">
+    <option value="0">Select an option</option>
+    <option data-splashtemplate="" data-splash="value=code, name" style="display: none;"></option>
+    <option data-splashtemplate="" data-splash="value=code, name" data-templateclone="true" value="AF" data-name="Afghanistan">Afghanistan</option>
+    <option data-splashtemplate="" data-splash="value=code, name" data-templateclone="true" value="AX" data-name="Åland Islands">Åland Islands</option>
+</select>
 
 ## Example - Splashing forms
 You can splash a JSON object onto a form so that a use can edit the data before saving it back to your API/Server.

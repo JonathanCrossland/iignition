@@ -1,5 +1,7 @@
 # iignition.js
 
+[![Join the chat at https://gitter.im/LucidOcean/iignition](https://badges.gitter.im/LucidOcean/iignition.svg)](https://gitter.im/LucidOcean/iignition?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## Loading iignition.js
 Instead of using jquery ready use iignition. Iignition must be loaded before you can call any of its functions. Iignition will load after jquery
 

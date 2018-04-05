@@ -6,19 +6,17 @@
     --titlebar-fg-active-color : #fff;
 }
 
-@import "candy.css";
 
-/* 
+ 
 
 body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td {
     margin: 0;
     padding: 0;
     line-height:1em;
-} */
+} 
 
 html {
     box-sizing: border-box;
-    /* font-family: 'Open Sans'; */
     -webkit-font-smoothing: antialiased;
     text-shadow: rgba(0,0,0,.01) 0 0 1px;
 }
@@ -175,17 +173,23 @@ br.soft {
     margin:0;
 }
 
-.vcenter {
-    height: 100vh;/*override-height: in your custom style*/
+ .vcenter {
+    display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+
+	-ms-flex-align: center;
+	-webkit-align-items: center;
+	-webkit-box-align: center;
+
+	align-items: center;
+    /* height: 100vh;override-height: in your custom style */
 }
 
-.vcenter:before{
-    content: '';
-    display: inline-block;
-    height: calc(100vh/3);
-    /* vertical-align: middle; */
-    /* margin-right: -0.25em; */ /* Adjusts for spacing */
-}
+/* .vcenter:not([style*="height"]):before{
+    border:10px solid black;
+    content: 'Please specify a style="height"';
+} */
 
 .text-center {
     text-align:center;

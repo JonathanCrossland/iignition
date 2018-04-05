@@ -1,31 +1,86 @@
 [
     {
-        "title" : "Home",
-        "link" : "#!home",
-        "items" : [ 
+        "title": "Home",
+        "link": "",
+        "items": [
             {
-                "title" : "Getting Started",
-                "link" : "#!docs/gettingstarted"
+                "title": "Getting Started",
+                "link": "#!docs/gettingstarted"
+            },
+            {
+                "title": "Overview",
+                "link": "#!docs/overview"
             }
         ]
     },
     {
-        "title" : "Routing",
-        "link" : "#!dir/dir/home.html",
-        "items" : [ 
+        "title": "Routing",
+        "link": "",
+        "items": [
             {
-                "title" : "Intro",
-                "link" : "#!dir/dir/home.html"
+                "title": "Intro",
+                "link": "#!docs/routing"
             }
         ]
     },
     {
-        "title" : "Nice",
-        "link" : "#!dir/dir/home.html",
-        "items" : [ 
+        "title": "Views",
+        "link": "",
+        "items": [
             {
-                "title" : "Intro",
-                "link" : "#!dir/dir/home.html"
+                "title": "Basics",
+                "link": "#!docs/views"
+            },
+            {
+                "title": "Forms",
+                "link": "#!docs/forms"
+            }
+
+        ]
+    },
+    {
+        "title": "Controllers",
+        "link": "",
+        "items": [
+            {
+                "title": "Basics",
+                "link": "#!docs/controllers"
+            },
+            {
+                "title": "Controller",
+                "link": "#!docs/"
+            }
+        ]
+    },
+    {
+        "title": "API",
+        "link": "",
+        "items": [
+            {
+                "title": "Data",
+                "link": "#!docs/api/data"
+            },
+            {
+                "title": "Caching",
+                "link": "#!docs/api/caching"
+            },
+            {
+                "title": "Splash",
+                "link": "#!docs/api/caching"
+            }
+        ]
+    },
+    {
+        "title": "CSS",
+        "link": "",
+        "items": [
+            {
+                "title": "Basics",
+                "link": "#!docs/css/basic"
+            },
+            {
+                "title": "Advanced",
+                "link": "#!docs/css/advanced"
             }
         ]
     }

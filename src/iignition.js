@@ -53,9 +53,6 @@ var $i = iignition = (function () {
                 this.hash = '#!' + url.split('#!')[1].replace(stdReg, '/');
             
             } 
-            //else if (url.includes('#')){
-            //     this.hash = '#!' + url.split('#')[1].replace(stdReg, '/');
-            // }
             else{
                 this.hash = '#!' + this.root;
             }
@@ -272,9 +269,10 @@ var $i = iignition = (function () {
             //     $c.find('[data-view="' + view + '"]').attr('class', 'trƒhisansition animationCenter')
             // }
             $(container).children().remove();
+            
             var namedView = $c.find('[data-view="' + view + '"]');
             // if there is a named view lets load that only
-            if (namedView){
+            if (namedView.length>0){
                 $c = namedView;
             }
             $c.appendTo($(container));
@@ -344,14 +342,19 @@ var $i = iignition = (function () {
 
     function _bindLinks() {
 
-        $('a[href^="#!"], [data-link]').not('a[target], a[data-target]').off('click');
-        $('a[href^="#!"], [data-link] ').not('a[target], a[data-target]').on('click', function (e) {
+        $('a[href=""], a[href^="#!"], [data-link]').not('a[target], a[data-target]').off('click');
+        $('a[href=""], a[href^="#!"], [data-link] ').not('a[target], a[data-target]').on('click', function (e) {
 
 
             var href = this.getAttribute('href');
             if (href == undefined) {
                 href = this.getAttribute('data-link');
             }
+            if (href==""){
+                  e.preventDefault();
+                  return;
+             }
+
             var evt = new CustomEvent('beforeNavigation', { detail: { element: this, href: href } });
             var ret = window.dispatchEvent(evt);
             href = evt.detail.href;
@@ -359,11 +362,6 @@ var $i = iignition = (function () {
             var data = $(this).data();
 
             $i.show('[data-viewContainer]', href, data);
-
-           // e.stopPropagation();
-           // e.preventDefault();
-
-            //evt.stopPropagation();
             $i.log(evt);
         });
     }
@@ -1007,8 +1005,9 @@ $i.Splash = (function () {
             $(element).find('[data-templateclone]').not('[data-splashx]').remove();
         }
 
-        //$template = $(element).find('[data-splashtemplate]').first();
+        
         $template = $(element).find('[data-splashtemplate="' + elementName + '"]').first();
+       
         // splashtemplate not found        
         // if ($template.get(0) == undefined) {
         //     _logToConsole("[data-splashtemplate] was not found, nothing to splash");
@@ -1016,7 +1015,8 @@ $i.Splash = (function () {
         // }
 
         if ($template.length === 0) {
-            $template = $(element).filter('[data-splashtemplate="' + elementName + '"]');
+            $template = $(element).find('[data-splashtemplate]').first();
+            //$template = $(element).filter('[data-splashtemplate="' + elementName + '"]');
 
             if ($template.length === 0) {
 

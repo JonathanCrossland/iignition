@@ -19,7 +19,7 @@
         "items": [
             {
                 "title": "Intro",
-                "link": "#!docs/routing"
+                "link": "#!docs/intro"
             }
         ]
     },
@@ -29,11 +29,11 @@
         "items": [
             {
                 "title": "Basics",
-                "link": "#!docs/views"
+                "link": "#!docs/basicsview"
             },
             {
                 "title": "Forms",
-                "link": "#!docs/forms"
+                "link": "#!docs/form"
             }
 
         ]
@@ -44,11 +44,11 @@
         "items": [
             {
                 "title": "Basics",
-                "link": "#!docs/controllers"
+                "link": "#!docs/basicscontroller"
             },
             {
                 "title": "Controller",
-                "link": "#!docs/"
+                "link": "#!docs/controller"
             }
         ]
     },
@@ -66,7 +66,7 @@
             },
             {
                 "title": "Splash",
-                "link": "#!docs/api/caching"
+                "link": "#!docs/api/splash"
             }
         ]
     },
@@ -76,11 +76,11 @@
         "items": [
             {
                 "title": "Basics",
-                "link": "#!docs/css/basic"
+                "link": "#!docs/css/cssbasics"
             },
             {
                 "title": "Advanced",
-                "link": "#!docs/css/advanced"
+                "link": "#!docs/css/cssadvanced"
             }
         ]
     }

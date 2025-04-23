@@ -11,10 +11,24 @@
     <script type="text/javascript" src="plugins/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="plugins/fire/fire.js"></script>
     <script type="text/javascript" src="src/iignition.js"></script>
+    <script type="text/javascript" src="src/plugins/fire.js"></script>
+
+    <style>
+        #world, #viewport {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            opacity: 0.5;
+        }
+        
+    </style>
 </head>
 
 <body>
-
+<div id="world"><div id="viewport"></div></div>
     <main>
 
         <div data-viewContainer="#!home">

@@ -1,0 +1,115 @@
+<div class="component-content">
+    <h2>Views</h2>
+    <p class="component-description">Views are the building blocks of your iignition application, representing individual pages or content sections that can be loaded into containers.</p>
+
+    <accordion-component title="View Structure" open="true">
+        <div slot="content">
+            <h4>Views Folder</h4>
+            <p>The views folder is where you organize your application's content. Here's a typical structure:</p>
+            <pre><code class="language-plaintext">your-project/
+├── views/
+│   ├── home.html
+│   ├── about.html
+│   ├── contact.html
+│   ├── components/
+│   │   ├── accordion.html
+│   │   ├── datatable.html
+│   │   └── ...
+│   └── framework/
+│       ├── installation.html
+│       ├── containers.html
+│       └── views.html</code></pre>
+
+            <h4>View File Format</h4>
+            <p>Each view file should be a complete HTML fragment that can be loaded into a container. Example:</p>
+            <pre><code class="language-html">&lt;div class="view-content"&gt;
+    &lt;h1&gt;About Us&lt;/h1&gt;
+    &lt;p&gt;Welcome to our company...&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
+    .view-content {
+        padding: var(--spacing-lg);
+    }
+&lt;/style&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Loading Views">
+        <div slot="content">
+            <h4>Basic View Loading</h4>
+            <p>Use the <code>$i.show()</code> method to load views into containers:</p>
+            <pre><code class="language-javascript">// Load a view into the default container
+$i.show('#!views/home.html');
+
+// Load a view into a specific container
+$i.show('#!views/about.html', 'main');
+
+// Load a view into multiple containers
+$i.show('#!views/dashboard.html', ['main', 'sidebar']);</code></pre>
+
+            <h4>View Loading Options</h4>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Option</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>url</td>
+                        <td>The path to the view file (required)</td>
+                    </tr>
+                    <tr>
+                        <td>container</td>
+                        <td>Container ID or array of container IDs (optional)</td>
+                    </tr>
+                    <tr>
+                        <td>options</td>
+                        <td>Additional loading options (optional)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="View Events">
+        <div slot="content">
+            <h4>View Lifecycle Events</h4>
+            <p>You can listen for view-related events:</p>
+            <pre><code class="language-javascript">// View loaded successfully
+$i.on('view:loaded', (view, container) => {
+    console.log(`View ${view} loaded into ${container}`);
+});
+
+// View loading failed
+$i.on('view:error', (view, error) => {
+    console.error(`Error loading view ${view}:`, error);
+});
+
+// View unloaded
+$i.on('view:unloaded', (view, container) => {
+    console.log(`View ${view} unloaded from ${container}`);
+});</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Best Practices">
+        <div slot="content">
+            <h4>View Organization</h4>
+            <ul>
+                <li>Keep views modular and focused on a single purpose</li>
+                <li>Use consistent naming conventions for view files</li>
+                <li>Organize views into logical subfolders</li>
+            </ul>
+
+            <h4>Performance Tips</h4>
+            <ul>
+                <li>Minimize the size of view files</li>
+                <li>Use lazy loading for complex views</li>
+                <li>Cache frequently accessed views</li>
+            </ul>
+        </div>
+    </accordion-component>
+</div>

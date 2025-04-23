@@ -1,0 +1,145 @@
+<style>
+    /* Rating Component theme colors */
+    :root {
+        --rating-bg: var(--color-card-bg);
+        --rating-star: var(--color-warning);
+        --rating-star-empty: var(--color-border);
+        --rating-text: var(--color-text);
+        --rating-size: 24px;
+        --rating-gap: 4px;
+        --rating-hover-scale: 1.2;
+        --rating-transition: 0.2s ease;
+    }
+
+    rating-component {
+        margin: 20px;
+    }
+</style>
+
+<div class="component-content">
+    <h2>Rating Component</h2>
+    <p class="component-description">A customizable rating component that allows users to display and collect ratings using stars or custom icons.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <div class="example-container">
+                <rating-component 
+                    value="4" 
+                    max="5" 
+                    interactive 
+                    star-icon="★"
+                    empty-star-icon="☆">
+                </rating-component>
+            </div>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <pre><code class="language-html">&lt;rating-component 
+    value="4"
+    max="5"
+    interactive
+    star-icon="★"
+    empty-star-icon="☆"&gt;
+&lt;/rating-component&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>value</td>
+                        <td>number</td>
+                        <td>Current rating value</td>
+                    </tr>
+                    <tr>
+                        <td>max</td>
+                        <td>number</td>
+                        <td>Maximum rating value (default: 5)</td>
+                    </tr>
+                    <tr>
+                        <td>interactive</td>
+                        <td>boolean</td>
+                        <td>Whether the rating can be changed by user interaction</td>
+                    </tr>
+                    <tr>
+                        <td>star-icon</td>
+                        <td>string</td>
+                        <td>Custom icon for filled stars</td>
+                    </tr>
+                    <tr>
+                        <td>empty-star-icon</td>
+                        <td>string</td>
+                        <td>Custom icon for empty stars</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--rating-bg</td>
+                        <td>var(--color-card-bg)</td>
+                        <td>Background color of the rating component</td>
+                    </tr>
+                    <tr>
+                        <td>--rating-star</td>
+                        <td>var(--color-warning)</td>
+                        <td>Color of filled stars</td>
+                    </tr>
+                    <tr>
+                        <td>--rating-star-empty</td>
+                        <td>var(--color-border)</td>
+                        <td>Color of empty stars</td>
+                    </tr>
+                    <tr>
+                        <td>--rating-text</td>
+                        <td>var(--color-text)</td>
+                        <td>Color of the rating text</td>
+                    </tr>
+                    <tr>
+                        <td>--rating-size</td>
+                        <td>24px</td>
+                        <td>Size of the stars</td>
+                    </tr>
+                    <tr>
+                        <td>--rating-gap</td>
+                        <td>4px</td>
+                        <td>Gap between stars</td>
+                    </tr>
+                    <tr>
+                        <td>--rating-hover-scale</td>
+                        <td>1.2</td>
+                        <td>Scale factor on hover</td>
+                    </tr>
+                    <tr>
+                        <td>--rating-transition</td>
+                        <td>0.2s ease</td>
+                        <td>Transition animation</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+</div> 

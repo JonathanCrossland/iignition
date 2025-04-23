@@ -1,0 +1,116 @@
+<style>
+    /* Countdown Timer theme colors */
+    :root {
+        --timer-bg: #1e1e1e;
+        --timer-text: #cccccc;
+        --timer-warning: #FFC107;
+        --timer-danger: #F44336;
+    }
+
+    countdown-timer {
+        font-size: 2em;
+        margin: 20px;
+    }
+</style>
+
+<div class="component-content">
+    <h2>Countdown Timer Component</h2>
+    <p class="component-description">A customizable countdown timer component that supports different formats, warning thresholds, and color states.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <div class="example-container">
+                <countdown-timer 
+                    duration="120"
+                    warning-threshold="30"
+                    warning-color="#FFC107"
+                    format="mm:ss">
+                </countdown-timer>
+            </div>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <pre><code class="language-html">&lt;countdown-timer 
+    duration="120"
+    warning-threshold="30"
+    warning-color="#FFC107"
+    format="mm:ss"&gt;
+&lt;/countdown-timer&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>duration</td>
+                        <td>number</td>
+                        <td>Duration in seconds for the countdown</td>
+                    </tr>
+                    <tr>
+                        <td>warning-threshold</td>
+                        <td>number</td>
+                        <td>Time in seconds when the warning state should activate</td>
+                    </tr>
+                    <tr>
+                        <td>warning-color</td>
+                        <td>string</td>
+                        <td>Color to display when in warning state</td>
+                    </tr>
+                    <tr>
+                        <td>format</td>
+                        <td>string</td>
+                        <td>Time format pattern (e.g., "HH:mm:ss", "mm:ss")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--timer-bg</td>
+                        <td>#1e1e1e</td>
+                        <td>Background color of the timer</td>
+                    </tr>
+                    <tr>
+                        <td>--timer-text</td>
+                        <td>#cccccc</td>
+                        <td>Text color of the timer</td>
+                    </tr>
+                    <tr>
+                        <td>--timer-warning</td>
+                        <td>#FFC107</td>
+                        <td>Warning state color</td>
+                    </tr>
+                    <tr>
+                        <td>--timer-danger</td>
+                        <td>#F44336</td>
+                        <td>Danger state color</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+</div>
+

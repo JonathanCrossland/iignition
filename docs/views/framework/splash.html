@@ -1,0 +1,101 @@
+<div class="component-content">
+    <h2>Splash</h2>
+    <p class="component-description">Splash is a utility class that allows you to map data to a template and apply it to an element.</p>
+
+    <accordion-component title="Overview" open="true">
+        <div slot="content">
+            <p>The Splash component provides data binding functionality through the <code>data-splash</code> attribute. It can:</p>
+            <ul>
+                <li>Map data to HTML elements using attribute-based binding</li>
+                <li>Handle template cloning for repeated elements</li>
+                <li>Support custom row binding through callbacks</li>
+                <li>Automatically handle different input types (text, checkbox, etc.)</li>
+            </ul>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Basic Usage">
+        <div slot="content">
+            <h4>Data Binding</h4>
+            <p>Use the <code>data-splash</code> attribute to bind data to elements:</p>
+            <pre><code class="language-html">&lt;div data-splash="name"&gt;&lt;/div&gt;
+&lt;input type="text" data-splash="email"&gt;
+&lt;input type="checkbox" data-splash="isActive"&gt;</code></pre>
+
+            <h4>Template Usage</h4>
+            <p>For repeated elements, use <code>data-splashtemplate</code>:</p>
+            <pre><code class="language-html">&lt;div id="users"&gt;
+    &lt;div data-splashtemplate&gt;
+        &lt;span data-splash="name"&gt;&lt;/span&gt;
+        &lt;span data-splash="email"&gt;&lt;/span&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+    const data = [
+        { name: 'John', email: 'john@example.com' },
+        { name: 'Jane', email: 'jane@example.com' }
+    ];
+    
+    $i.splash.map('#users', data);
+&lt;/script&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Advanced Usage">
+        <div slot="content">
+            <h4>Custom Row Binding</h4>
+            <p>You can provide a custom binding function for each row:</p>
+            <pre><code class="language-javascript">$i.splash.map('#users', data, (element, item) => {
+    // Custom binding logic
+    element.classList.add(item.isActive ? 'active' : 'inactive');
+});</code></pre>
+
+            <h4>Attribute Binding</h4>
+            <p>Bind data to specific attributes using the format <code>attribute=property</code>:</p>
+            <pre><code class="language-html">&lt;img data-splash="src=imageUrl"&gt;
+&lt;a data-splash="href=profileUrl"&gt;Profile&lt;/a&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Supported Input Types">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Element Type</th>
+                        <th>Binding Behavior</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>input[type="text"]</td>
+                        <td>Sets the value property</td>
+                    </tr>
+                    <tr>
+                        <td>input[type="checkbox"]</td>
+                        <td>Sets the checked property based on boolean or numeric value</td>
+                    </tr>
+                    <tr>
+                        <td>textarea</td>
+                        <td>Sets the value property</td>
+                    </tr>
+                    <tr>
+                        <td>Other elements</td>
+                        <td>Sets the textContent</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Events">
+        <div slot="content">
+            <h4>Data Splashed Event</h4>
+            <p>Listen for when data has been applied:</p>
+            <pre><code class="language-javascript">$i.on('onDataSplashed', (event) => {
+    console.log('Data splashed:', event.detail);
+});</code></pre>
+        </div>
+    </accordion-component>
+</div>

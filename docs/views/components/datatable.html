@@ -1,0 +1,140 @@
+<style>
+    /* Data Table theme colors */
+    :root {
+        --table-bg: #1e1e1e;
+        --table-header-bg: #252526;
+        --table-border: #3c3c3c;
+        --table-text: #cccccc;
+        --table-hover: #2a2d2e;
+    }
+
+    data-table {
+        width: 100%;
+        margin: 20px 0;
+    }
+</style>
+
+<div class="component-content">
+    <h2>Data Table Component</h2>
+    <p class="component-description">A dynamic table component that supports sorting, filtering, and pagination for displaying structured data.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <div class="example-container">
+                <data-table sortable>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th data-sort="name">Name</th>
+                                <th data-sort="age">Age</th>
+                                <th data-sort="email">Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>John Doe</td>
+                                <td>30</td>
+                                <td>john@example.com</td>
+                            </tr>
+                            <tr>
+                                <td>Jane Smith</td>
+                                <td>25</td>
+                                <td>jane@example.com</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </data-table>
+            </div>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <pre><code class="language-html">&lt;data-table sortable&gt;
+    &lt;table&gt;
+        &lt;thead&gt;
+            &lt;tr&gt;
+                &lt;th data-sort="name"&gt;Name&lt;/th&gt;
+                &lt;th data-sort="age"&gt;Age&lt;/th&gt;
+                &lt;th data-sort="email"&gt;Email&lt;/th&gt;
+            &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+            &lt;tr&gt;
+                &lt;td&gt;John Doe&lt;/td&gt;
+                &lt;td&gt;30&lt;/td&gt;
+                &lt;td&gt;john@example.com&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/tbody&gt;
+    &lt;/table&gt;
+&lt;/data-table&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>sortable</td>
+                        <td>boolean</td>
+                        <td>Enables sorting functionality for the table columns</td>
+                    </tr>
+                    <tr>
+                        <td>data-sort</td>
+                        <td>string</td>
+                        <td>Specifies the column identifier for sorting (used on th elements)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--table-bg</td>
+                        <td>#1e1e1e</td>
+                        <td>Background color of the table</td>
+                    </tr>
+                    <tr>
+                        <td>--table-header-bg</td>
+                        <td>#252526</td>
+                        <td>Background color of the table header</td>
+                    </tr>
+                    <tr>
+                        <td>--table-border</td>
+                        <td>#3c3c3c</td>
+                        <td>Border color for table cells</td>
+                    </tr>
+                    <tr>
+                        <td>--table-text</td>
+                        <td>#cccccc</td>
+                        <td>Text color for table content</td>
+                    </tr>
+                    <tr>
+                        <td>--table-hover</td>
+                        <td>#2a2d2e</td>
+                        <td>Background color on row hover</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+</div>

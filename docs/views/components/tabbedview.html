@@ -1,0 +1,174 @@
+<div class="component-content">
+    <h2>Tabbed View</h2>
+    <p class="component-description">A flexible tabbed interface component that supports dynamic content, sticky headers, and custom tab items.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <h4>Basic Usage</h4>
+            <tabbed-view>
+                <tab-panel label="First Tab">
+                    <p>Content for the first tab</p>
+                </tab-panel>
+                <tab-panel label="Second Tab">
+                    <p>Content for the second tab</p>
+                </tab-panel>
+                <tab-panel label="Third Tab">
+                    <p>Content for the third tab</p>
+                </tab-panel>
+            </tabbed-view>
+
+            <h4>With Tab Items</h4>
+            <tabbed-view>
+                <tab-panel label="Settings">
+                    <p>Settings content</p>
+                </tab-panel>
+                <tab-panel label="Profile">
+                    <p>Profile content</p>
+                </tab-panel>
+                <tab-item>
+                    <button class="button-outline">Save</button>
+                </tab-item>
+            </tabbed-view>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <p>The Tabbed View component consists of three main elements:</p>
+            <ul>
+                <li><code>tabbed-view</code>: The main container component</li>
+                <li><code>tab-panel</code>: Individual content panels</li>
+                <li><code>tab-item</code>: Optional items displayed in the tab header</li>
+            </ul>
+
+            <h4>Basic Structure</h4>
+            <pre><code class="language-html">&lt;tabbed-view&gt;
+    &lt;tab-panel label="Tab 1"&gt;
+        Content for first tab
+    &lt;/tab-panel&gt;
+    &lt;tab-panel label="Tab 2"&gt;
+        Content for second tab
+    &lt;/tab-panel&gt;
+&lt;/tabbed-view&gt;</code></pre>
+
+            <h4>With Tab Items</h4>
+            <pre><code class="language-html">&lt;tabbed-view&gt;
+    &lt;tab-panel label="Settings"&gt;
+        Settings content
+    &lt;/tab-panel&gt;
+    &lt;tab-item&gt;
+        &lt;button&gt;Action Button&lt;/button&gt;
+    &lt;/tab-item&gt;
+&lt;/tabbed-view&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <h4>Tab Panel Properties</h4>
+            <table class="properties-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>label</td>
+                        <td>string</td>
+                        <td>The text displayed in the tab header</td>
+                    </tr>
+                    <tr>
+                        <td>active</td>
+                        <td>boolean</td>
+                        <td>Indicates if the panel is currently active/visible</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <p>The Tabbed View component can be customized using CSS variables:</p>
+            
+            <table class="properties-table">
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--tab-content-bg-color</td>
+                        <td>#ffffff</td>
+                        <td>Background color of the tab content area</td>
+                    </tr>
+                    <tr>
+                        <td>--tab-inactive-bg-color</td>
+                        <td>#f5f5f5</td>
+                        <td>Background color of inactive tabs</td>
+                    </tr>
+                    <tr>
+                        <td>--tab-active-bg-color</td>
+                        <td>#ffffff</td>
+                        <td>Background color of the active tab</td>
+                    </tr>
+                    <tr>
+                        <td>--tab-color</td>
+                        <td>#333333</td>
+                        <td>Text color of the tabs</td>
+                    </tr>
+                    <tr>
+                        <td>--tab-border-color</td>
+                        <td>#dddddd</td>
+                        <td>Border color for tabs</td>
+                    </tr>
+                    <tr>
+                        <td>--tab-active-border-color</td>
+                        <td>#ff6b00</td>
+                        <td>Border color for the active tab</td>
+                    </tr>
+                    <tr>
+                        <td>--tab-padding</td>
+                        <td>10px</td>
+                        <td>Padding for tab headers and items</td>
+                    </tr>
+                    <tr>
+                        <td>--tab-font-size</td>
+                        <td>9pt</td>
+                        <td>Font size for tab headers</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Example Styling</h4>
+            <pre><code class="language-css">tabbed-view {
+    --tab-content-bg-color: #ffffff;
+    --tab-inactive-bg-color: #f5f5f5;
+    --tab-active-bg-color: #ffffff;
+    --tab-color: #333333;
+    --tab-border-color: #dddddd;
+    --tab-active-border-color: #ff6b00;
+    --tab-padding: 10px;
+    --tab-font-size: 9pt;
+}</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Features">
+        <div slot="content">
+            <ul>
+                <li><strong>Sticky Headers:</strong> Tab headers remain fixed at the top while scrolling</li>
+                <li><strong>Dynamic Content:</strong> Supports dynamic loading and updating of tab content</li>
+                <li><strong>Custom Tab Items:</strong> Add custom elements to the tab header area</li>
+                <li><strong>Responsive Design:</strong> Adapts to different screen sizes</li>
+                <li><strong>Customizable Styling:</strong> Extensive CSS variable support for theming</li>
+            </ul>
+        </div>
+    </accordion-component>
+</div> 

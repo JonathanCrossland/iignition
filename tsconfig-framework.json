@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "lib": ["es6","es2017","dom"],
+        "target": "es6",
+        "outFile": "dist/ii.js",
+        "sourceMap": true,
+        // "moduleResolution": "node",
+    },
+    "files": [
+        "src_framework/Header.ts",
+        "src_framework/Options.ts",
+        "src_framework/Console.ts",
+        "src_framework/Events.ts",
+        "src_framework/Data.ts",
+        "src_framework/RoutingUtility.ts",
+        "src_framework/RouteHandler.ts",
+        "src_framework/ControllerHandler.ts",
+        "src_framework/Controller.ts",
+        "src_framework/Runtime.ts",
+        "src_framework/State.ts",
+        "src_framework/Context.ts",
+        "src_framework/Splash.ts",
+        "src_framework/Extensions/FormExtension.ts",
+        "src_framework/RouteExtension.ts",
+        "src_framework/Extensions/ViewExtension.ts",
+        "src_framework/Extensions/ControllerExtension.ts",
+        "src_framework/iignition.ts",
+    ]
+}

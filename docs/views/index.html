@@ -1,0 +1,226 @@
+<div class="banner">
+    <div class="banner-content">
+        <h2>Documentation</h2>
+        <p>Learn how to use iignition components in your projects</p>
+    </div>
+</div>
+
+<div class="components-section">
+    <h2>Getting Started</h2>
+    <p class="section-description">Quick guides and examples to help you get started with iignition</p>
+    
+    <div class="components-grid">
+        <div class="component-card">
+            <h3>Installation</h3>
+            <p>Learn how to install and set up iignition in your project</p>
+            <a href="#!views/framework/installation.html" data-container="" class="button button-outline"><span>View Guide</span></a>
+        </div>
+
+        <div class="component-card">
+            <h3>Basic Usage</h3>
+            <p>Understand the core concepts and basic usage patterns</p>
+            <a href="#!views/framework/basicusage.html" data-container="" class="button button-outline"><span>View Guide</span></a>
+        </div>
+
+        <div class="component-card">
+            <h3>Data</h3>
+            <p>Learn how to manage and pass data between views</p>
+            <a href="#!views/framework/data.html" data-container="" class="button button-outline"><span>View Guide</span></a>
+        </div>
+
+        <div class="component-card">
+            <h3>Splash</h3>
+            <p>Create engaging loading and transition screens</p>
+            <a href="#!views/framework/splash.html" data-container="" class="button button-outline"><span>View Guide</span></a>
+        </div>
+    </div>
+</div>
+
+<div class="components-section">
+    <h2>Ignite Your Development</h2>
+    <p class="section-description">A blazing-fast collection of modern, customizable web components</p>
+    
+    <div class="components-grid">
+        <div class="component-card">
+            <h3>Accordion</h3>
+            <p>Expandable and collapsible content sections</p>
+            <a href="#!views/components/accordion.html" data-container="" class="button button-outline"><span>View Component</span></a>
+        </div>
+
+        <div class="component-card">
+            <h3>Split View</h3>
+            <p>Resizable split views for your layouts</p>
+            <a href="#!views/components/splitview.html" data-container="" class="button button-outline"><span>View Component</span></a>
+        </div>
+
+        <div class="component-card">
+            <h3>Document Map</h3>
+            <p>Interactive document navigation</p>
+            <a href="#!views/components/documentmap.html" data-container="" class="button button-outline"><span>View Component</span></a>
+        </div>
+
+        <div class="component-card">
+            <h3>Modal Dialog</h3>
+            <p>Flexible modal windows</p>
+            <a href="#!views/components/modaldialog.html" data-container="" class="button button-outline"><span>View Component</span></a>
+        </div>
+
+        <div class="component-card">
+            <h3>Floating Button</h3>
+            <p>Action button with animations</p>
+            <a href="#!views/components/floatingbutton.html" data-container="" class="button button-outline"><span>View Component</span></a>
+        </div>
+
+        <div class="component-card">
+            <h3>Knob</h3>
+            <p>Interactive rotary control</p>
+            <a href="#!views/components/knob.html" data-container="" class="button button-outline"><span>View Component</span></a>
+        </div>
+
+        <div class="component-card">
+            <h3>Toggle Switch</h3>
+            <p>Modern toggle switches</p>
+            <a href="#!views/components/toggleswitch.html" data-container="" class="button button-outline"><span>View Component</span></a>
+        </div>
+
+        <div class="component-card">
+            <h3>Progress Bar</h3>
+            <p>Dynamic progress indicators</p>
+            <a href="#!views/components/progressbar.html" data-container="" class="button button-outline"><span>View Component</span></a>
+        </div>
+
+        <div class="component-card">
+            <h3>Password Checker</h3>
+            <p>Password strength validation</p>
+            <a href="#!views/components/passwordchecker.html" data-container="" class="button button-outline"><span>View Component</span></a>
+        </div>
+
+        <div class="component-card">
+            <h3>Data Table</h3>
+            <p>Sortable and responsive tables</p>
+            <a href="#!views/components/datatable.html" data-container="" class="button button-outline"><span>View Component</span></a>
+        </div>
+
+        <div class="component-card">
+            <h3>Countdown Timer</h3>
+            <p>Customizable countdown timers</p>
+            <a href="#!views/components/countdowntimer.html" data-container="" class="button button-outline"><span>View Component</span></a>
+        </div>
+
+        <div class="component-card">
+            <h3>Rating</h3>
+            <p>Interactive rating system</p>
+            <a href="#!views/components/rating.html" data-container="" class="button button-outline"><span>View Component</span></a>
+        </div>
+
+        <div class="component-card">
+            <h3>Tabbed View</h3>
+            <p>Dynamic tabbed interface with sticky headers</p>
+            <a href="#!views/components/tabbedview.html" data-container="" class="button button-outline"><span>View Component</span></a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .banner {
+        background-color: var(--color-primary);
+        color: white;
+        padding: var(--spacing-xl);
+        border-radius: var(--border-radius-md);
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .banner-content {
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .banner h2 {
+        font-size: 2.5rem;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .components-section {
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .section-description {
+        color: var(--color-text-light);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .components-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: var(--spacing-lg);
+    }
+
+    .component-card {
+        background-color: var(--color-card-bg);
+        border-radius: var(--border-radius-md);
+        padding: var(--spacing-lg);
+        transition: transform 0.3s var(--animation-timing);
+    }
+
+    .component-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .component-card h3 {
+        color: var(--color-primary);
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .component-card p {
+        color: var(--color-text-light);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .components-section {
+        padding: var(--spacing-xl) 0;
+        background: linear-gradient(to bottom, rgba(255, 214, 178, 0.1), transparent);
+    }
+
+    .components-section h2 {
+        text-align: center;
+        margin-bottom: var(--spacing-sm);
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .button-outline {
+        background-color: transparent;
+        color: var(--color-primary);
+        border: 2px solid var(--color-primary);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .button-outline::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 107, 0, 0.1), transparent);
+        transition: left 0.5s;
+    }
+
+    .button-outline:hover::before {
+        left: 100%;
+    }
+
+    .button-outline:hover {
+        background-color: var(--color-primary);
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .components-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

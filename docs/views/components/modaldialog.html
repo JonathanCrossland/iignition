@@ -1,0 +1,188 @@
+<div class="component-content">
+    <h2>Modal Dialog Component</h2>
+    <p class="component-description">A flexible modal dialog component that can be used to display content, forms, or confirmations.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <div class="example-container">
+                <modal-dialog visible="true" buttons="ok,cancel">
+                    <p>This is a modal dialog.</p>
+                </modal-dialog>
+            </div>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <pre><code class="language-html">&lt;modal-dialog visible="true" buttons="ok,cancel"&gt;
+    &lt;p&gt;Your content here&lt;/p&gt;
+&lt;/modal-dialog&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>visible</td>
+                        <td>boolean</td>
+                        <td>Controls the visibility of the modal</td>
+                    </tr>
+                    <tr>
+                        <td>buttons</td>
+                        <td>string</td>
+                        <td>Comma-separated list of buttons to show (ok, cancel, close)</td>
+                    </tr>
+                    <tr>
+                        <td>title</td>
+                        <td>string</td>
+                        <td>Title displayed in the modal header</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--modal-bg</td>
+                        <td>#252526</td>
+                        <td>Background color of the modal</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-color</td>
+                        <td>#cccccc</td>
+                        <td>Text color of the modal content</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-border-radius</td>
+                        <td>8px</td>
+                        <td>Border radius of the modal</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-padding</td>
+                        <td>1em</td>
+                        <td>Padding inside the modal</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-shadow</td>
+                        <td>0 4px 6px rgba(0, 0, 0, 0.3)</td>
+                        <td>Box shadow of the modal</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-overlay-bg</td>
+                        <td>rgba(0, 0, 0, 0.4)</td>
+                        <td>Background color of the overlay</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-button-bg</td>
+                        <td>#0098fd</td>
+                        <td>Background color of primary buttons</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-button-color</td>
+                        <td>#ffffff</td>
+                        <td>Text color of primary buttons</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-button-hover-bg</td>
+                        <td>#0098fd</td>
+                        <td>Background color of primary buttons on hover</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-button-cancel-bg</td>
+                        <td>#313131</td>
+                        <td>Background color of cancel buttons</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-button-cancel-hover-bg</td>
+                        <td>#464646</td>
+                        <td>Background color of cancel buttons on hover</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-title-color</td>
+                        <td>#9b9b9b</td>
+                        <td>Color of the modal title</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-close-color</td>
+                        <td>#cccccc</td>
+                        <td>Color of the close button</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-close-hover-color</td>
+                        <td>#0098fd</td>
+                        <td>Color of the close button on hover</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-header-bg</td>
+                        <td>#363636</td>
+                        <td>Background color of the modal header</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-button-border-color</td>
+                        <td>transparent</td>
+                        <td>Border color of primary buttons</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-button-hover-border-color</td>
+                        <td>transparent</td>
+                        <td>Border color of primary buttons on hover</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-button-cancel-border-color</td>
+                        <td>transparent</td>
+                        <td>Border color of cancel buttons</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-button-cancel-hover-border-color</td>
+                        <td>transparent</td>
+                        <td>Border color of cancel buttons on hover</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+</div>
+
+<style>
+    :root {
+        --modal-bg: #252526;
+        --modal-color: #cccccc;
+        --modal-border-radius: 8px;
+        --modal-padding: 1em;
+        --modal-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        --modal-overlay-bg: rgba(0, 0, 0, 0.4);
+        --modal-button-bg: #0098fd;
+        --modal-button-color: #ffffff;
+        --modal-button-hover-bg: #0098fd;
+        --modal-button-cancel-bg: #313131;
+        --modal-button-cancel-hover-bg: #464646;
+        --modal-title-color: #9b9b9b;
+        --modal-close-color: #cccccc;
+        --modal-close-hover-color: #0098fd;
+        --modal-header-bg: #363636;
+        --modal-button-border-color: transparent;
+        --modal-button-hover-border-color: transparent;
+        --modal-button-cancel-border-color: transparent;
+        --modal-button-cancel-hover-border-color: transparent;
+    }
+</style>

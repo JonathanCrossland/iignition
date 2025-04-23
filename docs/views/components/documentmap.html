@@ -1,0 +1,318 @@
+<style>
+    document-map {
+        /* Base colors */
+        --document-map-bg: transparent;
+        --document-map-bg-light: #252526;
+        --document-map-border: transparent;
+        --document-map-text: #cccccc;
+        --document-map-text-muted: #666;
+        --document-map-accent: #3498db;
+        --document-map-error: #e74c3c;
+
+        /* Layout */
+        --document-map-gap: 20px;
+        --document-map-padding: 20px;
+        --document-map-title-padding: 8px;
+        --document-map-content-padding: 8px;
+
+        /* Page dimensions */
+        --document-map-page-width: 200px;
+        --document-map-page-height: 300px;
+        --document-map-border-radius: 4px;
+        --document-map-content-bg: rgb(58, 58, 58);
+        --document-map-page-border: #3c3c3c;
+        --document-map-page-border-hover: #3498db;
+
+        /* Typography */
+        --document-map-font-size: 10px;
+        --document-map-line-height: 1.4;
+
+        /* Effects */
+        --document-map-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        --document-map-shadow-hover: 0 4px 8px rgba(0,0,0,0.2);
+
+        width: 100%;
+        height: 100%;
+    }
+</style>
+
+<div class="component-content">
+    <h2>Document Map Component</h2>
+    <p class="component-description">A component that displays a grid of document pages with configurable layout, loading states, and interactive features.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <div class="example-container">
+                <h4>Basic Document Map</h4>
+                <document-map id="map"></document-map>
+            </div>
+            <div class="example-container">
+                <h4>Document Map with Titles</h4>
+                <document-map id="map" show-title></document-map>
+            </div>
+            <div class="example-container">
+                <h4>Custom Styled Document Map</h4>
+                <document-map id="map" class="custom-map"></document-map>
+            </div>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <pre><code class="language-html">&lt;!-- Basic Document Map --&gt;
+&lt;document-map&gt;&lt;/document-map&gt;
+
+&lt;!-- Document Map with Titles --&gt;
+&lt;document-map show-title&gt;&lt;/document-map&gt;
+
+&lt;!-- Custom Styled Document Map --&gt;
+&lt;document-map class="custom-map"&gt;&lt;/document-map&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>show-title</td>
+                        <td>boolean</td>
+                        <td>false</td>
+                        <td>Whether to display page titles</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Methods">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Parameters</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>configure</td>
+                        <td>config: Partial&lt;DocumentMapConfig&gt;</td>
+                        <td>Configures the document map with custom settings</td>
+                    </tr>
+                    <tr>
+                        <td>loadData</td>
+                        <td>xmlDoc: XMLDocument</td>
+                        <td>Loads and displays document data from XML</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Configuration">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>pageConfig.selector</td>
+                        <td>string</td>
+                        <td>'page'</td>
+                        <td>Selector for page elements in XML</td>
+                    </tr>
+                    <tr>
+                        <td>pageConfig.titleSelector</td>
+                        <td>string</td>
+                        <td>'chapter'</td>
+                        <td>Selector for page titles in XML</td>
+                    </tr>
+                    <tr>
+                        <td>pageConfig.contentSelector</td>
+                        <td>string</td>
+                        <td>'paragraph'</td>
+                        <td>Selector for page content in XML</td>
+                    </tr>
+                    <tr>
+                        <td>onPageClick</td>
+                        <td>function</td>
+                        <td>undefined</td>
+                        <td>Callback when a page is clicked</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--document-map-bg</td>
+                        <td>transparent</td>
+                        <td>Background color</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-bg-light</td>
+                        <td>#252526</td>
+                        <td>Lighter background color variant</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-border</td>
+                        <td>transparent</td>
+                        <td>Border color</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-text</td>
+                        <td>#cccccc</td>
+                        <td>Text color</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-text-muted</td>
+                        <td>#666</td>
+                        <td>Muted text color</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-accent</td>
+                        <td>#3498db</td>
+                        <td>Accent color</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-error</td>
+                        <td>#e74c3c</td>
+                        <td>Error color</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-gap</td>
+                        <td>20px</td>
+                        <td>Gap between pages</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-padding</td>
+                        <td>20px</td>
+                        <td>Container padding</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-title-padding</td>
+                        <td>8px</td>
+                        <td>Title padding</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-content-padding</td>
+                        <td>8px</td>
+                        <td>Content padding</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-page-width</td>
+                        <td>200px</td>
+                        <td>Page width</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-page-height</td>
+                        <td>300px</td>
+                        <td>Page height</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-border-radius</td>
+                        <td>4px</td>
+                        <td>Border radius</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-content-bg</td>
+                        <td>rgb(58, 58, 58)</td>
+                        <td>Content background color</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-page-border</td>
+                        <td>#3c3c3c</td>
+                        <td>Page border color</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-page-border-hover</td>
+                        <td>#3498db</td>
+                        <td>Page border color on hover</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-font-size</td>
+                        <td>10px</td>
+                        <td>Font size</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-line-height</td>
+                        <td>1.4</td>
+                        <td>Line height</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-shadow</td>
+                        <td>0 2px 4px rgba(0,0,0,0.1)</td>
+                        <td>Box shadow</td>
+                    </tr>
+                    <tr>
+                        <td>--document-map-shadow-hover</td>
+                        <td>0 4px 8px rgba(0,0,0,0.2)</td>
+                        <td>Box shadow on hover</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+</div>
+
+<style>
+    :root {
+        --document-map-bg: transparent;
+        --document-map-bg-light: #252526;
+        --document-map-border: transparent;
+        --document-map-text: #cccccc;
+        --document-map-text-muted: #666;
+        --document-map-accent: #3498db;
+        --document-map-error: #e74c3c;
+        --document-map-gap: 20px;
+        --document-map-padding: 20px;
+        --document-map-title-padding: 8px;
+        --document-map-content-padding: 8px;
+        --document-map-page-width: 200px;
+        --document-map-page-height: 300px;
+        --document-map-border-radius: 4px;
+        --document-map-content-bg: rgb(58, 58, 58);
+        --document-map-page-border: #3c3c3c;
+        --document-map-page-border-hover: #3498db;
+        --document-map-font-size: 10px;
+        --document-map-line-height: 1.4;
+        --document-map-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        --document-map-shadow-hover: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .custom-map {
+        --document-map-bg: var(--color-card-bg);
+        --document-map-text: var(--color-text);
+        --document-map-page-width: 250px;
+        --document-map-page-height: 350px;
+        --document-map-gap: 15px;
+        --document-map-padding: 15px;
+    }
+</style>

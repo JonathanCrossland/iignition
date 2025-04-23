@@ -1,0 +1,114 @@
+<div class="component-content">
+    <h2>Basic Usage</h2>
+    <p class="component-description">Learn how to use iignition's core features and components in your web applications.</p>
+
+    <accordion-component title="Core Concepts" open="true">
+        <div slot="content">
+            <h4>View Containers</h4>
+            <p>View containers are the foundation of iignition applications. They allow you to:</p>
+            <ul>
+                <li>Load content dynamically into specific areas</li>
+                <li>Create single-page application behavior</li>
+                <li>Manage content state and transitions</li>
+            </ul>
+            <pre><code class="language-html">&lt;div data-viewcontainer="main"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+    // Load content into the container
+    $i.show('#!views/content.html', 'main');
+&lt;/script&gt;</code></pre>
+
+            <h4>Navigation</h4>
+            <p>iignition provides two ways to navigate between views:</p>
+            <ul>
+                <li>Using hash-based URLs with <code>#!</code> prefix</li>
+                <li>Using the <code>data-link</code> attribute on elements</li>
+            </ul>
+            <pre><code class="language-html">&lt;!-- Hash-based navigation --&gt;
+&lt;a href="#!views/page.html"&gt;Go to Page&lt;/a&gt;
+
+&lt;!-- Data attribute navigation --&gt;
+&lt;button data-link="views/page.html"&gt;Go to Page&lt;/button&gt;</code></pre>
+
+            <h4>Data Handling</h4>
+            <p>You can pass data between views using:</p>
+            <ul>
+                <li>URL parameters</li>
+                <li>State management</li>
+                <li>View events</li>
+            </ul>
+            <pre><code class="language-javascript">// Pass data via URL
+$i.show('#!views/page.html?id=123', 'main');
+
+// Pass data via state
+$i.show('#!views/page.html', 'main', { id: 123 });</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Using Components">
+        <div slot="content">
+            <h4>Component Integration</h4>
+            <p>iignition components are web components that can be used directly in your HTML:</p>
+            <pre><code class="language-html">&lt;!-- Using an accordion component --&gt;
+&lt;accordion-component title="My Section"&gt;
+    &lt;div slot="content"&gt;
+        Content goes here
+    &lt;/div&gt;
+&lt;/accordion-component&gt;
+
+&lt;!-- Using a modal dialog --&gt;
+&lt;modal-dialog title="My Dialog"&gt;
+    &lt;div slot="content"&gt;
+        Dialog content
+    &lt;/div&gt;
+&lt;/modal-dialog&gt;</code></pre>
+
+            <h4>Component Customization</h4>
+            <p>Components can be customized using:</p>
+            <ul>
+                <li>CSS variables for styling</li>
+                <li>Attributes for behavior</li>
+                <li>Events for interactivity</li>
+            </ul>
+            <pre><code class="language-css">/* Customize component appearance */
+my-component {
+    --component-bg: #ffffff;
+    --component-color: #000000;
+}</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Best Practices">
+        <div slot="content">
+            <h4>Project Structure</h4>
+            <p>Organize your project with a clear structure:</p>
+            <pre><code class="language-plaintext">project/
+├── js/
+│   ├── ii.js
+│   └── ii_components.js
+├── css/
+│   └── styles.css
+├── views/
+│   ├── header.html
+│   ├── nav.html
+│   └── content/
+└── index.html</code></pre>
+
+            <h4>Performance Tips</h4>
+            <ul>
+                <li>Use view containers efficiently</li>
+                <li>Implement proper error handling</li>
+                <li>Cache frequently used views</li>
+                <li>Optimize component usage</li>
+            </ul>
+
+            <h4>Common Patterns</h4>
+            <ul>
+                <li>Create reusable view templates</li>
+                <li>Implement consistent navigation patterns</li>
+                <li>Use event delegation for dynamic content</li>
+                <li>Follow component lifecycle best practices</li>
+            </ul>
+        </div>
+    </accordion-component>
+</div> 

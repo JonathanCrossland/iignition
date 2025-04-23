@@ -1,0 +1,174 @@
+<div class="component-content">
+    <h2>Progress Bar Component</h2>
+    <p class="component-description">A progress bar component that displays the progress of a task or operation, with support for different colors and indeterminate state.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <div class="example-container">
+                <h4>Basic Progress Bar</h4>
+                <progress-bar value="75" max="100"></progress-bar>
+            </div>
+            <div class="example-container">
+                <h4>Indeterminate Progress Bar</h4>
+                <progress-bar indeterminate></progress-bar>
+            </div>
+            <div class="example-container">
+                <h4>Custom Progress Bar</h4>
+                <progress-bar value="30" max="100" class="custom-progress"></progress-bar>
+            </div>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <pre><code class="language-html">&lt;!-- Basic Progress Bar --&gt;
+&lt;progress-bar value="75" max="100"&gt;&lt;/progress-bar&gt;
+
+&lt;!-- Indeterminate Progress Bar --&gt;
+&lt;progress-bar indeterminate&gt;&lt;/progress-bar&gt;
+
+&lt;!-- Custom Progress Bar --&gt;
+&lt;progress-bar value="30" max="100" class="custom-progress"&gt;&lt;/progress-bar&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>value</td>
+                        <td>number</td>
+                        <td>0</td>
+                        <td>Current progress value</td>
+                    </tr>
+                    <tr>
+                        <td>max</td>
+                        <td>number</td>
+                        <td>100</td>
+                        <td>Maximum progress value</td>
+                    </tr>
+                    <tr>
+                        <td>indeterminate</td>
+                        <td>boolean</td>
+                        <td>false</td>
+                        <td>Whether the progress bar is in indeterminate state</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Methods">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Parameters</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>setValue</td>
+                        <td>value: number</td>
+                        <td>Sets the current progress value</td>
+                    </tr>
+                    <tr>
+                        <td>setMax</td>
+                        <td>max: number</td>
+                        <td>Sets the maximum progress value</td>
+                    </tr>
+                    <tr>
+                        <td>setIndeterminate</td>
+                        <td>indeterminate: boolean</td>
+                        <td>Sets whether the progress bar is in indeterminate state</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--progress-height</td>
+                        <td>4px</td>
+                        <td>Height of the progress bar</td>
+                    </tr>
+                    <tr>
+                        <td>--progress-bg</td>
+                        <td>var(--color-border)</td>
+                        <td>Background color of the progress bar</td>
+                    </tr>
+                    <tr>
+                        <td>--progress-color</td>
+                        <td>var(--color-primary)</td>
+                        <td>Color of the progress indicator</td>
+                    </tr>
+                    <tr>
+                        <td>--progress-border-radius</td>
+                        <td>2px</td>
+                        <td>Border radius of the progress bar</td>
+                    </tr>
+                    <tr>
+                        <td>--progress-transition</td>
+                        <td>0.2s ease</td>
+                        <td>Transition animation for progress changes</td>
+                    </tr>
+                    <tr>
+                        <td>--progress-indeterminate-animation</td>
+                        <td>progress-indeterminate 2s linear infinite</td>
+                        <td>Animation for indeterminate state</td>
+                    </tr>
+                    <tr>
+                        <td>--progress-text-color</td>
+                        <td>var(--color-text)</td>
+                        <td>Color of the progress text</td>
+                    </tr>
+                    <tr>
+                        <td>--progress-text-size</td>
+                        <td>var(--font-size-sm)</td>
+                        <td>Size of the progress text</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+</div>
+
+<style>
+    :root {
+        --progress-height: 4px;
+        --progress-bg: var(--color-border);
+        --progress-color: var(--color-primary);
+        --progress-border-radius: 2px;
+        --progress-transition: 0.2s ease;
+        --progress-indeterminate-animation: progress-indeterminate 2s linear infinite;
+        --progress-text-color: var(--color-text);
+        --progress-text-size: var(--font-size-sm);
+    }
+
+    .custom-progress {
+        --progress-color: var(--color-warning);
+        --progress-bg: var(--color-warning-light);
+    }
+</style>

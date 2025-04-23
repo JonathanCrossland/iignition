@@ -1,0 +1,104 @@
+<div class="component-content">
+    <h2>Data Handling</h2>
+    <p class="component-description">iignition provides a powerful data handling system with a wrapper around the Fetch API for making HTTP requests and managing data.</p>
+
+    <accordion-component title="Fetch Wrapper" open="true">
+        <div slot="content">
+            <h4>Basic Usage</h4>
+            <p>The <code>$i.fetch()</code> method provides a simplified interface for making HTTP requests:</p>
+            <pre><code class="language-javascript">// GET request
+$i.fetch('/api/users')
+    .then(response => console.log(response))
+    .catch(error => console.error(error));
+
+// POST request with data
+$i.fetch('/api/users', {
+    method: 'POST',
+    body: JSON.stringify({ name: 'John' })
+})
+    .then(response => console.log(response))
+    .catch(error => console.error(error));</code></pre>
+
+            <h4>Fetch Options</h4>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Option</th>
+                        <th>Description</th>
+                        <th>Default</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>method</td>
+                        <td>HTTP method (GET, POST, PUT, DELETE, etc.)</td>
+                        <td>GET</td>
+                    </tr>
+                    <tr>
+                        <td>headers</td>
+                        <td>Request headers</td>
+                        <td>{}</td>
+                    </tr>
+                    <tr>
+                        <td>body</td>
+                        <td>Request body (automatically stringified if object)</td>
+                        <td>null</td>
+                    </tr>
+                    <tr>
+                        <td>timeout</td>
+                        <td>Request timeout in milliseconds</td>
+                        <td>30000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Data Management">
+        <div slot="content">
+            <h4>Data Store</h4>
+            <p>iignition provides a simple data store for managing application state:</p>
+            <pre><code class="language-javascript">// Set data
+$i.data.set('users', [{ id: 1, name: 'John' }]);
+
+// Get data
+const users = $i.data.get('users');
+
+// Update data
+$i.data.update('users', users => [...users, { id: 2, name: 'Jane' }]);
+
+// Remove data
+$i.data.remove('users');</code></pre>
+
+            <h4>Data Events</h4>
+            <p>Listen for data changes:</p>
+            <pre><code class="language-javascript">// Listen for data changes
+$i.data.on('change:users', (newData, oldData) => {
+    console.log('Users data changed:', newData);
+});
+
+// Listen for all data changes
+$i.data.on('change', (key, newData, oldData) => {
+    console.log(`${key} changed:`, newData);
+});</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Best Practices">
+        <div slot="content">
+            <h4>Data Organization</h4>
+            <ul>
+                <li>Use meaningful keys for data storage</li>
+                <li>Group related data under common prefixes</li>
+                <li>Keep data structures consistent</li>
+            </ul>
+
+            <h4>Performance Tips</h4>
+            <ul>
+                <li>Minimize data updates to reduce re-renders</li>
+                <li>Implement proper error handling for fetch requests</li>
+                <li>Use appropriate HTTP methods for different operations</li>
+            </ul>
+        </div>
+    </accordion-component>
+</div>

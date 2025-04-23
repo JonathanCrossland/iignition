@@ -1,0 +1,141 @@
+<div class="component-content">
+    <h2>View Containers</h2>
+    <p class="component-description">View containers are a core feature of iignition that enable dynamic content loading and navigation within your application.</p>
+
+    <accordion-component title="Overview" open="true">
+        <div slot="content">
+            <p>View containers allow you to:</p>
+            <ul>
+                <li>Dynamically load content into specific areas of your page</li>
+                <li>Create single-page application (SPA) behavior without complex routing</li>
+                <li>Manage content state and transitions</li>
+                <li>Implement deep linking and browser history</li>
+            </ul>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Basic Usage">
+        <div slot="content">
+            <h4>HTML Structure</h4>
+            <pre><code class="language-html">&lt;!-- Define a container in your HTML --&gt;
+&lt;div data-viewcontainer="main"&gt;&lt;/div&gt;
+
+&lt;!-- Load content into the container --&gt;
+&lt;script&gt;
+    $i.show('#!views/content.html', 'main');
+&lt;/script&gt;</code></pre>
+
+            <h4>Container Attributes</h4>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Attribute</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>data-viewcontainer</td>
+                        <td>Identifies the container for content loading</td>
+                    </tr>
+                    <tr>
+                        <td>data-persist</td>
+                        <td>Optional. If present, container content persists during navigation</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Navigation Links">
+        <div slot="content">
+            <h4>Link Structure</h4>
+            <p>Links in iignition follow this format:</p>
+            <pre><code class="language-html">&lt;a href="#!path/to/content.html"&gt;Link Text&lt;/a&gt;</code></pre>
+
+            <h4>Link Examples</h4>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Link Type</th>
+                        <th>Example</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Basic View</td>
+                        <td>#!views/home.html</td>
+                        <td>Loads content into the default container</td>
+                    </tr>
+                    <tr>
+                        <td>Specific Container</td>
+                        <td>#!views/content.html|sidebar</td>
+                        <td>Loads content into the 'sidebar' container</td>
+                    </tr>
+                    <tr>
+                        <td>Multiple Containers</td>
+                        <td>#!views/content.html|main,sidebar</td>
+                        <td>Loads content into multiple containers</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Advanced Usage">
+        <div slot="content">
+            <h4>Container Events</h4>
+            <pre><code class="language-javascript">// Listen for container events
+$i.on('container:loaded', (container, content) => {
+    console.log(`Content loaded into ${container}`);
+});
+
+$i.on('container:error', (container, error) => {
+    console.error(`Error loading content into ${container}:`, error);
+});</code></pre>
+
+            <h4>Container Methods</h4>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>$i.show(url, container)</td>
+                        <td>Loads content from URL into specified container</td>
+                    </tr>
+                    <tr>
+                        <td>$i.hide(container)</td>
+                        <td>Hides content in specified container</td>
+                    </tr>
+                    <tr>
+                        <td>$i.clear(container)</td>
+                        <td>Clears content from specified container</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Best Practices">
+        <div slot="content">
+            <h4>Container Organization</h4>
+            <ul>
+                <li>Use meaningful container names that describe their purpose</li>
+                <li>Keep container structure consistent across your application</li>
+                <li>Use data-persist for containers that should maintain state</li>
+            </ul>
+
+            <h4>Link Management</h4>
+            <ul>
+                <li>Use relative paths for internal links</li>
+                <li>Include container targets in links when needed</li>
+                <li>Test links in different navigation scenarios</li>
+            </ul>
+        </div>
+    </accordion-component>
+</div>

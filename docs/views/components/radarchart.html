@@ -1,0 +1,139 @@
+<div class="component-content">
+    <h2>Radar Chart</h2>
+    <p class="component-description">A customizable radar chart component that visualizes multi-dimensional data in a radial format, perfect for displaying metrics, skills, or comparative analysis.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <div class="example-container">
+                <h4>Basic Radar Chart</h4>
+                <radar-chart data="-0.5,1,0.5,0.8,0.3,0.9,0.7" style="width: 300px; height: 300px;"></radar-chart>
+            </div>
+
+            <div class="example-container">
+                <h4>Custom Styled Radar Chart</h4>
+                <radar-chart 
+                    data="0.8,0.6,0.9,0.7,0.5,0.4,0.8"
+                    style="
+                        width: 300px;
+                        height: 300px;
+                        --radar-grid: #444;
+                        --radar-axis: #666;
+                        --radar-line: #ff6b00;
+                        --radar-fill: rgba(255, 107, 0, 0.2);
+                    "
+                ></radar-chart>
+            </div>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <p>The Radar Chart component can be used to visualize multi-dimensional data on a radial grid. Each axis represents a different metric, and the data points are connected to form a polygon.</p>
+            
+            <pre><code class="language-html">&lt;!-- Basic Radar Chart --&gt;
+&lt;radar-chart data="-0.5,1,0.5,0.8,0.3,0.9,0.7"&gt;&lt;/radar-chart&gt;
+
+&lt;!-- Custom Styled Radar Chart --&gt;
+&lt;radar-chart 
+    data="0.8,0.6,0.9,0.7,0.5,0.4,0.8"
+    style="
+        --grid-line-color: #444;
+        --axis-line-color: #666;
+        --data-line-color: #ff6b00;
+        --data-fill-color: rgba(255, 107, 0, 0.2);
+    "&gt;
+&lt;/radar-chart&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>data</td>
+                        <td>string</td>
+                        <td>Comma-separated values between -1 and 1 representing the data points for each axis</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Default Labels</h4>
+            <p>The component comes with default labels that can be customized through the component's code:</p>
+            <ul>
+                <li>Agile</li>
+                <li>Minimal</li>
+                <li>Maintainable</li>
+                <li>Environmental</li>
+                <li>Reachable</li>
+                <li>Solvable</li>
+                <li>Extensible</li>
+            </ul>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <p>The Radar Chart component can be customized using CSS variables:</p>
+            
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--radar-bg</td>
+                        <td>#fff</td>
+                        <td>Background color of the chart</td>
+                    </tr>
+                    <tr>
+                        <td>--radar-grid</td>
+                        <td>#ccc</td>
+                        <td>Color of the grid lines</td>
+                    </tr>
+                    <tr>
+                        <td>--radar-axis</td>
+                        <td>#000</td>
+                        <td>Color of the axis lines</td>
+                    </tr>
+                    <tr>
+                        <td>--radar-label</td>
+                        <td>#000</td>
+                        <td>Color of the axis labels</td>
+                    </tr>
+                    <tr>
+                        <td>--radar-line</td>
+                        <td>green</td>
+                        <td>Color of the data polygon outline</td>
+                    </tr>
+                    <tr>
+                        <td>--radar-fill</td>
+                        <td>rgba(0, 255, 0, 0.5)</td>
+                        <td>Fill color of the data polygon</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Example Styling</h4>
+            <pre><code class="language-css">:root {
+    --radar-bg: #1e1e1e;
+    --radar-grid: #444;
+    --radar-axis: #666;
+    --radar-label: #fff;
+    --radar-line: #ff6b00;
+    --radar-fill: rgba(255, 107, 0, 0.2);
+}</code></pre>
+        </div>
+    </accordion-component>
+</div> 

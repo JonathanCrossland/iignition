@@ -1,0 +1,119 @@
+<div class="component-content">
+    <h2>Toggle Switch Component</h2>
+    <p class="component-description">A toggle switch component that allows users to switch between two states, commonly used for enabling/disabling features or settings.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <div class="example-container">
+                <toggle-switch checked></toggle-switch>
+            </div>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <pre><code class="language-html">&lt;toggle-switch checked&gt;&lt;/toggle-switch&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>checked</td>
+                        <td>boolean</td>
+                        <td>Whether the switch is checked</td>
+                    </tr>
+                    <tr>
+                        <td>disabled</td>
+                        <td>boolean</td>
+                        <td>Whether the switch is disabled</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--toggle-width</td>
+                        <td>40px</td>
+                        <td>Width of the toggle switch</td>
+                    </tr>
+                    <tr>
+                        <td>--toggle-height</td>
+                        <td>20px</td>
+                        <td>Height of the toggle switch</td>
+                    </tr>
+                    <tr>
+                        <td>--toggle-bg</td>
+                        <td>var(--color-border)</td>
+                        <td>Background color when unchecked</td>
+                    </tr>
+                    <tr>
+                        <td>--toggle-checked-bg</td>
+                        <td>var(--color-primary)</td>
+                        <td>Background color when checked</td>
+                    </tr>
+                    <tr>
+                        <td>--toggle-disabled-bg</td>
+                        <td>var(--color-disabled)</td>
+                        <td>Background color when disabled</td>
+                    </tr>
+                    <tr>
+                        <td>--toggle-thumb-size</td>
+                        <td>16px</td>
+                        <td>Size of the thumb (circle)</td>
+                    </tr>
+                    <tr>
+                        <td>--toggle-thumb-bg</td>
+                        <td>var(--color-text-inverse)</td>
+                        <td>Background color of the thumb</td>
+                    </tr>
+                    <tr>
+                        <td>--toggle-border-radius</td>
+                        <td>10px</td>
+                        <td>Border radius of the switch</td>
+                    </tr>
+                    <tr>
+                        <td>--toggle-transition</td>
+                        <td>0.2s ease</td>
+                        <td>Transition animation</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+</div>
+
+<style>
+    :root {
+        --toggle-width: 40px;
+        --toggle-height: 20px;
+        --toggle-bg: var(--color-border);
+        --toggle-checked-bg: var(--color-primary);
+        --toggle-disabled-bg: var(--color-disabled);
+        --toggle-thumb-size: 16px;
+        --toggle-thumb-bg: var(--color-text-inverse);
+        --toggle-border-radius: 10px;
+        --toggle-transition: 0.2s ease;
+    }
+</style> 

@@ -1,0 +1,168 @@
+<div class="component-content">
+    <h2>Accordion Component</h2>
+    <p class="component-description">A collapsible content section that can be toggled to show or hide content.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <accordion-component title="Click Me!">
+                <p slot="content">This is the detailed content that was hidden but now is shown.</p>
+            </accordion-component>
+            <accordion-component title="Title!">
+                <p slot="content">This is second accordion.</p>
+            </accordion-component>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <pre><code class="language-html">&lt;accordion-component title="Your Title"&gt;
+    &lt;p slot="content"&gt;Your content here&lt;/p&gt;
+&lt;/accordion-component&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>title</td>
+                        <td>string</td>
+                        <td>The title displayed in the accordion header</td>
+                    </tr>
+                    <tr>
+                        <td>open</td>
+                        <td>boolean</td>
+                        <td>Whether the accordion is expanded by default</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--accordion-bg</td>
+                        <td>var(--color-card-bg)</td>
+                        <td>Background color of the accordion</td>
+                    </tr>
+                    <tr>
+                        <td>--accordion-header-bg</td>
+                        <td>var(--color-card-bg)</td>
+                        <td>Background color of the accordion header</td>
+                    </tr>
+                    <tr>
+                        <td>--accordion-text</td>
+                        <td>var(--color-text)</td>
+                        <td>Text color for accordion content</td>
+                    </tr>
+                    <tr>
+                        <td>--accordion-header-text</td>
+                        <td>white</td>
+                        <td>Text color for accordion header</td>
+                    </tr>
+                    <tr>
+                        <td>--accordion-border</td>
+                        <td>1px solid var(--color-border)</td>
+                        <td>Border style for the accordion</td>
+                    </tr>
+                    <tr>
+                        <td>--accordion-shadow</td>
+                        <td>0 2px 4px rgba(0,0,0,0.1)</td>
+                        <td>Box shadow for the accordion</td>
+                    </tr>
+                    <tr>
+                        <td>--accordion-hover-shadow</td>
+                        <td>none</td>
+                        <td>Box shadow on hover</td>
+                    </tr>
+                    <tr>
+                        <td>--accordion-padding</td>
+                        <td>var(--spacing-md)</td>
+                        <td>Padding for accordion sections</td>
+                    </tr>
+                    <tr>
+                        <td>--accordion-radius</td>
+                        <td>var(--border-radius-md)</td>
+                        <td>Border radius for accordion corners</td>
+                    </tr>
+                    <tr>
+                        <td>--accordion-transition</td>
+                        <td>all 0.3s ease</td>
+                        <td>Transition timing for animations</td>
+                    </tr>
+                    <tr>
+                        <td>--accordion-header-font-size</td>
+                        <td>var(--font-size-lg)</td>
+                        <td>Font size for the accordion header</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+</div>
+
+<style>
+    .component-content {
+        background-color: var(--color-card-bg);
+        border-radius: var(--border-radius-md);
+        padding: var(--spacing-lg);
+    }
+
+    .component-description {
+        color: var(--color-text-light);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .example-container {
+        background-color: var(--color-background);
+        padding: var(--spacing-lg);
+        border-radius: var(--border-radius-md);
+        margin-top: var(--spacing-md);
+    }
+
+    pre {
+        background: var(--color-background);
+        padding: var(--spacing-md);
+        border-radius: var(--border-radius-sm);
+        overflow-x: auto;
+    }
+
+    code {
+        color: var(--color-text);
+        font-family: monospace;
+    }
+
+    .props-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .props-table th,
+    .props-table td {
+        padding: var(--spacing-sm) var(--spacing-md);
+        text-align: left;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .props-table th {
+        color: var(--color-primary);
+    }
+</style>

@@ -1,0 +1,144 @@
+<rewrite>
+	<manuscript schema="script" contenteditable="false">
+				
+		<authordetails>
+			<author>Jane S. Doe (Jane Doe)</author>
+			<phone>+44 (0)0000 000 0000</phone>
+			<email>janedoe@domain.com</email>
+		</authordetails>
+		<wordcount>100 words</wordcount>
+		<titledetails>
+			<chapter>A Great New Novel</chapter>
+			<author>Jane S. Doe</author>
+		</titledetails>
+		<copyright>(C) Jane S. Doe</copyright>
+	</manuscript>
+	<page>
+		<chapter>I, Robot</chapter>
+		
+		<paragraph><tab></tab>
+		FADE IN:
+		</paragraph>
+		<paragraph><tab></tab>
+		1 On a DEEP...DEEP...DARKNESS. 1
+		A FLICKER. Of LIGHT. Off to the side. Just barely.
+		Noticeable. ORANGE...YELLOW...as we realise...Itís FIRE...
+		A SOUND. Something SHATTERING...
+		Then. A DISEMBODIED VOICE. Muted. We canít quite make out
+		What itís saying. As it gets LOUDER. And LOUDER. When we
+		finally. Understand...
+		</paragraph>
+		<paragraph><tab></tab>
+		DISEMBODIED VOICE
+		You are in danger...
+		</paragraph>
+		<paragraph><tab></tab>
+		CUT TO:
+		</paragraph>
+		<paragraph><tab></tab>
+		2 INT. SPOONERíS APARTMENT - CLOSE ON 2
+		DEL SPOONERíS FACE. His eyes, snapping open. His face,
+		covered in sweat.
+		PULL BACK to REVEAL him lying in bed. Sheets, tangled around
+		his legs. Alarm clock, playing something relentlessly
+		cheerful.
+		Spooner slaps it off. Sits up. Wincing. Bends his RIGHT
+		ARM. Stiff. He reaches for a BOTTLE OF PILLS. Shakes out a
+		couple and swallows them. Trying to forget. That dream.
+		You are in danger...
+		He rubs his hands over his face. Gets out of bed. His
+		apartment, basic. Unremarkable. Bearing the signs of
+		someone who lives alone. Shades drawn. A little messy.
+		</paragraph>
+		<paragraph><tab></tab>
+		3 INT. SHOWER - MORNING 3
+		Spooner turns his face into the jet of water.
+		</paragraph>
+		<paragraph><tab></tab>
+		4 INT. BATHROOM - MORNING 4
+		Shaves with a razor. Using his left hand. Knicks the cleft
+		of his chin. Shit.
+		</paragraph>
+		<paragraph><tab></tab>
+		5 INT. KITCHEN - MORNING 5
+		Stares down at the single egg in a saucepan. Waiting for it
+		to boil. 
+		</paragraph>
+	</page>
+    <page>
+        <chapter>I, Robot</chapter>
+        <paragraph>
+            <tab></tab>
+            FADE IN:
+        </paragraph>
+        
+    </page>
+
+    <page>
+        <chapter>I, Robot</chapter>
+        <paragraph>
+            <tab></tab>
+            FADE IN:
+        </paragraph>
+        
+    </page>
+
+    <page>
+        <chapter>I, Robot</chapter>
+        <paragraph>
+            <tab></tab>
+            FADE IN:
+        </paragraph>
+        
+    </page>
+    <page>
+        <chapter>I, Robot</chapter>
+        <paragraph>
+            <tab></tab>
+            FADE IN:
+        </paragraph>
+        
+    </page>
+    <page>
+        <chapter>I, Robot</chapter>
+        <paragraph>
+            <tab></tab>
+            FADE IN:
+        </paragraph>
+        
+    </page>
+    <page>
+        <chapter>I, Robot</chapter>
+        <paragraph>
+            <tab></tab>
+            FADE IN:
+        </paragraph>
+        
+    </page>
+    <page>
+        <chapter>I, Robot</chapter>
+        <paragraph>
+            <tab></tab>
+            FADE IN:
+        </paragraph>
+        
+    </page>
+    <page>
+        <chapter>I, Robot</chapter>
+        <paragraph>
+            <tab></tab>
+            FADE IN:
+        </paragraph>
+        
+    </page>
+    <page>
+        <chapter>I, Robot</chapter>
+        <paragraph>
+            <tab></tab>
+            FADE IN:
+        </paragraph>
+        
+    </page>
+
+
+</rewrite>

@@ -1,0 +1,166 @@
+<div class="component-content">
+    <h2>Split View Component</h2>
+    <p class="component-description">A component that creates resizable split views with customizable orientation and panel sizes.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <split-view window-padding="0" orientation="row" style="height: 30vh; width: 100%;">
+                <div slot="left" title="Left" min-width="250px" justify-content="center">
+                   left
+                </div>
+                <div slot="right" title="Right">
+                    right
+                </div>
+            </split-view>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <pre><code class="language-html">&lt;split-view window-padding="0" orientation="row" style="height: 30vh; width: 100%;"&gt;
+    &lt;div slot="left" title="Outline" min-width="250px" justify-content="center"&gt;
+        Left Panel Content
+    &lt;/div&gt;
+    &lt;div slot="right" title="Plotter"&gt;
+        Right Panel Content
+    &lt;/div&gt;
+&lt;/split-view&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>orientation</td>
+                        <td>string</td>
+                        <td>'row'</td>
+                        <td>Orientation of the split view ('row' or 'column')</td>
+                    </tr>
+                    <tr>
+                        <td>min-width</td>
+                        <td>string</td>
+                        <td>'100px'</td>
+                        <td>Minimum width for each panel</td>
+                    </tr>
+                    <tr>
+                        <td>window-padding</td>
+                        <td>string</td>
+                        <td>'0'</td>
+                        <td>Padding for the window content</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--split-view-bg</td>
+                        <td>#1e1e1e</td>
+                        <td>Background color of the split view</td>
+                    </tr>
+                    <tr>
+                        <td>--split-view-bg-light</td>
+                        <td>#252526</td>
+                        <td>Lighter background color variant</td>
+                    </tr>
+                    <tr>
+                        <td>--split-view-border</td>
+                        <td>#3c3c3c</td>
+                        <td>Border color</td>
+                    </tr>
+                    <tr>
+                        <td>--split-view-text</td>
+                        <td>#cccccc</td>
+                        <td>Text color</td>
+                    </tr>
+                    <tr>
+                        <td>--split-view-splitter</td>
+                        <td>rgb(54, 49, 49)</td>
+                        <td>Splitter background color</td>
+                    </tr>
+                    <tr>
+                        <td>--split-view-splitter-hover</td>
+                        <td>#007fd4</td>
+                        <td>Splitter hover color</td>
+                    </tr>
+                    <tr>
+                        <td>--split-view-scrollbar-thumb</td>
+                        <td>#424242</td>
+                        <td>Scrollbar thumb color</td>
+                    </tr>
+                    <tr>
+                        <td>--split-view-scrollbar-thumb-hover</td>
+                        <td>#4f4f4f</td>
+                        <td>Scrollbar thumb hover color</td>
+                    </tr>
+                    <tr>
+                        <td>--split-view-splitter-size</td>
+                        <td>4px</td>
+                        <td>Splitter size</td>
+                    </tr>
+                    <tr>
+                        <td>--split-view-splitter-hover-size</td>
+                        <td>8px</td>
+                        <td>Splitter hover size</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+</div>
+
+<style>
+    split-view {
+        --split-view-bg: #1e1e1e;
+        --split-view-bg-light: #252526;
+        --split-view-border: #3c3c3c;
+        --split-view-text: #cccccc;
+        --split-view-splitter: rgb(54, 49, 49); 
+        --split-view-splitter-hover: #007fd4;
+        --split-view-scrollbar-thumb: #424242;
+        --split-view-scrollbar-thumb-hover: #4f4f4f;
+        --split-view-splitter-size: 4px;
+        --split-view-splitter-hover-size: 8px;
+    }
+
+    .example-container {
+        margin-bottom: 2rem;
+    }
+
+    .example-container h4 {
+        margin-bottom: 1rem;
+    }
+
+    pre {
+        background: var(--split-view-bg-light);
+        padding: var(--spacing-md);
+        border-radius: var(--border-radius-sm);
+        overflow-x: auto;
+    }
+
+    code {
+        color: var(--split-view-text);
+        font-family: monospace;
+    }
+</style>

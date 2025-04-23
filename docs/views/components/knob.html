@@ -1,0 +1,118 @@
+<div class="component-content">
+    <h2>Knob Component</h2>
+    <p class="component-description">A rotary control component that allows users to adjust values by rotating a knob, commonly used for volume controls, brightness adjustments, and other continuous value inputs.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <div class="example-container">
+                <knob-component value="50" min="0" max="100"></knob-component>
+            </div>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <pre><code class="language-html">&lt;knob-component value="50" min="0" max="100"&gt;&lt;/knob-component&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>value</td>
+                        <td>number</td>
+                        <td>Current value of the knob</td>
+                    </tr>
+                    <tr>
+                        <td>min</td>
+                        <td>number</td>
+                        <td>Minimum value of the knob</td>
+                    </tr>
+                    <tr>
+                        <td>max</td>
+                        <td>number</td>
+                        <td>Maximum value of the knob</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--knob-size</td>
+                        <td>100px</td>
+                        <td>Size of the knob component</td>
+                    </tr>
+                    <tr>
+                        <td>--knob-track-width</td>
+                        <td>8px</td>
+                        <td>Width of the track circle</td>
+                    </tr>
+                    <tr>
+                        <td>--knob-track-color</td>
+                        <td>var(--color-border)</td>
+                        <td>Color of the track circle</td>
+                    </tr>
+                    <tr>
+                        <td>--knob-progress-color</td>
+                        <td>var(--color-primary)</td>
+                        <td>Color of the progress indicator</td>
+                    </tr>
+                    <tr>
+                        <td>--knob-handle-size</td>
+                        <td>12px</td>
+                        <td>Size of the handle indicator</td>
+                    </tr>
+                    <tr>
+                        <td>--knob-handle-color</td>
+                        <td>var(--color-text)</td>
+                        <td>Color of the handle indicator</td>
+                    </tr>
+                    <tr>
+                        <td>--knob-text-color</td>
+                        <td>var(--color-text)</td>
+                        <td>Color of the value text</td>
+                    </tr>
+                    <tr>
+                        <td>--knob-text-size</td>
+                        <td>var(--font-size-md)</td>
+                        <td>Size of the value text</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+</div>
+
+<style>
+    :root {
+        --knob-size: 100px;
+        --knob-track-width: 8px;
+        --knob-track-color: var(--color-border);
+        --knob-progress-color: var(--color-primary);
+        --knob-handle-size: 12px;
+        --knob-handle-color: var(--color-text);
+        --knob-text-color: var(--color-text);
+        --knob-text-size: var(--font-size-md);
+    }
+</style>

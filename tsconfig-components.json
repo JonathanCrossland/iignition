@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+      "lib": ["es6","es2017","dom"],
+      "target": "es6",
+      "outFile": "dist/ii_components.js",
+      "sourceMap": true,
+      "removeComments": false,
+      "preserveConstEnums": true
+  },
+  "include": [
+      "src_components/**/*.ts"
+  ]
+}

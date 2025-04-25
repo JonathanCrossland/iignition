@@ -57,21 +57,20 @@ module iignition
             })
         }
 
-        clickHandler(event){
-            console.info('Route Click Handler')
-          
-            var url = event.target.getAttribute('href')
-            if (url==null){
-                let node = event.target.closest('[data-link]');
-                url = node.getAttribute('data-link');
-            }
-            var container = event.target.getAttribute('data-container')
+        clickHandler(event) {
+            // Find the closest element with either href or data-link attribute
+            const link = event.target.closest('a[href], [data-link]');
+            if (!link) return;
+
+            // Get the URL from either href or data-link
+            const url = link.getAttribute('href') || link.getAttribute('data-link');
+            const container = link.getAttribute('data-container');
           
 
             let dataset = {data:{}};
-            Object.assign(dataset, event.target.dataset);
-            if (event.target.dataset.data){
-                dataset.data = JSON.parse(event.target.dataset.data);
+            Object.assign(dataset, link.dataset);
+            if (link.dataset.data){
+                dataset.data = JSON.parse(link.dataset.data);
             }
 
             const stateObj = { view: url, data: dataset.data, container: container };
@@ -85,7 +84,6 @@ module iignition
             $i.ControllerHandler.run(stateObj);
 
             event.preventDefault();
-
         }
 
         hashChangeHandler() {

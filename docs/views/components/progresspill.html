@@ -1,0 +1,158 @@
+<accordion-component title="Progress Pill" open="true">
+    <div slot="content">
+        <p>A pill-shaped progress indicator that shows both target and current value percentages. The component features two overlapping bars with different heights and colors, percentage labels, and an optional title.</p>
+
+        <div class="example-container">
+            <progress-pill 
+                title="Project Progress" 
+                target="75" 
+                value="60" 
+                show-title="true">
+            </progress-pill>
+        </div>
+        <div class="example-container">
+            <progress-pill 
+                title="Daily Word Target" 
+                target="250" 
+                value="185" 
+                show-title="true" 
+                size="80">
+            </progress-pill>
+        </div>
+    </div>
+</accordion-component>
+
+<accordion-component title="Usage">
+    <div slot="content">
+        <p>The progress-pill component can be used to visualize progress against a target. It consists of two overlapping bars - a base target bar and a taller value bar that shows the current progress.</p>
+        
+        <h3>Basic Usage</h3>
+        <pre><code class="language-html">&lt;progress-pill 
+    title="Project Progress" 
+    target="75" 
+    value="60" 
+    show-title="true"&gt;
+&lt;/progress-pill&gt;</code></pre>
+
+        <h3>With Custom Size</h3>
+        <pre><code class="language-html">&lt;progress-pill 
+    title="Task Completion" 
+    target="100" 
+    value="85" 
+    show-title="true" 
+    size="80"&gt;
+&lt;/progress-pill&gt;</code></pre>
+    </div>
+</accordion-component>
+
+<accordion-component title="Properties">
+    <div slot="content">
+        <table>
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>Type</th>
+                    <th>Default</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>title</td>
+                    <td>string</td>
+                    <td>''</td>
+                    <td>The text displayed below the progress pill</td>
+                </tr>
+                <tr>
+                    <td>target</td>
+                    <td>number</td>
+                    <td>0</td>
+                    <td>The target percentage (0-100)</td>
+                </tr>
+                <tr>
+                    <td>value</td>
+                    <td>number</td>
+                    <td>0</td>
+                    <td>The current value percentage (0-100)</td>
+                </tr>
+                <tr>
+                    <td>show-title</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                    <td>Whether to display the title below the pill</td>
+                </tr>
+                <tr>
+                    <td>size</td>
+                    <td>number</td>
+                    <td>100</td>
+                    <td>Scale factor for the entire component (100 = original size)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</accordion-component>
+
+<accordion-component title="Styling">
+    <div slot="content">
+        <p>The progress-pill component can be styled using CSS custom properties. These properties can be set on the component itself or on a parent element.</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>Default</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>--progress-pill-height</td>
+                    <td>120px</td>
+                    <td>Base height of the pill container</td>
+                </tr>
+                <tr>
+                    <td>--progress-pill-target-color</td>
+                    <td>#0f0f0f</td>
+                    <td>Color of the target bar</td>
+                </tr>
+                <tr>
+                    <td>--progress-pill-value-color</td>
+                    <td>#367900</td>
+                    <td>Color of the value bar</td>
+                </tr>
+                <tr>
+                    <td>--progress-pill-target-text-color</td>
+                    <td>#cccccc</td>
+                    <td>Color of the target label and title</td>
+                </tr>
+                <tr>
+                    <td>--progress-pill-value-text-color</td>
+                    <td>#ffffff</td>
+                    <td>Color of the value label</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Example Styling</h3>
+        <pre><code class="language-css">progress-pill {
+    --progress-pill-target-color: #2c3e50;
+    --progress-pill-value-color: #27ae60;
+    --progress-pill-target-text-color: #ffffff;
+    --progress-pill-value-text-color: #ffffff;
+}</code></pre>
+    </div>
+</accordion-component>
+
+<accordion-component title="Features">
+    <div slot="content">
+        <ul>
+            <li>Two overlapping progress bars with different heights</li>
+            <li>Percentage labels for both target and current value</li>
+            <li>Optional title display</li>
+            <li>Fully responsive to container width</li>
+            <li>Customizable colors through CSS variables</li>
+            <li>Smooth transitions for value changes</li>
+            <li>Scalable size through the size attribute</li>
+        </ul>
+    </div>
+</accordion-component> 

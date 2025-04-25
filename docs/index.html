@@ -29,9 +29,23 @@
     </footer>
 
     <script>
+      
+      $i.ready({debug:3, spa:true, "controllerPath":"controllers", "domainRoot": "http://localhost/iignition/docs/"},function(){
+     
+            //debugger;
+           // $i.ControllerHandler.run({ "spa": true, "controllerjs": "index.js", "controllerPath": "" });
+            // $i.View.setController('index');
+            //$i.DefaultRoute.handle({});
+            //$i.ControllerHandler.add(new iignition.ViewExtension({ container: '[data-viewContainer="footer"]' }))
+             //$i.show('testform', "footer");
+        });
+
+      
+
+
         $i.show('#!views/header.html', 'header');
         $i.show('#!views/nav.html', 'componentnav');
-        //$i.show('#!views/index.html', '');
+        
     </script>
 </body>
 </html>

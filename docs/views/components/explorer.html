@@ -1,0 +1,210 @@
+<accordion-component title="Explorer" open="true">
+    <div slot="content">
+        <p>A file system explorer component that mimics VSCode's project explorer functionality. It provides an interactive tree view of files and folders with expand/collapse capabilities, selection states, and customizable icons.</p>
+
+        <div class="example-container">
+            <explorer-component id="demoExplorer"></explorer-component>
+           
+        </div>
+    </div>
+</accordion-component>
+
+<accordion-component title="Usage">
+    <div slot="content">
+        <p>The explorer component accepts a JSON structure representing your file system hierarchy and provides methods for interaction and state management.</p>
+
+        <h3>Basic Usage</h3>
+        <pre><code class="language-html">&lt;explorer-component&gt;&lt;/explorer-component&gt;</code></pre>
+
+        <h3>Loading Data</h3>
+        <pre><code class="language-javascript">const explorer = document.querySelector('explorer-component');
+explorer.load([
+    {
+        name: 'src',
+        type: 'folder',
+        expanded: true,
+        children: [
+            {
+                name: 'components',
+                type: 'folder',
+                children: [
+                    { name: 'app.ts', type: 'file' }
+                ]
+            }
+        ]
+    }
+]);</code></pre>
+
+        <h3>Handling Selection</h3>
+        <pre><code class="language-javascript">explorer.addEventListener('item-selected', (e) => {
+    console.log('Selected item:', e.detail.path);
+    console.log('Item type:', e.detail.type);
+});</code></pre>
+
+        <h3>Change Detection</h3>
+        <pre><code class="language-javascript">explorer.configure({
+    onChange: (data) => {
+        // Save updated structure
+        console.log('Structure changed:', data);
+    }
+});</code></pre>
+    </div>
+</accordion-component>
+
+<accordion-component title="Properties">
+    <div slot="content">
+        <h3>Data Structure</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>name</td>
+                    <td>string</td>
+                    <td>Name of the file or folder</td>
+                </tr>
+                <tr>
+                    <td>type</td>
+                    <td>'file' | 'folder'</td>
+                    <td>Type of the item</td>
+                </tr>
+                <tr>
+                    <td>expanded</td>
+                    <td>boolean?</td>
+                    <td>Whether the folder is expanded (folders only)</td>
+                </tr>
+                <tr>
+                    <td>children</td>
+                    <td>ExplorerItem[]?</td>
+                    <td>Array of child items (folders only)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Methods</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>Parameters</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>load</td>
+                    <td>(data: ExplorerItem[])</td>
+                    <td>Loads the file/folder structure into the explorer</td>
+                </tr>
+                <tr>
+                    <td>configure</td>
+                    <td>(options: ExplorerOptions)</td>
+                    <td>Configures component options like onChange handler</td>
+                </tr>
+                <tr>
+                    <td>getData</td>
+                    <td>()</td>
+                    <td>Returns the current data structure</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Events</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Detail</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>item-selected</td>
+                    <td>{ path: string, type: string }</td>
+                    <td>Fired when an item is selected</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</accordion-component>
+
+<accordion-component title="Styling">
+    <div slot="content">
+        <p>The explorer component can be styled using CSS custom properties.</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>Default</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>--explorer-bg</td>
+                    <td>#1e1e1e</td>
+                    <td>Background color of the explorer</td>
+                </tr>
+                <tr>
+                    <td>--explorer-text</td>
+                    <td>#cccccc</td>
+                    <td>Text color for items</td>
+                </tr>
+                <tr>
+                    <td>--explorer-selected-bg</td>
+                    <td>#007fd4</td>
+                    <td>Background color for selected items</td>
+                </tr>
+                <tr>
+                    <td>--explorer-hover-bg</td>
+                    <td>rgba(255, 255, 255, 0.1)</td>
+                    <td>Background color for hovered items</td>
+                </tr>
+                <tr>
+                    <td>--explorer-indent</td>
+                    <td>20px</td>
+                    <td>Indentation for nested items</td>
+                </tr>
+                <tr>
+                    <td>--explorer-item-height</td>
+                    <td>22px</td>
+                    <td>Height of each item</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Example Styling</h3>
+        <pre><code class="language-css">explorer-component {
+    --explorer-bg: #2a2a2a;
+    --explorer-text: #ffffff;
+    --explorer-selected-bg: #ff6b00;
+    --explorer-hover-bg: rgba(255, 107, 0, 0.1);
+    --explorer-indent: 24px;
+    height: 400px;
+}</code></pre>
+    </div>
+</accordion-component>
+
+<accordion-component title="Features">
+    <div slot="content">
+        <ul>
+            <li>Tree view of files and folders with expand/collapse functionality</li>
+            <li>File icons based on file extensions</li>
+            <li>Dynamic folder icons that change based on expanded state</li>
+            <li>Selection state with highlighting</li>
+            <li>Event emission for item selection</li>
+            <li>Change detection for structure updates</li>
+            <li>Full keyboard navigation support</li>
+            <li>Path tracking for each item</li>
+            <li>Customizable styling through CSS variables</li>
+            <li>Responsive design that adapts to container size</li>
+        </ul>
+    </div>
+</accordion-component> 

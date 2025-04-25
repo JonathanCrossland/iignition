@@ -1,0 +1,50 @@
+{
+    "name": "docs",
+    "type": "folder",
+    "expanded": true,
+    "children": [
+        {
+            "name": "framework",
+            "type": "folder",
+            "expanded": true,
+            "children": [
+                { "name": "basicusage.html", "type": "file" },
+                { "name": "containers.html", "type": "file" },
+                { "name": "data.html", "type": "file" },
+                { "name": "installation.html", "type": "file" },
+                { "name": "splash.html", "type": "file" },
+                { "name": "views.html", "type": "file" }
+            ]
+        },
+        {
+            "name": "views",
+            "type": "folder",
+            "expanded": true,
+            "children": [
+                {
+                    "name": "components",
+                    "type": "folder",
+                    "expanded": true,
+                    "children": [
+                        { "name": "accordion.html", "type": "file" },
+                        { "name": "countdowntimer.html", "type": "file" },
+                        { "name": "datatable.html", "type": "file" },
+                        { "name": "documentmap.html", "type": "file" },
+                        { "name": "explorer.html", "type": "file" },
+                        { "name": "floatingbutton.html", "type": "file" },
+                        { "name": "knob.html", "type": "file" },
+                        { "name": "modaldialog.html", "type": "file" },
+                        { "name": "passwordchecker.html", "type": "file" },
+                        { "name": "progressbar.html", "type": "file" },
+                        { "name": "progresspill.html", "type": "file" },
+                        { "name": "radarchart.html", "type": "file" },
+                        { "name": "rating.html", "type": "file" },
+                        { "name": "splitview.html", "type": "file" },
+                        { "name": "tabbedview.html", "type": "file" },
+                        { "name": "toggleswitch.html", "type": "file" }
+                    ]
+                }
+            ]
+        }
+    ]
+} 

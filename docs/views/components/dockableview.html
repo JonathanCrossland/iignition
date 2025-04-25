@@ -1,0 +1,156 @@
+<div class="component-content">
+    <h2>Dockable View</h2>
+    <p class="component-description">A window management component that allows child elements to be docked, dragged, and managed as individual windows. Each window can be minimized, maximized, and closed, with support for docking to the left or right edges of the container.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <style>
+                .dockable-example {
+                    --dockable-spacing: 20px;
+                    --dockable-border-radius: 4px;
+                    --dockable-bg: var(--color-card-bg);
+                    height: 400px;
+                    position: relative;
+                }
+            </style>
+            <div class="example-container dockable-example">
+                <dockable-view style="height: 100%;">
+                    <div title="Window 1" class="dock-window" width="100px" min-width="200px">
+                        <h3>First Window</h3>
+                        <p>This window can be dragged, docked, minimized, and maximized.</p>
+                        <p>Try dragging the window header to move this window.</p>
+                        <p>Drag near the left or right edges to dock.</p>
+                    </div>
+                    <div title="Window 2" class="dock-window" width="500px" min-width="500px">
+                        <h3>Second Window</h3>
+                        <p>Try dragging this window to the edges to dock it.</p>
+                        <p>Use the window controls in the header:</p>
+                        <ul>
+                            <li>Minimize (_)</li>
+                            <li>Maximize (□)</li>
+                            <li>Close (×)</li>
+                        </ul>
+                    </div>
+                    <div title="Window 3" class="dock-window">
+                        <h3>Second Window</h3>
+                        <p>Try dragging this window to the edges to dock it.</p>
+                        <p>Use the window controls in the header:</p>
+                        <ul>
+                            <li>Minimize (_)</li>
+                            <li>Maximize (□)</li>
+                            <li>Close (×)</li>
+                        </ul>
+                    </div>
+                    <div title="Window 4" class="dock-window">
+                        <accordion-component title="Inner nested window">
+                            <div slot="content">
+                                Content
+                            </div>
+                        </accordion-component>  
+                    </div>
+                </dockable-view>
+            </div>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <p>The dockable-view component automatically makes its direct children into dockable windows. Each child element can have a title attribute for the window header:</p>
+            
+            <pre><code class="language-html">&lt;div style="height: 400px;"&gt;
+    &lt;dockable-view&gt;
+        &lt;div title="My Window"&gt;
+            Window content here
+        &lt;/div&gt;
+        &lt;div title="Another Window"&gt;
+            More content
+        &lt;/div&gt;
+    &lt;/dockable-view&gt;
+&lt;/div&gt;</code></pre>
+
+            <p><strong>Important:</strong> The parent container must have a defined height for the dockable-view to be visible.</p>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Features">
+        <div slot="content">
+            <ul>
+                <li>Automatic window management for child elements</li>
+                <li>Draggable windows with docking support (left/right edges)</li>
+                <li>Window controls (minimize, maximize, close)</li>
+                <li>Visual preview when dragging near dockable edges</li>
+                <li>Responsive layout that maintains window positions</li>
+            </ul>
+
+            <h3>Window Controls</h3>
+            <p>Each window has a header with the following controls:</p>
+            <ul>
+                <li><strong>Minimize (_)</strong>: Toggles window visibility</li>
+                <li><strong>Maximize (□)</strong>: Toggles between normal and maximized state</li>
+                <li><strong>Close (×)</strong>: Removes the window from the container</li>
+            </ul>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--dockable-bg</td>
+                        <td>#1e1e1e</td>
+                        <td>Background color of the dockable container</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-window-bg</td>
+                        <td>#2d2d2d</td>
+                        <td>Background color of individual windows</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-window-border</td>
+                        <td>#404040</td>
+                        <td>Border color of windows</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-header-bg</td>
+                        <td>#333333</td>
+                        <td>Background color of window headers</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-header-border</td>
+                        <td>#555555</td>
+                        <td>Border color of window headers</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-preview-bg</td>
+                        <td>rgba(0, 120, 215, 0.2)</td>
+                        <td>Background color of dock preview</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-preview-border</td>
+                        <td>2px dashed #0078d7</td>
+                        <td>Border style of dock preview</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>Example of custom styling:</p>
+            <pre><code class="language-css">:root {
+    --dockable-bg: #1e1e1e;
+    --dockable-window-bg: #2d2d2d;
+    --dockable-window-border: #404040;
+    --dockable-header-bg: #333333;
+    --dockable-header-border: #555555;
+    --dockable-preview-bg: rgba(0, 120, 215, 0.2);
+    --dockable-preview-border: 2px dashed #0078d7;
+}</code></pre>
+        </div>
+    </accordion-component>
+</div> 

@@ -38,11 +38,11 @@ class DocumentMap extends HTMLElement {
     private _error: string | null = null;
 
     static get observedAttributes() {
-        return ['show-title'];
+        return ['show-title', 'size'];
     }
 
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-        if (name === 'show-title') {
+        if (name === 'show-title' || name === 'size') {
             this.render();
         }
     }
@@ -166,6 +166,8 @@ class DocumentMap extends HTMLElement {
     }
 
     private getStyle(): string {
+        const size = this.getAttribute('size') || '100';
+        const scale = parseFloat(size) / 100;
         return `
             <style>
                 :host {
@@ -183,8 +185,8 @@ class DocumentMap extends HTMLElement {
                 .document-map {
                     display: flex;
                     flex-wrap: wrap;
-                    gap: var(--document-map-gap, 20px);
-                    padding: var(--document-map-padding, 20px);
+                    gap: calc(var(--document-map-gap, 20px) * ${scale});
+                    padding: calc(var(--document-map-padding, 20px) * ${scale});
                     justify-content: flex-start;
                     align-items: flex-start;
                     width: 100%;
@@ -235,8 +237,8 @@ class DocumentMap extends HTMLElement {
                 }
 
                 .page {
-                    width: var(--document-map-page-width, 200px);
-                    height: var(--document-map-page-height, 300px);
+                    width: calc(var(--document-map-page-width, 200px) * ${scale});
+                    height: calc(var(--document-map-page-height, 300px) * ${scale});
                     background: var(--document-map-page-bg, white);
                     border: 1px solid var(--document-map-page-border, #3c3c3c);
                     border-radius: var(--document-map-border-radius, 4px);

@@ -1,0 +1,97 @@
+<div class="component-content">
+    <h2>State Management</h2>
+    <p class="component-description">The `State` class provides a simple shared state management system that can be accessed globally through `$i.State`. It allows you to store and retrieve values across different parts of your application.</p>
+
+    <accordion-component title="Basic Operations" open="true">
+        <div slot="content">
+            <h4>Core Methods</h4>
+            <p>Here are the basic operations you can perform with the State class:</p>
+            <pre><code class="language-javascript">// Store a value
+$i.State.add('key', value);
+
+// Retrieve a value
+const value = $i.State.get('key');
+
+// Check if a key exists
+if ($i.State.has('key')) {
+    // Do something
+}
+
+// Remove a value
+$i.State.remove('key');
+
+// Clear all values
+$i.State.clear();</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Examples">
+        <div slot="content">
+            <h4>Storing and Retrieving Objects</h4>
+            <pre><code class="language-javascript">// Store an object
+$i.State.add('user', {
+    name: 'John',
+    age: 30,
+    preferences: {
+        theme: 'dark',
+        language: 'en'
+    }
+});
+
+// Retrieve and use the object
+const user = $i.State.get('user');
+console.log(user.name); // Output: John</code></pre>
+
+            <h4>Storing and Retrieving Elements</h4>
+            <pre><code class="language-javascript">// Store a DOM element
+const element = document.getElementById('myElement');
+$i.State.add('mainElement', element);
+
+// Retrieve and use the element
+const storedElement = $i.State.get('mainElement');
+storedElement.classList.add('active');</code></pre>
+
+            <h4>Checking and Removing Values</h4>
+            <pre><code class="language-javascript">// Check if a value exists
+if ($i.State.has('config')) {
+    const config = $i.State.get('config');
+    // Use config
+}
+
+// Remove a value when no longer needed
+$i.State.remove('tempData');</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="API Reference">
+        <div slot="content">
+            <h4>Methods</h4>
+            <ul>
+                <li><code>add(key: string, value: any): void</code> - Stores a value with the specified key</li>
+                <li><code>get(key: string): any</code> - Retrieves the value associated with the specified key</li>
+                <li><code>remove(key: string): void</code> - Removes the value associated with the specified key</li>
+                <li><code>has(key: string): boolean</code> - Returns `true` if the specified key exists in the state</li>
+                <li><code>clear(): void</code> - Removes all values from the state</li>
+            </ul>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Best Practices">
+        <div slot="content">
+            <h4>Guidelines</h4>
+            <ol>
+                <li>Use descriptive keys to avoid naming conflicts</li>
+                <li>Remove values when they are no longer needed</li>
+                <li>Check if a key exists before retrieving its value</li>
+                <li>Use TypeScript for better type safety when possible</li>
+            </ol>
+
+            <h4>Notes</h4>
+            <ul>
+                <li>The state is shared across all files that have access to the `$i` object</li>
+                <li>Values can be of any type (objects, arrays, elements, primitives)</li>
+                <li>The state persists until explicitly cleared or the page is reloaded</li>
+            </ul>
+        </div>
+    </accordion-component>
+</div> 

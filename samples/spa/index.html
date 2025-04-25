@@ -1,0 +1,18 @@
+<html>
+    <head>
+        <title>iignition Single Page sample</title>
+        <script src="../../dist/ii.js"></script>
+    </head>
+    <body>
+        
+
+        <header data-viewcontainer="header"></header>
+        <main data-viewcontainer>
+
+        </main>
+        <script>
+            $i.ready({spa:true}, function(){
+                $i.show('#!layout/header.html', 'header');
+            });
+        </script>
+    </body>

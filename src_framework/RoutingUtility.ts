@@ -8,14 +8,14 @@ module iignition
         public originalUrl: string;
         public root: string;
         public domainRoot: string;
-        public view: string;
+        public view?: string;
         public hash: string;
         public isHash: boolean;
         public parts: string[];
         public controller: string;
-        public controllerjs: string;
-        public container: string;
-        public data: any;
+        public controllerjs?: string;
+        public container?: string;
+        public data?: any;
 
         constructor(url: string, controllerPath: string, domainRoot: string) {
             if (controllerPath) {

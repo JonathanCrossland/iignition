@@ -17,15 +17,14 @@ module iignition
  
         async run(ctx: any) {
            
-            let routing: RoutingUtility | null = null;
+            let routing: RoutingUtility = ctx;
+
 
             if (ctx.view){
                 routing = new iignition.RoutingUtility(ctx.view, $i.Options.controllerPath, $i.Options.domainRoot);
             }
-            else{
-                routing = ctx;
-            }
-            if (ctx.spa == false && routing) {
+
+            if (ctx.spa == false && ctx.container == undefined && routing) {
                 delete routing.view;
             }
 

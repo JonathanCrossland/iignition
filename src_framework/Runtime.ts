@@ -1,5 +1,5 @@
 module iignition {
-
+//still to be developed
 
     export class Runtime
     {
@@ -10,10 +10,13 @@ module iignition {
         }
 
         load(){
+         
             document.addEventListener('DOMContentLoaded', () => {
                 var statusSelector: string = 'span[data-iistatus]';
-                var statusEl = document.querySelector(statusSelector)
-                statusEl.innerHTML = 'loaded from load';
+                var statusEl = document.querySelector(statusSelector);
+                if (statusEl) {
+                    statusEl.innerHTML = 'loaded from load';
+                }
             })
         }
         

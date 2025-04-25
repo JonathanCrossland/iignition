@@ -1,0 +1,15 @@
+<html>
+    <head>
+        <title>iignition multi-page sample</title>
+        <script src="../../dist/ii.js"></script>
+    </head>
+    <body>
+        <h1>Homepage</h1>
+
+        <header data-viewcontainer="header"></header>
+        
+        <script>
+            $i.Options.spa = false;
+            $i.show('#!layout/header.html', 'header');
+        </script>
+    </body>

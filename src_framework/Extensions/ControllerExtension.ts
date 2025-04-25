@@ -1,9 +1,8 @@
-
 module iignition {
 
     export class ControllerExtension extends Extension {
         private _ControllerCache: Map<string, Controller> = new Map();
-        private _CurrentController: Controller = null;
+        private _CurrentController: Controller | null = null;
         public ControllerPath: string = '';
         constructor(ctx: any = null) {
             super(ctx);
@@ -35,19 +34,21 @@ module iignition {
                 })
             }
 
-            executeForm(ctx): Promise < any > {
+            executeForm(ctx): Promise<any> {
+                if (!this._CurrentController) {
+                    return Promise.reject(new Error('No controller is currently active'));
+                }
                 return this._CurrentController.onSubmit(ctx.form, ctx.data);
             }
 
-            executeController(ctx){
+            executeController(ctx): Promise<void> {
                 return new Promise<void>((resolve, reject) => {
-                
                     let link = document.location.href; 
                     if (ctx.link) {
                         link = ctx.link;
                     }
                  
-                    var promises = []
+                    var promises: Promise<Controller>[] = [];
 
                     promises.push(this.loadScript(ctx))
 
@@ -71,9 +72,7 @@ module iignition {
                         }).catch((error) => {
                             reject(error);
                         })  ;
-
                 });
-                return;
             }
 
 		public loadScript(routing: RoutingUtility): Promise<Controller> {
@@ -87,12 +86,21 @@ module iignition {
 					return;
 				}
 				
+				if (!routing.controllerjs) {
+					reject(new Error('No controller script path provided'));
+					return;
+				}
+
 				$i.Data.fetch(routing.controllerjs).then((html: string) => {
 					let scriptElement: HTMLScriptElement = document.getElementsByTagName("script")[0] as HTMLScriptElement;
 					let script: HTMLScriptElement = document.createElement("script") as HTMLScriptElement;
 					script.textContent = html;
-					script.id = routing.controllerjs;
+					script.id = routing.controllerjs!;
 
+					if (!scriptElement.parentNode) {
+						reject(new Error('No parent node found for script element'));
+						return;
+					}
 					scriptElement.parentNode.insertBefore(script, scriptElement);
 
 					var controller = eval(`new ${routing.controller}()`) as Controller;

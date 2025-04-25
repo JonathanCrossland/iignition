@@ -1,4 +1,3 @@
-
 module iignition {
 
     export enum info{
@@ -17,8 +16,8 @@ module iignition {
     }
 
     export class Extension {
-       
         public Context;
+        public Next: Extension | null = null;
         
         constructor(ctx:any=null){
             this.Context = ctx;
@@ -40,8 +39,8 @@ module iignition {
     }
 
     export class RouteComponent {
-        protected _Pipeline : any[] = [];
-        public Pipeline;
+        protected _Pipeline: Extension[] = [];
+        public Pipeline: Extension;
         
         add(extension:Extension){
             this._Pipeline.push(extension);

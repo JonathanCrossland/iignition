@@ -2,8 +2,8 @@ module iignition
 {
     export class Console{
 
-        private static _props = [];
-        private static _console;
+        private static _props: Function[] = [];
+        private static _console: typeof console;
 
         static disable() {
             Console._console = Object.assign({}, console);

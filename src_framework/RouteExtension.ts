@@ -1,15 +1,17 @@
+/// <reference path="Header.ts" />
+
 module iignition
 {
     export class RouteExtension extends Extension
     {
-
-        public Selector:string;
+        public Selector: string;
         public Pipeline: Extension;
-        private _Pipeline = [];
+        private _Pipeline: Extension[] = [];
 
         constructor(ctx:any=null){
-            
             super(ctx);
+            this.Selector = '';
+            this.Pipeline = new Extension();
          
             this.clickHandler = this.clickHandler.bind(this); 
             this.popstateHandler = this.popstateHandler.bind(this);
@@ -28,7 +30,6 @@ module iignition
         }
 
         add(extension: Extension) {
-
             if (this._Pipeline.length > 0) {
                 let index = this._Pipeline.length - 1;
                 this._Pipeline[index].Next = extension;
@@ -36,7 +37,6 @@ module iignition
 
             this._Pipeline.push(extension);
             this.Pipeline = this._Pipeline[0];
-
         }
 
         handle(ctx:any){

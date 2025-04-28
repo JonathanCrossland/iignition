@@ -16,6 +16,7 @@ class ModalDialog extends HTMLElement {
     private _dragOffsetX: number = 0;
     private _dragOffsetY: number = 0;
 
+
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
@@ -41,21 +42,39 @@ class ModalDialog extends HTMLElement {
         .modal-container{
             background-color: var(--modal-bg, #fff);
             color: var(--modal-color, #333333);
-            max-width: 600px;
+            max-width: var(--modal-max-width, 90%);
+            max-height: var(--modal-max-height, 80vh);
             width: calc(100% - 30px);
             border-radius: var(--modal-border-radius, 5px);
             position: absolute;
-            left: 0;
-            top: 0;
-            transform: none;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
             transition: left 0.1s ease, top 0.1s ease;
             will-change: left, top, transform, opacity;
             box-shadow: var(--modal-shadow, 0 4px 6px rgba(0, 0, 0, 0.1));
+            display: grid;
+            grid-template-rows: auto 1fr 55px;
         }
         .modal-content {
             display: flex;
             flex-direction: column;
             padding: var(--modal-padding, 10px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex: 1;
+            scrollbar-width: thin;
+            scrollbar-color: var(--modal-scroll-thumb, #888) var(--modal-scroll-track, #f1f1f1);
+        }
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .modal-content::-webkit-scrollbar-track {
+            background: var(--modal-scroll-track, #f1f1f1);
+        }
+        .modal-content::-webkit-scrollbar-thumb {
+            background-color: var(--modal-scroll-thumb, #888);
+            border-radius: 4px;
         }
         .header {
             background-color: var(--modal-header-bg, var(--modal-bg, #f1f1f1));
@@ -67,6 +86,7 @@ class ModalDialog extends HTMLElement {
             justify-content: space-between;
             cursor: move;
             user-select: none;
+            flex-shrink: 0;
         }
         .title {
             font-weight: bold;
@@ -79,6 +99,9 @@ class ModalDialog extends HTMLElement {
             border-bottom-right-radius: var(--modal-border-radius, 5px);
             display: flex;
             justify-content: flex-end;
+            flex-shrink: 0;
+            min-height: fit-content;
+            box-sizing: border-box;
         }
         .close-button {
             cursor: pointer;
@@ -102,10 +125,15 @@ class ModalDialog extends HTMLElement {
             border: 1px solid var(--modal-button-border-color, transparent);
             background: var(--modal-button-bg, #f8f8f8);
             color: var(--modal-button-color, #333333);
-            padding: 10px 20px;
+            padding: 6px 16px;
             margin-left: 10px;
             border-radius: var(--modal-button-border-radius, 5px);
-            font-size: 1rem;
+            font-size: 0.9rem;
+            height: 32px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         .action-button:hover {
             background: var(--modal-button-hover-bg, #e0e0e0);
@@ -207,9 +235,17 @@ class ModalDialog extends HTMLElement {
         this._dragOffsetX = e.clientX - modalRect.left;
         this._dragOffsetY = e.clientY - modalRect.top;
         
-        // Store the initial mouse position
-        this._dragStartX = e.clientX;
-        this._dragStartY = e.clientY;
+        // Store the current position exactly without changing it
+        // This preserves the exact modal position relative to the cursor
+        this._modalContainer.style.left = `${modalRect.left}px`;
+        this._modalContainer.style.top = `${modalRect.top}px`;
+        
+        // Disable transform but maintain the modal's current visual position
+        this._modalContainer.style.transform = 'none';
+        this._modalContainer.style.transition = 'none';
+        
+        // Force a reflow to ensure changes take effect immediately
+        void this._modalContainer.offsetHeight;
     }
 
     private drag(e: MouseEvent) {
@@ -243,13 +279,16 @@ class ModalDialog extends HTMLElement {
     }
 
     private stopDragging() {
+        if (!this._isDragging) return;
+        
         this._isDragging = false;
-        // Restore the transition when dragging stops
+        
+        // Add a gentle transition after dragging ends
         this._modalContainer.style.transition = 'left 0.1s ease, top 0.1s ease';
     }
 
     static get observedAttributes() {
-        return ['visible', 'buttons'];
+        return ['visible', 'buttons', 'width', 'height'];
     }
 
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -261,6 +300,40 @@ class ModalDialog extends HTMLElement {
             }
         } else if (name === 'buttons') {
             this.updateButtons();
+        } else if (name === 'width' || name === 'height') {
+            this.updateDimensions();
+        }
+    }
+
+    updateDimensions() {
+        const width = this.getAttribute('width');
+        const height = this.getAttribute('height');
+
+        if (width) {
+            this._modalContainer.style.width = width;
+            // Reset max-width when explicit width is provided
+            this._modalContainer.style.maxWidth = width;
+        } else {
+            // Restore default responsive behavior
+            this._modalContainer.style.width = 'calc(100% - 30px)';
+            this._modalContainer.style.maxWidth = 'var(--modal-max-width, 90%)';
+        }
+
+        if (height) {
+            this._modalContainer.style.height = height;
+            
+            // Wait for next frame to ensure footer height is calculated
+            requestAnimationFrame(() => {
+                // Adjust content area to respect the new height
+                const headerHeight = this._header.offsetHeight || 40;
+                const footerHeight = this._footer.offsetHeight || 42; // Reduced from 52 to account for smaller footer
+                const contentHeight = `calc(${height} - ${headerHeight + footerHeight}px)`;
+                this._content.style.maxHeight = contentHeight;
+            });
+        } else {
+            // Restore default responsive behavior
+            this._modalContainer.style.height = '';
+           
         }
     }
 
@@ -273,26 +346,23 @@ class ModalDialog extends HTMLElement {
     show() {
         // Reset any previous transform/opacity
         this._modalContainer.style.opacity = '0';
-        this._modalContainer.style.transform = 'translateY(-20px)';
         
-        // Center the modal first
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        const modalRect = this._modalContainer.getBoundingClientRect();
-        const modalWidth = modalRect.width;
-        const modalHeight = modalRect.height;
+        // Reset position to centered
+        this._modalContainer.style.left = '50%';
+        this._modalContainer.style.top = '50%';
+        this._modalContainer.style.transform = 'translate(-50%, -50%) translateY(-20px)';
         
-        this._modalContainer.style.left = `${(viewportWidth - modalWidth) / 2}px`;
-        this._modalContainer.style.top = `${(viewportHeight - modalHeight) / 2}px`;
+        // Update dimensions before showing
+        this.updateDimensions();
         
-        // Make visible after positioning
+        // Make visible
         this._modal.style.visibility = 'visible';
 
         // Trigger the opening animation
         requestAnimationFrame(() => {
             this._modalContainer.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
             this._modalContainer.style.opacity = '1';
-            this._modalContainer.style.transform = 'translateY(0)';
+            this._modalContainer.style.transform = 'translate(-50%, -50%)';
         });
     }
 
@@ -300,15 +370,17 @@ class ModalDialog extends HTMLElement {
         // Start the closing animation
         this._modalContainer.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
         this._modalContainer.style.opacity = '0';
-        this._modalContainer.style.transform = 'translateY(-20px)';
+        this._modalContainer.style.transform = 'translate(-50%, -50%) translateY(-20px)';
 
         // Wait for the animation to complete before hiding
         setTimeout(() => {
             this._modal.style.visibility = 'hidden';
             // Reset the modal position and styles for next open
             this._modalContainer.style.opacity = '1';
-            this._modalContainer.style.transform = 'none';
-            this._modalContainer.style.transition = 'left 0.1s ease, top 0.1s ease';
+            this._modalContainer.style.left = '50%';
+            this._modalContainer.style.top = '50%';
+            this._modalContainer.style.transform = 'translate(-50%, -50%)';
+            this._modalContainer.style.transition = '';
         }, 200);
     }
 }

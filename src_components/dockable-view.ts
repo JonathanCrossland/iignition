@@ -77,12 +77,7 @@ class DockableView extends HTMLElement {
                 }
             });
             
-            // Disable splitters
-            const splitters = Array.from(this.container.querySelectorAll('.window-splitter')) as HTMLElement[];
-            splitters.forEach(splitter => {
-                splitter.classList.add('locked');
-                splitter.style.cursor = 'default';
-            });
+            // Do NOT disable splitters anymore
         } else {
             // Remove locked class from container
             this.classList.remove('locked');
@@ -97,13 +92,6 @@ class DockableView extends HTMLElement {
                 if (header) {
                     header.style.cursor = 'move';
                 }
-            });
-            
-            // Enable splitters
-            const splitters = Array.from(this.container.querySelectorAll('.window-splitter')) as HTMLElement[];
-            splitters.forEach(splitter => {
-                splitter.classList.remove('locked');
-                splitter.style.cursor = 'ew-resize';
             });
         }
     }
@@ -162,33 +150,167 @@ class DockableView extends HTMLElement {
             }
         });
         
-        // Calculate total width and set initial widths
-        const totalWidth = 100;
-        let remainingWidth = totalWidth;
-        let windowsWithWidth = 0;
-        
-        // Get non-stacked windows
+        // Get non-stacked windows for width calculation
         const nonStackedWindows = children.filter(child => !child.hasAttribute('stacked'));
         
-        // First pass: count windows with explicit width
+        // Calculate container width in pixels (for pixel-based width conversion)
+        const containerWidth = this.container.offsetWidth;
+        
+        // First pass: collect width information and categorize windows
+        const windowWidths = new Map<HTMLElement, { 
+            value: number, 
+            unit: 'px' | '%', 
+            isExplicit: boolean,
+            type: 'none' | 'fixed' | 'percent'
+        }>();
+        
+        let totalPercentage = 0;
+        let totalFixedPixels = 0;
+        let windowsWithoutWidth: HTMLElement[] = [];
+        let windowsWithPercentWidth: HTMLElement[] = [];
+        let allWindows: HTMLElement[] = [];
+        
         nonStackedWindows.forEach(child => {
             const width = child.getAttribute('width');
+            const minWidth = parseInt(child.getAttribute('min-width') || '200');
+            
+            allWindows.push(child);
+            
             if (width) {
-                windowsWithWidth++;
-                remainingWidth -= parseFloat(width);
+                // Check if it's a percentage or pixel value
+                if (width.endsWith('%')) {
+                    const percentage = parseFloat(width);
+                    windowWidths.set(child, { 
+                        value: percentage, 
+                        unit: '%', 
+                        isExplicit: true,
+                        type: 'percent'
+                    });
+                    totalPercentage += percentage;
+                    windowsWithPercentWidth.push(child);
+                } else {
+                    // Convert to pixels
+                    let pixels = parseFloat(width);
+                    if (width.endsWith('px')) {
+                        pixels = parseFloat(width.slice(0, -2));
+                    }
+                    windowWidths.set(child, { 
+                        value: pixels, 
+                        unit: 'px', 
+                        isExplicit: true,
+                        type: 'fixed'
+                    });
+                    totalFixedPixels += pixels;
+                }
+            } else {
+                // Windows without explicit width
+                windowWidths.set(child, { 
+                    value: 0, 
+                    unit: '%', 
+                    isExplicit: false,
+                    type: 'none'
+                });
+                windowsWithoutWidth.push(child);
             }
         });
         
-        // Second pass: set widths
-        nonStackedWindows.forEach(child => {
-            const width = child.getAttribute('width');
-            if (width) {
-                child.style.width = width;
-                child.style.flex = '0 0 auto';
+        // Convert fixed pixels to percentage
+        const fixedPixelsAsPercentage = (totalFixedPixels / containerWidth) * 100;
+        const totalInitialPercentage = totalPercentage + fixedPixelsAsPercentage;
+        
+        // Distribute remaining space to windows without explicit width
+        if (windowsWithoutWidth.length > 0) {
+            const remainingPercentage = Math.max(0, 100 - totalInitialPercentage);
+            const percentPerWindow = remainingPercentage / windowsWithoutWidth.length;
+            
+            windowsWithoutWidth.forEach(window => {
+                const widthInfo = windowWidths.get(window);
+                if (widthInfo) {
+                    widthInfo.value = percentPerWindow;
+                }
+            });
+        }
+        
+        // Calculate the total percentage after distributing to windows without width
+        let totalCalculatedPercentage = 0;
+        windowWidths.forEach((widthInfo) => {
+            if (widthInfo.unit === '%') {
+                totalCalculatedPercentage += widthInfo.value;
             } else {
-                // Make windows without explicit width flexible to fill remaining space
-                child.style.width = 'auto';
-                child.style.flex = '1 1 auto';
+                totalCalculatedPercentage += (widthInfo.value / containerWidth) * 100;
+            }
+        });
+        
+        // Adjust to reach exactly 100% based on priority
+        if (Math.abs(totalCalculatedPercentage - 100) > 0.01) { // Allow small rounding errors
+            const diff = 100 - totalCalculatedPercentage;
+            let adjusted = false;
+            
+            // First priority: Adjust window without width attribute
+            if (windowsWithoutWidth.length > 0 && !adjusted) {
+                const window = windowsWithoutWidth[0];
+                const widthInfo = windowWidths.get(window);
+                if (widthInfo) {
+                    widthInfo.value += diff;
+                    adjusted = true;
+                }
+            }
+            
+            // Second priority: Adjust window with percentage width
+            if (windowsWithPercentWidth.length > 0 && !adjusted) {
+                const window = windowsWithPercentWidth[0];
+                const widthInfo = windowWidths.get(window);
+                if (widthInfo) {
+                    widthInfo.value += diff;
+                    adjusted = true;
+                }
+            }
+            
+            // Third priority: Adjust first window regardless of attributes
+            if (allWindows.length > 0 && !adjusted) {
+                const window = allWindows[0];
+                const widthInfo = windowWidths.get(window);
+                if (widthInfo) {
+                    widthInfo.value += diff;
+                    if (widthInfo.unit === 'px') {
+                        // Convert the adjustment to pixels and add it
+                        const pixelDiff = (diff / 100) * containerWidth;
+                        widthInfo.value += pixelDiff;
+                    } else {
+                        widthInfo.value += diff;
+                    }
+                    adjusted = true;
+                }
+            }
+        }
+        
+        // Apply calculated widths, ensuring min-width is respected
+        nonStackedWindows.forEach(child => {
+            const widthInfo = windowWidths.get(child);
+            const minWidth = parseInt(child.getAttribute('min-width') || '200');
+            
+            if (widthInfo) {
+                let finalWidthPercent;
+                
+                if (widthInfo.unit === '%') {
+                    finalWidthPercent = widthInfo.value;
+                } else {
+                    finalWidthPercent = (widthInfo.value / containerWidth) * 100;
+                }
+                
+                // Ensure min-width is respected
+                const minWidthPercent = (minWidth / containerWidth) * 100;
+                finalWidthPercent = Math.max(finalWidthPercent, minWidthPercent);
+                
+                // Apply the width
+                child.style.width = `${finalWidthPercent}%`;
+                
+                // Set flex property based on type
+                if (widthInfo.type === 'none') {
+                    child.style.flex = '1 1 auto'; // Allow growing/shrinking for windows without explicit width
+                } else {
+                    child.style.flex = '0 0 auto'; // Fixed size for windows with explicit width
+                }
             }
             
             // Add splitter after each window except the last one
@@ -199,7 +321,7 @@ class DockableView extends HTMLElement {
 
         // Wait for layout to be stable before stacking windows
         requestAnimationFrame(() => {
-            // Now process stacked relationships
+            // Process stacked relationships
             children.forEach(child => {
                 if (!child.hasAttribute('stacked')) {
                     const stackedChildren = stackedWindows.get(child.id);
@@ -929,20 +1051,14 @@ class DockableView extends HTMLElement {
         const splitter = document.createElement('div');
         splitter.className = 'window-splitter';
         
-        // Add locked class if needed
-        if (this.locked) {
-            splitter.classList.add('locked');
-            splitter.style.cursor = 'default';
-        } else {
-            splitter.addEventListener('mousedown', (e: MouseEvent) => this.startResize(e, splitter));
-        }
+        // Always add resize functionality regardless of locked state
+        splitter.addEventListener('mousedown', (e: MouseEvent) => this.startResize(e, splitter));
         
         window.insertAdjacentElement('afterend', splitter);
     }
 
     private startResize(e: MouseEvent, splitter: HTMLElement) {
-        // Don't start resize if locked
-        if (this.locked) return;
+        // No longer checking for locked state here - splitters should work even when locked
         
         e.preventDefault();
         this.resizingSplitter = splitter;
@@ -1826,14 +1942,9 @@ class DockableView extends HTMLElement {
                 box-sizing: border-box;
             }
 
-            /* Locked state styles */
+            /* Locked state styles - only affect headers, not splitters */
             dockable-view.locked .dockable-view-window-header {
                 cursor: default !important;
-            }
-            
-            dockable-view.locked .window-splitter {
-                cursor: default !important;
-                pointer-events: none;
             }
             
             /* Existing styles */
@@ -2137,11 +2248,7 @@ class DockableView extends HTMLElement {
                 padding: var(--dockable-content-padding);
             }
 
-            .window-splitter.locked {
-                cursor: default !important;
-                pointer-events: none;
-                opacity: 0.5;
-            }
+            /* Removing the locked style for splitters since they should always be functional */
         `;
     }
 }

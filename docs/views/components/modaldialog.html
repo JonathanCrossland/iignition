@@ -5,8 +5,8 @@
     <accordion-component title="Examples" open="true">
         <div slot="content">
             <div class="example-container">
-                <modal-dialog visible="true" buttons="ok,cancel">
-                    <p>This is a modal dialog.</p>
+                <modal-dialog visible="true" buttons="ok,cancel" width="800px" height="300px">
+                    <p>This is a modal dialog with defined width and height.</p>
                 </modal-dialog>
             </div>
         </div>
@@ -14,7 +14,7 @@
 
     <accordion-component title="Usage">
         <div slot="content">
-            <pre><code class="language-html">&lt;modal-dialog visible="true" buttons="ok,cancel"&gt;
+            <pre><code class="language-html">&lt;modal-dialog visible="true" buttons="ok,cancel" width="400px" height="300px"&gt;
     &lt;p&gt;Your content here&lt;/p&gt;
 &lt;/modal-dialog&gt;</code></pre>
         </div>
@@ -45,6 +45,16 @@
                         <td>title</td>
                         <td>string</td>
                         <td>Title displayed in the modal header</td>
+                    </tr>
+                    <tr>
+                        <td>width</td>
+                        <td>string</td>
+                        <td>Width of the modal (e.g., "400px", "50%"). Defaults to responsive sizing.</td>
+                    </tr>
+                    <tr>
+                        <td>height</td>
+                        <td>string</td>
+                        <td>Height of the modal (e.g., "300px", "50vh"). Defaults to responsive sizing.</td>
                     </tr>
                 </tbody>
             </table>
@@ -157,8 +167,34 @@
                         <td>transparent</td>
                         <td>Border color of cancel buttons on hover</td>
                     </tr>
+                    <tr>
+                        <td>--modal-max-width</td>
+                        <td>90%</td>
+                        <td>Maximum width of the modal when no width attribute is set</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-max-height</td>
+                        <td>80vh</td>
+                        <td>Maximum height of the modal when no height attribute is set</td>
+                    </tr>
+                    <tr>
+                        <td>--modal-content-max-height</td>
+                        <td>calc(80vh - 120px)</td>
+                        <td>Maximum height of the content area (with scrolling)</td>
+                    </tr>
                 </tbody>
             </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Behavior">
+        <div slot="content">
+            <ul>
+                <li><strong>Responsive by default:</strong> The modal is responsive when no width/height is specified.</li>
+                <li><strong>Always centered:</strong> The modal is always centered on the screen.</li>
+                <li><strong>Content scrolling:</strong> When content exceeds the modal height, it will scroll automatically.</li>
+                <li><strong>Size constraints:</strong> The modal won't grow larger than specified, maintaining a clean layout.</li>
+            </ul>
         </div>
     </accordion-component>
 </div>
@@ -184,5 +220,8 @@
         --modal-button-hover-border-color: transparent;
         --modal-button-cancel-border-color: transparent;
         --modal-button-cancel-hover-border-color: transparent;
+        --modal-max-width: 90%;
+        --modal-max-height: 80vh;
+        --modal-content-max-height: calc(80vh - 120px);
     }
 </style>

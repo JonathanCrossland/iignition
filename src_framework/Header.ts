@@ -1,4 +1,4 @@
-module iignition {
+namespace iignition {
 
     export enum info{
         version = '4.0'

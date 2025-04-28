@@ -1,9 +1,26 @@
+/**
+ * FolderTree Web Component
+ * 
+ * A vertical folder tree UI component for organizing content into collapsible groups.
+ * Supports top and bottom docked groups, with automatic event delegation from child components.
+ * 
+ * @element folder-tree
+ * @attr {boolean} hidden - Controls visibility of the folder tree
+ * @fires folder-group-menu-click - When the menu button in a folder group is clicked
+ * @fires folder-item-click - When an item within a folder group is clicked
+ * @fires folder-tree-connected - When the folder tree is connected to the DOM
+ */
 class FolderTree extends HTMLElement {
     private outer: HTMLElement;
     private mainContainer: HTMLElement;
     private bottomContainer: HTMLElement;
     private mutationObserver: MutationObserver | null = null;
     private slotChangeHandler: ((e: Event) => void) | null = null;
+    
+    // Define attributes to observe
+    static get observedAttributes() {
+        return ['hidden'];
+    }
 
     constructor() {
         super();
@@ -33,7 +50,25 @@ class FolderTree extends HTMLElement {
         };
     }
 
+    // Handle attribute changes
+    attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+        if (name === 'hidden') {
+            this.updateVisibility();
+        }
+    }
+
+    // Update visibility based on hidden attribute
+    private updateVisibility() {
+        if (this.hasAttribute('hidden')) {
+            this.style.display = 'none';
+        } else {
+            this.style.display = '';
+        }
+    }
+
     connectedCallback() {
+        console.log('FolderTree connected to DOM');
+        
         // Process existing children
         this.processChildren();
         
@@ -42,6 +77,12 @@ class FolderTree extends HTMLElement {
         
         // Listen for slot changes
         this.setupSlotListeners();
+
+        // Add event listeners for child component events
+        this.setupEventListeners();
+        
+        // Initial visibility setup
+        this.updateVisibility();
         
         // Dispatch connected event
         this.dispatchEvent(new CustomEvent('folder-tree-connected', { 
@@ -51,9 +92,91 @@ class FolderTree extends HTMLElement {
     }
     
     disconnectedCallback() {
+        console.log('FolderTree disconnected from DOM');
+        
         // Clean up observers and listeners
         this.cleanupMutationObserver();
         this.cleanupSlotListeners();
+        this.cleanupEventListeners();
+    }
+
+    /**
+     * Sets up event listeners to handle events from child components
+     * This is crucial for event delegation through the shadow DOM
+     */
+    private setupEventListeners() {
+        console.log('Setting up FolderTree event listeners');
+        
+        // Listen for folder-group-menu-click events using event delegation
+        this.addEventListener('folder-group-menu-click', (e: Event) => {
+            console.log('Folder tree received group menu click:', (e as CustomEvent).detail);
+            
+            // Don't stop propagation - let the event bubble naturally
+            // Events already have bubbles:true and composed:true set by the originating components
+        });
+
+        // Listen for folder-item-click events using event delegation 
+        this.addEventListener('folder-item-click', (e: Event) => {
+            console.log('Folder tree received item click:', (e as CustomEvent).detail);
+            
+            // Don't stop propagation - let the event bubble naturally
+        });
+
+        // Enable direct event access from slots for shadow DOM boundaries
+        this.setupSlotEvents();
+    }
+
+    /**
+     * Sets up additional event listeners on slots to ensure events can cross shadow DOM boundaries
+     * This is especially important for deeply nested components
+     */
+    private setupSlotEvents() {
+        const topSlot = this.shadowRoot!.querySelector('slot[name="top-groups"]') as HTMLSlotElement;
+        const bottomSlot = this.shadowRoot!.querySelector('slot[name="bottom-groups"]') as HTMLSlotElement;
+        
+        if (topSlot) {
+            // Forward all relevant events from the slotted elements
+            ['folder-group-menu-click', 'folder-item-click'].forEach(eventName => {
+                topSlot.addEventListener(eventName, (e: Event) => {
+                    console.log(`FolderTree: ${eventName} from top slot`, (e as CustomEvent).detail);
+                    
+                    // Re-dispatch the event from the host element if needed
+                    // This ensures the event continues to bubble up from the slot
+                    const originalEvent = e as CustomEvent;
+                    if (!e.defaultPrevented) {
+                        this.dispatchEvent(new CustomEvent(eventName, {
+                            detail: originalEvent.detail,
+                            bubbles: true,
+                            composed: true
+                        }));
+                    }
+                });
+            });
+        }
+        
+        if (bottomSlot) {
+            // Forward all relevant events from the slotted elements
+            ['folder-group-menu-click', 'folder-item-click'].forEach(eventName => {
+                bottomSlot.addEventListener(eventName, (e: Event) => {
+                    console.log(`FolderTree: ${eventName} from bottom slot`, (e as CustomEvent).detail);
+                    
+                    // Re-dispatch the event from the host element if needed
+                    const originalEvent = e as CustomEvent;
+                    if (!e.defaultPrevented) {
+                        this.dispatchEvent(new CustomEvent(eventName, {
+                            detail: originalEvent.detail,
+                            bubbles: true,
+                            composed: true
+                        }));
+                    }
+                });
+            });
+        }
+    }
+
+    private cleanupEventListeners() {
+        // No explicit cleanup needed for events attached directly to this element
+        // They'll be garbage collected when the element is removed
     }
     
     private setupMutationObserver() {
@@ -122,8 +245,7 @@ class FolderTree extends HTMLElement {
     }
     
     private handleSlotChange(e: Event) {
-        // For debugging
-        console.log('Slot changed:', e.target);
+        console.log('FolderTree: Slot changed:', e.target);
         
         // Additional handling can be added here if needed
         this.validateSlottedContent();
@@ -139,7 +261,7 @@ class FolderTree extends HTMLElement {
             const bottomElements = bottomSlot.assignedElements();
             
             // Validate if needed - e.g. check that only folder-group elements are present
-            console.log(`Folder tree has ${topElements.length} top groups and ${bottomElements.length} bottom groups`);
+            console.log(`FolderTree: ${topElements.length} top groups and ${bottomElements.length} bottom groups`);
         }
     }
     
@@ -165,7 +287,10 @@ class FolderTree extends HTMLElement {
         });
     }
     
-    // Rerender method can be called externally if needed
+    /**
+     * Manually trigger re-processing of children and updating of the component
+     * @public
+     */
     public rerender() {
         this.processChildren();
     }

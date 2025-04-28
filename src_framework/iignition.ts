@@ -8,7 +8,7 @@
 /// <reference path="Data.ts" />
 /// <reference path="Splash.ts" />  
 /// <reference path="Extensions/ViewExtension.ts" />
-module iignition{
+namespace iignition{
     export class Core
     {
        
@@ -122,9 +122,13 @@ module iignition{
            
         }
 
-        show(view:string, container:string, data: any):void
+        async show(view:string, container:string, data: any, callback: () => void): Promise<void>
         {
-            this.ControllerHandler.run({ "spa": this.Options.spa, "view":view, "container":container , "controllerPath": this.Options.controllerPath, "controller": this.Options.controller, "data": data });
+            await this.ControllerHandler.run({ "spa": this.Options.spa, "view":view, "container":container , "controllerPath": this.Options.controllerPath, "controller": this.Options.controller, "data": data });
+
+            if (callback != undefined) {
+                callback();
+            }
         }
 
         test():void{

@@ -79,7 +79,7 @@ namespace iignition {
 			return new Promise((resolve, reject) => {
 				
 				// Check if the script is already loaded
-				if (document.getElementById(routing.controller)) {
+				if (document.getElementById(routing.controllerjs)) {
 					// If the script is already loaded, resolve immediately
 					const existingController = eval(`new ${routing.controller}()`) as Controller;
 					resolve(existingController);
@@ -101,7 +101,10 @@ namespace iignition {
 						reject(new Error('No parent node found for script element'));
 						return;
 					}
-					scriptElement.parentNode.insertBefore(script, scriptElement);
+                    else{
+                        scriptElement.parentNode.insertBefore(script, scriptElement);
+                    }
+					
 
 					var controller = eval(`new ${routing.controller}()`) as Controller;
 

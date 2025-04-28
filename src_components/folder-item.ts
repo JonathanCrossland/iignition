@@ -1,3 +1,13 @@
+/**
+ * FolderItem Web Component
+ * 
+ * A simple item that can be placed inside folder-group components.
+ * Handles click events and provides proper event bubbling through the component hierarchy.
+ * 
+ * @element folder-item
+ * @fires folder-item-click - When the item is clicked, with text content in the detail
+ * @fires folder-item-connected - When the component is connected to the DOM
+ */
 class FolderItem extends HTMLElement {
     private clickHandler: (e: Event) => void;
     
@@ -20,6 +30,8 @@ class FolderItem extends HTMLElement {
     }
     
     connectedCallback() {
+        console.log('FolderItem connected:', this.textContent?.trim());
+        
         // Add event listeners
         this.addEventListener('click', this.clickHandler);
         
@@ -28,19 +40,35 @@ class FolderItem extends HTMLElement {
             this.setAttribute('role', 'listitem');
         }
         
+        // Setup tabindex for keyboard navigation if not already set
+        if (!this.hasAttribute('tabindex')) {
+            this.setAttribute('tabindex', '0');
+        }
+        
         // Dispatch connected event
         this.dispatchEvent(new CustomEvent('folder-item-connected', {
+            detail: {
+                text: this.textContent?.trim() || ''
+            },
             bubbles: true,
             composed: true
         }));
     }
     
     disconnectedCallback() {
+        console.log('FolderItem disconnected:', this.textContent?.trim());
+        
         // Clean up event listeners
         this.removeEventListener('click', this.clickHandler);
     }
     
+    /**
+     * Handle click events on the item
+     * @private
+     */
     private handleClick(e: Event) {
+        console.log('FolderItem clicked:', this.textContent?.trim());
+        
         // Dispatch click event with item details
         this.dispatchEvent(new CustomEvent('folder-item-click', {
             detail: { 
@@ -52,11 +80,19 @@ class FolderItem extends HTMLElement {
         }));
     }
     
-    // Expose a public method to get the item text
+    /**
+     * Get the text content of the item
+     * @public
+     * @returns {string} The trimmed text content of the item
+     */
     public getItemText(): string {
         return this.textContent?.trim() || '';
     }
 
+    /**
+     * Define the component styles
+     * @private
+     */
     private getStyles(): string {
         return `
             :host {

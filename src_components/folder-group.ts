@@ -1,3 +1,16 @@
+/**
+ * FolderGroup Web Component
+ * 
+ * A collapsible group container for folder items that can be docked at the top or bottom of a folder tree.
+ * Handles click events and manages the collapsed state of its content.
+ * 
+ * @element folder-group
+ * @attr {string} label - The text label for the group header
+ * @attr {boolean} collapsed - Controls whether the group is collapsed
+ * @attr {string} dock - When set to "bottom", docks the group at the bottom of a folder-tree
+ * @fires folder-group-menu-click - When the menu button in the header is clicked
+ * @fires folder-group-connected - When the component is connected to the DOM
+ */
 class FolderGroup extends HTMLElement {
     private header: HTMLElement;
     private content: HTMLElement;
@@ -39,6 +52,7 @@ class FolderGroup extends HTMLElement {
         
         this.menuClickHandler = (e: Event) => {
             e.stopPropagation();
+            console.log('Folder group menu clicked:', this.getAttribute('label'));
             this.dispatchEvent(new CustomEvent('folder-group-menu-click', { 
                 detail: { 
                     label: this.getAttribute('label'),
@@ -51,6 +65,8 @@ class FolderGroup extends HTMLElement {
     }
 
     connectedCallback() {
+        console.log('FolderGroup connected:', this.getAttribute('label'));
+        
         // Set initial label
         this.updateLabel();
         
@@ -60,6 +76,12 @@ class FolderGroup extends HTMLElement {
         if (menuButton) {
             menuButton.addEventListener('click', this.menuClickHandler);
         }
+
+        // Listen for folder-item-click events from child folder-items
+        this.addEventListener('folder-item-click', (e: Event) => {
+            console.log('Folder group received item click:', (e as CustomEvent).detail);
+            // We don't stop propagation - this is crucial for event bubbling to work
+        });
         
         // Set initial collapsed state from attribute
         this.collapsed = this.hasAttribute('collapsed');
@@ -75,17 +97,37 @@ class FolderGroup extends HTMLElement {
         
         // Dispatch connected event
         this.dispatchEvent(new CustomEvent('folder-group-connected', {
+            detail: {
+                label: this.getAttribute('label')
+            },
             bubbles: true,
             composed: true
         }));
+
+        // Add slotchange listener to handle dynamically added children
+        const slot = this.shadowRoot!.querySelector('slot');
+        if (slot) {
+            slot.addEventListener('slotchange', () => {
+                console.log('Folder group slot changed:', this.getAttribute('label'));
+                this.processChildren();
+            });
+        }
     }
     
     disconnectedCallback() {
+        console.log('FolderGroup disconnected:', this.getAttribute('label'));
+        
         // Remove event listeners
         this.header.removeEventListener('click', this.headerClickHandler);
         const menuButton = this.shadowRoot!.querySelector('.folder-group-menu');
         if (menuButton) {
             menuButton.removeEventListener('click', this.menuClickHandler);
+        }
+
+        // Remove slot change listener
+        const slot = this.shadowRoot!.querySelector('slot');
+        if (slot) {
+            slot.removeEventListener('slotchange', () => {});
         }
     }
 
@@ -106,12 +148,13 @@ class FolderGroup extends HTMLElement {
     }
     
     private processChildren() {
-        // Ensure all direct children are slotted properly
+        // Process direct children
         Array.from(this.children).forEach(child => {
-            if (child instanceof HTMLElement && !child.slot) {
-                // Default slot is used for folder-items
+            if (child instanceof HTMLElement) {
+                // Ensure folder-items are properly initialized
                 if (child.tagName.toLowerCase() === 'folder-item') {
                     // No need to set slot as we're using default slot
+                    console.log('Folder group contains item:', child.textContent?.trim());
                 }
             }
         });
@@ -139,19 +182,28 @@ class FolderGroup extends HTMLElement {
         }
     }
     
-    // Public method to toggle collapse state
+    /**
+     * Toggle the collapsed state of the group
+     * @public
+     */
     public toggle() {
         this.toggleCollapse();
     }
     
-    // Public method to expand the group
+    /**
+     * Expand the group by removing the collapsed attribute
+     * @public
+     */
     public expand() {
         this.collapsed = false;
         this.removeAttribute('collapsed');
         this.updateCollapse();
     }
     
-    // Public method to collapse the group
+    /**
+     * Collapse the group by setting the collapsed attribute
+     * @public
+     */
     public collapse() {
         this.collapsed = true;
         this.setAttribute('collapsed', '');

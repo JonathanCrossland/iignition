@@ -18,15 +18,29 @@
                 .dock-window folder-tree {
                     background-color: var(--dockable-window-bg, #2d2d2d);
                     color: var(--color-text, #eee);
+                    height: 100%;
                 }
                 
-               
+                .event-log {
+                    position: fixed;
+                    bottom: 10px;
+                    right: 10px;
+                    background: rgba(0,0,0,0.7);
+                    color: #fff;
+                    padding: 10px;
+                    border-radius: 4px;
+                    font-size: 0.8rem;
+                    max-width: 300px;
+                    max-height: 150px;
+                    overflow-y: auto;
+                    z-index: 9999;
+                }
             </style>
             <div class="example-container dockable-example">
 
                 <dockable-view style="height: 100%;">
-                    <div title="Window 1" class="dock-window" >
-                        <folder-tree id="demo-folder-tree" style="height:fit-content">
+                    <div title="Window 1" class="dock-window" min-width="300px" width="300px">
+                        <folder-tree id="demo-folder-tree" style="height:100%">
                             <folder-group label="Scenes">
                                 <folder-item>scenes.md</folder-item>
                                 <folder-item>prologue.md</folder-item>
@@ -44,7 +58,7 @@
                             </folder-group>
                         </folder-tree>
                     </div>
-                    <div title="Window 2" class="dock-window" width="500px" >
+                    <div title="Window 2" class="dock-window" width="50%" >
                         <h3>Second Window</h3>
                         <p>Try dragging this window to the edges to dock it.</p>
                         <p>Use the window controls in the header:</p>
@@ -54,7 +68,7 @@
                             <li>Close (×)</li>
                         </ul>
                     </div>
-                    <div title="Window 3" class="dock-window" >
+                    <div title="Window 3" class="dock-window" min-width="300px" width="300px">
                        
                     </div>
 
@@ -87,7 +101,7 @@
             
             <pre><code class="language-css">/* Example: Properly configure components inside dockable windows */
 .dock-window folder-tree {
-    height: 300px;
+    height: 100%;
     width: 100%;
     display: block;
     overflow: auto;
@@ -99,6 +113,22 @@
     height: calc(100% - 40px); /* Subtract header height */
     overflow: auto;
 }</code></pre>
+
+            <h3>Event Handling With Shadow DOM Components</h3>
+            <p>When using components like <code>folder-tree</code> that utilize Shadow DOM, events dispatched from within the component need to be properly handled. The following example shows how to listen for events from a folder-tree inside a dockable window:</p>
+            
+            <pre><code class="language-javascript">// Get reference to the folder-tree inside a dockable window
+const folderTree = document.getElementById('demo-folder-tree');
+
+// Listen for folder-item-click events
+folderTree.addEventListener('folder-item-click', e => {
+    console.log('Item clicked:', e.detail.text);
+});
+
+// Listen for folder-group-menu-click events
+folderTree.addEventListener('folder-group-menu-click', e => {
+    console.log('Group menu clicked:', e.detail.label);
+});</code></pre>
         </div>
     </accordion-component>
 
@@ -152,6 +182,38 @@
                         <td>'true'</td>
                         <td>Show or hide the maximize/close buttons in the window header. If set to 'false' or '0', the buttons are hidden.</td>
                     </tr>
+                    <tr>
+                        <td>stacked</td>
+                        <td>string</td>
+                        <td>''</td>
+                        <td>ID of another window to stack this window on. The stacked window will share the same container as the target window.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Container Attributes</h3>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Attribute</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>locked</td>
+                        <td>boolean</td>
+                        <td>false</td>
+                        <td>When set, prevents windows from being dragged or resized</td>
+                    </tr>
+                    <tr>
+                        <td>auto-layout</td>
+                        <td>boolean</td>
+                        <td>true</td>
+                        <td>When set, automatically arranges windows on initialization</td>
+                    </tr>
                 </tbody>
             </table>
 
@@ -169,6 +231,8 @@
                 <li>Visual preview when dragging near dockable edges</li>
                 <li>Responsive layout that maintains window positions</li>
                 <li>Window resizing with splitters</li>
+                <li>Stacked windows feature for tabbed interfaces</li>
+                <li>Event propagation through Shadow DOM boundaries</li>
             </ul>
 
             <h3>Window Controls</h3>
@@ -178,6 +242,45 @@
                 <li><strong>Maximize (□)</strong>: Toggles between normal and maximized state</li>
                 <li><strong>Close (×)</strong>: Removes the window from the container</li>
             </ul>
+
+            <h3>Events</h3>
+            <p>The dockable-view component dispatches the following events:</p>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Detail</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>window-created</td>
+                        <td>{ window: Element, id: string }</td>
+                        <td>Fired when a new window is created</td>
+                    </tr>
+                    <tr>
+                        <td>window-closed</td>
+                        <td>{ window: Element, id: string }</td>
+                        <td>Fired when a window is closed</td>
+                    </tr>
+                    <tr>
+                        <td>window-maximized</td>
+                        <td>{ window: Element, id: string }</td>
+                        <td>Fired when a window is maximized</td>
+                    </tr>
+                    <tr>
+                        <td>window-restored</td>
+                        <td>{ window: Element, id: string }</td>
+                        <td>Fired when a window is restored from maximized state</td>
+                    </tr>
+                    <tr>
+                        <td>window-focused</td>
+                        <td>{ window: Element, id: string }</td>
+                        <td>Fired when a window gains focus</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </accordion-component>
 
@@ -251,8 +354,38 @@
                     </tr>
                     <tr>
                         <td>--dockable-transition-duration</td>
-                        <td>1150ms</td>
+                        <td>150ms</td>
                         <td>Duration of window transition animations</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-maximized-offset</td>
+                        <td>1000</td>
+                        <td>Z-index offset added to maximized windows</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-active-header-bg</td>
+                        <td>#444444</td>
+                        <td>Background color of the active window header</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-active-header-color</td>
+                        <td>#ffffff</td>
+                        <td>Text color of the active window header</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-inactive-header-color</td>
+                        <td>#cccccc</td>
+                        <td>Text color of inactive window headers</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-splitter-color</td>
+                        <td>#555555</td>
+                        <td>Color of the splitter between docked windows</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-splitter-hover-color</td>
+                        <td>#0078d7</td>
+                        <td>Color of the splitter when hovered</td>
                     </tr>
                 </tbody>
             </table>
@@ -263,21 +396,70 @@
     --dockable-window-bg: #2d2d2d;
     --dockable-window-border: #404040;
     --dockable-header-bg: #333333;
+    --dockable-active-header-bg: #444444;
+    --dockable-active-header-color: #ffffff;
+    --dockable-inactive-header-color: #cccccc;
     --dockable-header-border: #555555;
     --dockable-preview-bg: rgba(0, 150, 255, 0.2);
     --dockable-preview-border: 2px dashed #0078d7;
-    --dockable-header-padding: 20px;
+    --dockable-header-padding: 10px;
     --dockable-content-padding: 0;
     --dockable-border-radius: 4px;
-    --dockable-transition-duration: 1150ms;
+    --dockable-transition-duration: 150ms;
     --dockable-maximized-offset: 1000;
+    --dockable-splitter-color: #555555;
+    --dockable-splitter-hover-color: #0078d7;
 }
+
 /* Example: Set header and content padding independently */
 .dock-window {
     --dockable-header-padding: 16px;
     --dockable-content-padding: 0;
 }
+
+/* Ensuring shadow DOM components work correctly */
+.dock-window folder-tree {
+    height: 100%;
+    width: 100%;
+}
 </code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Shadow DOM Component Integration">
+        <div slot="content">
+            <p>Working with Shadow DOM components inside dockable windows requires special consideration for both styling and event handling.</p>
+            
+            <h3>Styling Shadow DOM Components</h3>
+            <p>Components with Shadow DOM encapsulation (like folder-tree) need explicit dimensions and styles when placed inside dockable windows:</p>
+            
+            <pre><code class="language-css">.dock-window folder-tree {
+    height: 100%; /* Fill the available space */
+    width: 100%;
+    display: block;
+    background-color: var(--dockable-window-bg);
+}</code></pre>
+            
+            <h3>Event Propagation</h3>
+            <p>To ensure events from Shadow DOM components can be caught at the application level, components should dispatch events with the following properties:</p>
+            
+            <pre><code class="language-javascript">// Example of properly dispatching events from Shadow DOM components
+this.dispatchEvent(new CustomEvent('event-name', {
+    detail: { /* event data */ },
+    bubbles: true,    // Allow event to bubble up through the DOM
+    composed: true    // Allow event to cross Shadow DOM boundaries
+}));</code></pre>
+            
+            <h3>Cross-Component Event Handling</h3>
+            <p>When using components like folder-tree inside dockable windows, listen for events on the component instance itself rather than the containing window:</p>
+            
+            <pre><code class="language-javascript">// Get reference to the component inside the dockable window
+const component = document.querySelector('.dock-window folder-tree');
+
+// Listen for events from the component
+component.addEventListener('folder-item-click', (e) => {
+    console.log('Item clicked:', e.detail);
+});</code></pre>
         </div>
     </accordion-component>
 </div>

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<div class="component-content">
+    <h2>Title Bar Component</h2>
+    <p class="component-description">A versatile and customizable title bar with application name, dropdown menu, and action buttons. The title bar consists of two components: <code>title-bar</code> (container) and <code>title-action</code> (individual action buttons).</p>
+<style>
+    .example-container{
+        height: 100px;
+        overflow: visible;
+        position: relative;
+        z-index: 10;
+        border: 1px solid var(--color-border, #333);
+        margin-bottom: 20px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        padding: 0;
+    }
+    
+    .component-content {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+
+
+
+</style>
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <div class="example-container">
+                <title-bar title="Project">
+                    <!-- App name via slot -->
+                    <div slot="app-name">iignition</div>
+                    
+                    <!-- Dropdown items -->
+                    <div slot="dropdown-items">
+                        <div class="dropdown-item">Open Project</div>
+                        <div class="dropdown-item">Save Project</div>
+                        <div class="dropdown-item">Project Settings</div>
+                        <div class="dropdown-separator"></div>
+                        <div class="dropdown-item">Import Resources</div>
+                        <div class="dropdown-item">Export Resources</div>
+                    </div>
+                    
+                    <!-- Action buttons -->
+                    <title-action slot="actions" label="Build">
+                        <svg width="16" height="16" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M14.5,9.5l-3-3l3-3l1.5,1.5l-1.5,1.5l1.5,1.5L14.5,9.5z M19.5,9.5l-3-3l3-3l1.5,1.5L19.5,6.5l1.5,1.5L19.5,9.5z M9.5,9.5l-3-3l3-3l1.5,1.5L9.5,6.5l1.5,1.5L9.5,9.5z M4,17l3,3l-3,3l-1.5-1.5L4,20l-1.5-1.5L4,17z M9,17l3,3l-3,3l-1.5-1.5L9,20l-1.5-1.5L9,17z M14,17l3,3l-3,3l-1.5-1.5l1.5-1.5l-1.5-1.5L14,17z M19,17l3,3l-3,3l-1.5-1.5l1.5-1.5l-1.5-1.5L19,17z"/>
+                        </svg>
+                    </title-action>
+                    <title-action slot="actions" label="Preview">
+                        <svg width="16" height="16" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"/>
+                        </svg>
+                    </title-action>
+                    <title-action slot="actions">
+                        <svg width="16" height="16" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M16,12A2,2 0 0,1 18,10A2,2 0 0,1 20,12A2,2 0 0,1 18,14A2,2 0 0,1 16,12M10,12A2,2 0 0,1 12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12M4,12A2,2 0 0,1 6,10A2,2 0 0,1 8,12A2,2 0 0,1 6,14A2,2 0 0,1 4,12Z"/>
+                        </svg>
+                    </title-action>
+                </title-bar>
+            </div>
+            <pre><code class="language-html">&lt;title-bar title="Project"&gt;
+    &lt;!-- App name via slot --&gt;
+    &lt;div slot="app-name"&gt;LitForge&lt;/div&gt;
+    
+    &lt;!-- Dropdown items --&gt;
+    &lt;div slot="dropdown-items"&gt;
+        &lt;div class="dropdown-item"&gt;Open Project&lt;/div&gt;
+        &lt;div class="dropdown-item"&gt;Save Project&lt;/div&gt;
+        &lt;div class="dropdown-item"&gt;Project Settings&lt;/div&gt;
+        &lt;div class="dropdown-separator"&gt;&lt;/div&gt;
+        &lt;div class="dropdown-item"&gt;Import Resources&lt;/div&gt;
+        &lt;div class="dropdown-item"&gt;Export Resources&lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;!-- Action buttons --&gt;
+    &lt;title-action slot="actions" label="Build"&gt;
+       
+    &lt;/title-action&gt;
+    &lt;title-action slot="actions" label="Preview"&gt;
+      
+    &lt;/title-action&gt;
+    &lt;title-action slot="actions"&gt;
+      
+    &lt;/title-action&gt;
+&lt;/title-bar&gt;</code></pre>
+
+            <p>You can style dropdown items using the following CSS classes:</p>
+            <pre><code class="language-css">.dropdown-item {
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-separator {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 6px 0;
+}</code></pre>
+
+            <p><strong>Note:</strong> The Title Bar component is designed to fit the width of its container and maintain a fixed height. It handles text overflow with ellipsis to ensure it always fits properly in its container.</p>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Components">
+        <div slot="content">
+            <h3>title-bar</h3>
+            <p>The main container component that organizes the app name, dropdown menu, and action buttons.</p>
+            
+            <h3>title-action</h3>
+            <p>Individual action button with optional label. Place SVG elements or other icon content directly inside.</p>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Slots">
+        <div slot="content">
+            <h3>title-bar Slots</h3>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Slot Name</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>app-name</td>
+                        <td>Content for the application name (left section)</td>
+                    </tr>
+                    <tr>
+                        <td>dropdown-items</td>
+                        <td>Content for the dropdown menu items</td>
+                    </tr>
+                    <tr>
+                        <td>actions</td>
+                        <td>Action buttons using title-action elements</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <h3>title-bar Properties</h3>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>title</td>
+                        <td>string</td>
+                        <td>Text to display in the center dropdown button</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>title-action Properties</h3>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>label</td>
+                        <td>string</td>
+                        <td>Optional text label to display next to the icon</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Events">
+        <div slot="content">
+            <h3>title-bar Events</h3>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Detail</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>dropdown-toggle</td>
+                        <td>{ open }</td>
+                        <td>Emitted when the dropdown is opened or closed</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>title-action Events</h3>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Detail</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>title-action-click</td>
+                        <td>{ id, label }</td>
+                        <td>Emitted when an action button is clicked</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="example-container">
+                <title-bar id="eventExample" title="Event Example">
+                    <div slot="app-name">LitForge</div>
+                    <title-action slot="actions" label="Click Me">
+                        <svg width="16" height="16" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                        </svg>
+                    </title-action>
+                </title-bar>
+                <div id="eventOutput" class="event-output">Interact with the title bar to see events</div>
+                <pre><code class="language-javascript">const titlebar = document.querySelector('#eventExample');
+titlebar.addEventListener('dropdown-toggle', (e) => {
+    console.log('Dropdown toggled:', e.detail.open);
+});
+titlebar.addEventListener('title-action-click', (e) => {
+    console.log('Action clicked:', e.detail);
+});</code></pre>
+            </div>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--titlebar-height</td>
+                        <td>40px</td>
+                        <td>Height of the title bar</td>
+                    </tr>
+                    <tr>
+                        <td>--titlebar-bg</td>
+                        <td>#1f1f1f</td>
+                        <td>Background color of the title bar</td>
+                    </tr>
+                    <tr>
+                        <td>--titlebar-border</td>
+                        <td>#333</td>
+                        <td>Border color at the bottom of the title bar</td>
+                    </tr>
+                    <tr>
+                        <td>--titlebar-color</td>
+                        <td>#fff</td>
+                        <td>Text color in the title bar</td>
+                    </tr>
+                    <tr>
+                        <td>--titlebar-font-size</td>
+                        <td>14px</td>
+                        <td>Font size for text in the title bar</td>
+                    </tr>
+                    <tr>
+                        <td>--titlebar-padding</td>
+                        <td>0 16px</td>
+                        <td>Padding inside the title bar (must be specified on the title-bar element or parent scope)</td>
+                    </tr>
+                    <tr>
+                        <td>--titlebar-dropdown-bg</td>
+                        <td>#252525</td>
+                        <td>Background color of the dropdown menu</td>
+                    </tr>
+                    <tr>
+                        <td>--titlebar-dropdown-hover-bg</td>
+                        <td>#333</td>
+                        <td>Background color when hovering over dropdown button</td>
+                    </tr>
+                    <tr>
+                        <td>--titlebar-dropdown-border</td>
+                        <td>#444</td>
+                        <td>Border color of the dropdown menu</td>
+                    </tr>
+                    <tr>
+                        <td>--titlebar-dropdown-shadow</td>
+                        <td>0 4px 8px rgba(0,0,0,0.3)</td>
+                        <td>Box shadow of the dropdown menu</td>
+                    </tr>
+                    <tr>
+                        <td>--titlebar-action-size</td>
+                        <td>32px</td>
+                        <td>Size of the action buttons</td>
+                    </tr>
+                    <tr>
+                        <td>--titlebar-action-spacing</td>
+                        <td>8px</td>
+                        <td>Spacing between action buttons</td>
+                    </tr>
+                    <tr>
+                        <td>--titlebar-action-hover-bg</td>
+                        <td>rgba(255,255,255,0.1)</td>
+                        <td>Background color when hovering over action buttons</td>
+                    </tr>
+                    <tr>
+                        <td>--titlebar-action-icon-size</td>
+                        <td>16px</td>
+                        <td>Size of the action button icons</td>
+                    </tr>
+                    <tr>
+                        <td>--titlebar-action-label-size</td>
+                        <td>12px</td>
+                        <td>Font size for action button labels</td>
+                    </tr>
+                    <tr>
+                        <td>--titlebar-transition</td>
+                        <td>all 0.2s ease</td>
+                        <td>Transition duration and timing for animations</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Example Custom Styling</h3>
+            <pre><code class="language-css">/* Apply these variables either on :root, body, or directly on the title-bar element */
+:root {
+    --titlebar-height: 40px;
+    --titlebar-bg: #1f1f1f;
+    --titlebar-border: #333;
+    --titlebar-color: #fff;
+    --titlebar-font-size: 14px;
+    --titlebar-padding: 0 16px; /* Important to set this to ensure proper layout */
+    --titlebar-dropdown-bg: #252525;
+    --titlebar-dropdown-hover-bg: #333;
+    --titlebar-dropdown-border: #444;
+    --titlebar-dropdown-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    --titlebar-action-size: 32px;
+    --titlebar-action-spacing: 8px;
+    --titlebar-action-hover-bg: rgba(255,255,255,0.1);
+    --titlebar-transition: all 0.2s ease;
+}
+
+/* Or apply directly to the component itself */
+title-bar {
+    --titlebar-padding: 0 16px;
+}
+</code></pre>
+        </div>
+    </accordion-component>
+</div>
+
+<script>
+    // Example event handling
+    document.querySelector('#eventExample')?.addEventListener('dropdown-toggle', (e) => {
+        const output = document.querySelector('#eventOutput');
+        if (output) {
+            output.textContent = `Dropdown ${e.detail.open ? 'opened' : 'closed'}`;
+        }
+    });
+    
+    document.querySelector('#eventExample')?.addEventListener('title-action-click', (e) => {
+        const output = document.querySelector('#eventOutput');
+        if (output) {
+            output.textContent = `Action clicked: ${e.detail.label || e.detail.id}`;
+        }
+    });
+</script> 

@@ -178,25 +178,13 @@ class Explorer extends HTMLElement {
     }
 
     private getFolderIcon(item: ExplorerItem, expanded: boolean): string {
-        if (expanded && item.folderOpenIcon) return item.folderOpenIcon;
-        if (!expanded && item.folderClosedIcon) return item.folderClosedIcon;
-        return expanded ? '📂' : '📁';
+        // No longer return emoji, icons are now styled via CSS
+        return '';
     }
 
     private getFileIcon(item: ExplorerItem): string {
-        if (item.icon) return item.icon;
-        
-        // Default icons based on extension
-        const icons: { [key: string]: string } = {
-            js: '📄',
-            ts: '📄',
-            html: '📄',
-            css: '📄',
-            json: '📄',
-            default: '📄'
-        };
-        const extension = item.extension || item.name.split('.').pop() || '';
-        return icons[extension] || icons.default;
+        // No longer return emoji, icons are now styled via CSS
+        return '';
     }
 
     private findNodeByPath(path: string[]): ExplorerItem | null {
@@ -253,16 +241,10 @@ class Explorer extends HTMLElement {
 
         const isExpanded = content.style.display !== 'none';
         content.style.display = isExpanded ? 'none' : 'block';
-        
+        // No icon.textContent logic here; icon is styled via CSS
+
         // Find the item in the data structure to get its icons
         const path = folderElement.dataset.path?.split('/') || [];
-        const currentItem = this.findNodeByPath(path);
-        
-        icon.textContent = currentItem ? 
-            this.getFolderIcon(currentItem, !isExpanded) : 
-            this.getFolderIcon({ type: 'folder', name: '' }, !isExpanded);
-        
-        // Update data structure
         this.updateItemExpanded(this._data, path, !isExpanded);
     }
 
@@ -291,7 +273,7 @@ class Explorer extends HTMLElement {
             return `
                 <div class="explorer-item folder" data-path="${currentPath}" data-type="folder">
                     <div class="folder-header">
-                        <span class="folder-icon">${this.getFolderIcon(item, item.expanded || false)}</span>
+                        <span class="folder-icon"></span>
                         <span class="folder-name">${item.name}</span>
                     </div>
                     <div class="folder-content" style="display: ${item.expanded ? 'block' : 'none'}">
@@ -303,7 +285,7 @@ class Explorer extends HTMLElement {
             return `
                 <div class="explorer-item file" data-path="${currentPath}" data-type="file">
                     <div class="file">
-                        <span class="file-icon">${this.getFileIcon(item)}</span>
+                        <span class="file-icon"></span>
                         <span class="file-name">${item.name}</span>
                     </div>
                 </div>
@@ -337,6 +319,7 @@ class Explorer extends HTMLElement {
                     --explorer-hover-bg: rgba(255, 255, 255, 0.1);
                     --explorer-indent: 20px;
                     --explorer-item-height: 22px;
+                    /* No default icon values here; set in global CSS if desired */
                 }
 
                 .explorer-container {
@@ -384,6 +367,20 @@ class Explorer extends HTMLElement {
                 .folder-icon, .file-icon {
                     width: 16px;
                     text-align: center;
+                    display: inline-block;
+                }
+
+                /* Folder icon: closed by default, open if expanded */
+                .folder > .folder-header > .folder-icon::before {
+                    content: var(--explorer-folder-icon-closed);
+                }
+                .folder[expanded] > .folder-header > .folder-icon::before {
+                    content: var(--explorer-folder-icon-open);
+                }
+
+                /* File icon */
+                .file-icon::before {
+                    content: var(--explorer-file-icon);
                 }
 
                 .folder-name, .file-name {

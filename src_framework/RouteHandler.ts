@@ -1,4 +1,4 @@
-module iignition
+namespace iignition
 {
     export class RouteHandler extends RouteComponent   {
         

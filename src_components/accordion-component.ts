@@ -6,6 +6,8 @@ class AccordionComponent extends HTMLElement {
             <style>
                 :host {
                     display: block;
+                    width: 100%;
+                    max-width: 100%;
                     margin-bottom: 1rem;
                     border-radius: var(--accordion-radius);
                     overflow: hidden;
@@ -13,6 +15,7 @@ class AccordionComponent extends HTMLElement {
                     box-shadow: var(--accordion-shadow);
                     transition: var(--accordion-transition);
                     border: var(--accordion-border);
+                    box-sizing: border-box !important;
                 }
 
                 :host(:hover) {
@@ -21,6 +24,7 @@ class AccordionComponent extends HTMLElement {
 
                 .accordion {
                     width: 100%;
+                    max-width: 100%;
                     padding: var(--accordion-padding);
                     background: var(--accordion-header-bg);
                     color: var(--accordion-header-text);
@@ -33,6 +37,8 @@ class AccordionComponent extends HTMLElement {
                     border: none;
                     outline: none;
                     font-size: var(--accordion-header-font-size);
+                    box-sizing: border-box;
+                    text-align: left;
                 }
 
                 .accordion:hover {
@@ -47,6 +53,9 @@ class AccordionComponent extends HTMLElement {
                     max-height: 0;
                     overflow: hidden;
                     transition: max-height var(--accordion-transition);
+                    width: 100%;
+                    max-width: 100%;
+                    box-sizing: border-box;
                 }
 
                 .panel.open {
@@ -56,10 +65,19 @@ class AccordionComponent extends HTMLElement {
 
                 .icon {
                     transition: transform var(--accordion-transition);
+                    margin-left: 8px;
+                    flex-shrink: 0;
                 }
 
                 .active .icon {
                     transform: rotate(180deg);
+                }
+                
+                /* Ensure slotted content respects dimensions */
+                ::slotted(*) {
+                    max-width: 100%;
+                    box-sizing: border-box;
+                    overflow-wrap: break-word;
                 }
             </style>
             <button class="accordion">

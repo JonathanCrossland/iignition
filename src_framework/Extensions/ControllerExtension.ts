@@ -1,4 +1,4 @@
-module iignition {
+namespace iignition {
 
     export class ControllerExtension extends Extension {
         private _ControllerCache: Map<string, Controller> = new Map();

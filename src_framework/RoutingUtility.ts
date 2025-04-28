@@ -1,4 +1,4 @@
-module iignition
+namespace iignition
 {
    
 
@@ -37,8 +37,20 @@ module iignition
             url = url.replace('.html', '');
             
             this.processRoot(url);
-            this.processController(url);
+           
             this.processViewAndHash(url);
+
+            if ($i.Options.controllerjs == '') {
+                this.controllerjs = this.view?.replace($i.Options.viewPath, $i.Options.controllerPath);
+                this.controllerjs = this.controllerjs?.replace(/\.html$/, '.js');
+            }
+            else{
+                this.controllerjs = $i.Options.controllerjs;
+            }
+            this.controllerjs = `${this.domainRoot}${this.controllerjs}`;
+            this.controller = this.controllerjs.substr(this.controllerjs.lastIndexOf('/') + 1).replace('.js', '');
+
+            //this.processController(url);
         }
 
         private processRoot(url: string): void {
@@ -50,32 +62,22 @@ module iignition
 
         private processController(url: string): void {
             if ($i.Options.controllerjs == '') {
-                // Get the full path after the view path
+                // Get the full view path (relative to domain root)
                 const viewPath = $i.Options.viewPath;
-                const pathAfterView = url.split(viewPath)[1] || '';
-                
-                // Remove .html and get the path parts
-                const pathParts = pathAfterView.replace('.html', '').split('/').filter(Boolean);
-                
-                // The last part is the controller name
-                this.controller = pathParts[pathParts.length - 1];
-                
-                // Build the controller path maintaining the folder structure
-                if (this.ControllerPath == '') {
-                    // If no specific controller path, use the same structure as views
-                    this.controllerjs = pathAfterView.replace('.html', '.js');
-                } else {
-                    // If we have a controller path, maintain the folder structure
-                    const folderPath = pathParts.slice(0, -1).join('/');
-                    this.controllerjs = `${folderPath}/${this.controller}.js`;
-                }
+                const controllerPath = this.ControllerPath.replace(/\/$/, ''); // remove trailing slash if any
+                let viewRelativePath = url.split(this.domainRoot)[1] || url;
 
-                // Combine with domain root and controller path
-                this.controllerjs = `${this.domainRoot}${this.ControllerPath}${this.controllerjs}`;
+                // Remove any hash and query
+                viewRelativePath = viewRelativePath.split('#')[0].split('?')[0];
 
-                if (!this.controllerjs.includes('.js')) {
-                    this.controllerjs = `${this.controllerjs}.js`;
-                }
+                // Replace viewPath with controllerPath and .html with .js
+                let controllerJsPath = viewRelativePath.replace(viewPath, controllerPath).replace(/\.html$/, '.js');
+                // Remove any leading slash
+                controllerJsPath = controllerJsPath.replace(/^\//, '');
+                this.controllerjs = `${this.domainRoot}${controllerJsPath}`;
+
+                // Set controller name
+                this.controller = this.controllerjs.substr(this.controllerjs.lastIndexOf('/') + 1).replace('.js', '');
             } else {
                 this.controllerjs = $i.Options.controllerjs;
                 this.controller = this.controllerjs.substr(this.controllerjs.lastIndexOf('/') + 1);

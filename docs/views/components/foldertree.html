@@ -1,0 +1,169 @@
+<div class="component-content">
+    <h2>Folder Tree Component</h2>
+    <p class="component-description">A vertical folder tree for organizing groups and items, with collapsible groups and optional bottom-docking. Fills its container and uses a grid layout for top and bottom groups. No built-in icons.</p>
+<style>
+  
+
+</style>
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <folder-tree id="ftree-example" style="height: 520px; background: #222;">
+                <folder-group label="Scenes">
+                    <folder-item>scenes.md</folder-item>
+                    <folder-item>prologue.md</folder-item>
+                    <folder-item>scene 2.md</folder-item>
+                </folder-group>
+                <folder-group label="Characters">
+                    <folder-item>thalos.json</folder-item>
+                    <folder-item>lyanna.json</folder-item>
+                </folder-group>
+                <folder-group label="World" dock="bottom">
+                    <folder-item>burilchoas.json</folder-item>
+                </folder-group>
+                <folder-group label="Plot-Lines" dock="bottom">
+                    <folder-item>build-settings.json</folder-item>
+                </folder-group>
+            </folder-tree>
+            <pre><code class="language-html">&lt;folder-tree&gt;
+    &lt;folder-group label="Scenes"&gt;
+        &lt;folder-item&gt;scenes.md&lt;/folder-item&gt;
+        &lt;folder-item&gt;prologue.md&lt;/folder-item&gt;
+    &lt;/folder-group&gt;
+    &lt;folder-group label="World" dock="bottom"&gt;
+        &lt;folder-item&gt;burilchoas.json&lt;/folder-item&gt;
+    &lt;/folder-group&gt;
+&lt;/folder-tree&gt;</code></pre>
+            <p><strong>Note:</strong> There are no built-in icons. You may add your own HTML or SVG if desired.</p>
+            <p><strong>Events:</strong> Try clicking a folder item or the <code>...</code> menu on a group to see the events in the console.</p>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Element</th>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>folder-group</td>
+                        <td>label</td>
+                        <td>string</td>
+                        <td>Text label for the group header</td>
+                    </tr>
+                    <tr>
+                        <td>folder-group</td>
+                        <td>dock</td>
+                        <td>"bottom"</td>
+                        <td>If set to "bottom", docks the group at the bottom of the tree</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Events">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Detail</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>folder-group-menu-click</td>
+                        <td>{ label: string }</td>
+                        <td>Emitted when the ... menu on a group is clicked</td>
+                    </tr>
+                    <tr>
+                        <td>folder-item-click</td>
+                        <td>{ text: string }</td>
+                        <td>Emitted when a folder item is clicked</td>
+                    </tr>
+                </tbody>
+            </table>
+            <pre><code class="language-javascript">const tree = document.getElementById('ftree-example');
+tree.addEventListener('folder-group-menu-click', e => {
+    console.log('Group menu clicked:', e.detail.label);
+});
+tree.addEventListener('folder-item-click', e => {
+    console.log('Item clicked:', e.detail.text);
+});</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <p>The component can be styled using the following CSS custom properties. The component now handles overflow internally and always stretches to the container width.</p>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>--folder-bg</td><td>#181818</td><td>Background color of the folder tree</td></tr>
+                    <tr><td>--folder-divider</td><td>#222</td><td>Divider color between main and bottom sections</td></tr>
+                    <tr><td>--folder-group-bg</td><td>#23272e</td><td>Background color of group</td></tr>
+                    <tr><td>--folder-group-header-bg</td><td>#23272e</td><td>Background color of group header</td></tr>
+                    <tr><td>--folder-group-header-hover-bg</td><td>#2c313a</td><td>Background color of group header on hover</td></tr>
+                    <tr><td>--folder-group-header-color</td><td>#d7dae0</td><td>Text color of group header</td></tr>
+                    <tr><td>--folder-group-border</td><td>none</td><td>Border of group</td></tr>
+                    <tr><td>--folder-group-radius</td><td>0</td><td>Border radius of group</td></tr>
+                    <tr><td>--folder-group-font-family</td><td>'Segoe UI', 'Inter', Arial, sans-serif</td><td>Font family for group header</td></tr>
+                    <tr><td>--folder-group-font-size</td><td>1rem</td><td>Font size for group header</td></tr>
+                    <tr><td>--folder-group-font-weight</td><td>600</td><td>Font weight for group header</td></tr>
+                    <tr><td>--folder-group-color</td><td>#d7dae0</td><td>Font color for group header</td></tr>
+                    <tr><td>--folder-group-padding</td><td>0.5rem 1.2rem</td><td>Padding for group header</td></tr>
+                    <tr><td>--folder-group-content-bg</td><td>#23272e</td><td>Background color for group content</td></tr>
+                    <tr><td>--folder-group-content-color</td><td>#d7dae0</td><td>Text color for group content</td></tr>
+                    <tr><td>--folder-item-bg</td><td>transparent</td><td>Background color of item</td></tr>
+                    <tr><td>--folder-item-hover-bg</td><td>#262b31</td><td>Background color of item on hover</td></tr>
+                    <tr><td>--folder-item-color</td><td>#d7dae0</td><td>Text color of item</td></tr>
+                    <tr><td>--folder-item-font-family</td><td>'Segoe UI', 'Inter', Arial, sans-serif</td><td>Font family for item</td></tr>
+                    <tr><td>--folder-item-font-size</td><td>0.97rem</td><td>Font size for item</td></tr>
+                    <tr><td>--folder-item-font-weight</td><td>400</td><td>Font weight for item</td></tr>
+                    <tr><td>--folder-item-left-margin</td><td>1.5rem</td><td>Left margin for item</td></tr>
+                    <tr><td>--folder-item-padding</td><td>0.35rem 0.5rem</td><td>Padding for item</td></tr>
+                </tbody>
+            </table>
+            <h3>Example: VSCode-like Styling</h3>
+            <pre><code class="language-css">folder-tree {
+  --folder-group-bg: #23272e;
+  --folder-group-header-bg: #23272e;
+  --folder-group-header-hover-bg: #262b31;
+  --folder-group-header-color: #d7dae0;
+  --folder-group-border: none;
+  --folder-group-radius: 0;
+  --folder-group-font-family: 'Segoe UI', 'Inter', Arial, sans-serif;
+  --folder-group-font-size: 1rem;
+  --folder-group-font-weight: 600;
+  --folder-group-color: #d7dae0;
+  --folder-group-padding: 0.5rem 1.2rem;
+  --folder-group-content-bg: #23272e;
+  --folder-group-content-color: #d7dae0;
+}
+folder-item {
+  --folder-item-bg: transparent;
+  --folder-item-hover-bg: #262b31;
+  --folder-item-color: #d7dae0;
+  --folder-item-font-family: 'Segoe UI', 'Inter', Arial, sans-serif;
+  --folder-item-font-size: 0.97rem;
+  --folder-item-font-weight: 400;
+  --folder-item-left-margin: 1.5rem;
+  --folder-item-padding: 0.35rem 0.5rem;
+}
+</code></pre>
+        </div>
+    </accordion-component>
+</div> 

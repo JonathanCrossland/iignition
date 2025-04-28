@@ -1,16 +1,64 @@
 class CountdownTimer extends HTMLElement {
-    private _endTime: Date;
+    private _duration: number = 0;
+    private _remainingSeconds: number = 0;
     private _timer: number | undefined;
+    private _warningThreshold: number = 30;
+    private _format: string = 'mm:ss';
+    private _fontFamily: string = 'Arial, sans-serif';
 
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
-        this._endTime = new Date(this.getAttribute('end-time') || Date.now());
+    }
+
+    static get observedAttributes() {
+        return ['duration', 'warning-threshold', 'format', 'font-family'];
+    }
+
+    attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+        if (name === 'duration') {
+            this._duration = this.parseTimeToSeconds(newValue);
+            this._remainingSeconds = this._duration;
+            this.updateDisplay();
+        } else if (name === 'warning-threshold') {
+            this._warningThreshold = parseInt(newValue);
+        } else if (name === 'format') {
+            this._format = newValue;
+        } else if (name === 'font-family') {
+            this._fontFamily = newValue;
+            this.updateDisplay();
+        }
+    }
+
+    private parseTimeToSeconds(timeStr: string): number {
+        const parts = timeStr.split(':').map(Number);
+        if (parts.length === 3) { // HH:MM:SS
+            return parts[0] * 3600 + parts[1] * 60 + parts[2];
+        } else if (parts.length === 2) { // MM:SS
+            return parts[0] * 60 + parts[1];
+        }
+        return parseInt(timeStr); // Assume seconds
+    }
+
+    private formatTime(seconds: number): string {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+
+        if (this._format === 'HH:mm:ss') {
+            return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        } else {
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
     }
 
     connectedCallback() {
-        this.updateTimer();
-        this._timer = window.setInterval(() => this.updateTimer(), 1000);
+        this._duration = this.parseTimeToSeconds(this.getAttribute('duration') || '0');
+        this._remainingSeconds = this._duration;
+        this._warningThreshold = parseInt(this.getAttribute('warning-threshold') || '30');
+        this._format = this.getAttribute('format') || 'mm:ss';
+        this._fontFamily = this.getAttribute('font-family') || 'Arial, sans-serif';
+        this.updateDisplay();
     }
 
     disconnectedCallback() {
@@ -19,33 +67,41 @@ class CountdownTimer extends HTMLElement {
         }
     }
 
-    updateTimer() {
-        const now = new Date();
-        const distance = this._endTime.getTime() - now.getTime();
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    private updateDisplay() {
+        const isWarning = this._remainingSeconds <= this._warningThreshold;
+        const timeStr = this.formatTime(this._remainingSeconds);
 
         this.shadowRoot!.innerHTML = `
             <style>
                 .countdown {
-                    font-family: Arial, sans-serif;
-                    color: #333;
+                    font-family: var(--timer-font, ${this._fontFamily});
                     display: inline-block;
                     padding: 10px;
-                    background: #f0f0f0;
+                    background: var(--timer-bg, #1e1e1e);
                     border-radius: 5px;
+                    color: ${isWarning ? 'var(--timer-warning, #FFC107)' : 'var(--timer-text, #cccccc)'};
                 }
             </style>
             <div class="countdown">
-                ${days}d ${hours}h ${minutes}m ${seconds}s
+                ${timeStr}
             </div>
         `;
 
-        if (distance < 0) {
-            this.shadowRoot!.innerHTML = "Countdown finished";
+        if (this._remainingSeconds <= 0) {
+            if (this._timer) {
+                window.clearInterval(this._timer);
+            }
         }
+    }
+
+    public startCountdown() {
+        if (this._timer) {
+            window.clearInterval(this._timer);
+        }
+        this._timer = window.setInterval(() => {
+            this._remainingSeconds--;
+            this.updateDisplay();
+        }, 1000);
     }
 }
 

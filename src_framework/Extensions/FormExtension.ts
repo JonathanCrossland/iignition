@@ -1,5 +1,5 @@
 
-module iignition {
+namespace iignition {
 
     export class FormExtension extends Extension {
         public Selector:string;

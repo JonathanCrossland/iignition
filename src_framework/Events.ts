@@ -1,4 +1,4 @@
-module iignition {
+namespace iignition {
 
     export class Events {
         static raiseEvent(name:string, data) : void{

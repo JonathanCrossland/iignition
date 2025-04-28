@@ -1,4 +1,4 @@
-module iignition {
+namespace iignition {
 
     export class State {
         private static instance: State;

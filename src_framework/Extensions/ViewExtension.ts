@@ -1,4 +1,4 @@
-module iignition {
+namespace iignition {
 
     export class ViewExtension extends Extension {
         public Controller:iignition.Controller;

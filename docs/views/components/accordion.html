@@ -124,11 +124,16 @@
         background-color: var(--color-card-bg);
         border-radius: var(--border-radius-md);
         padding: var(--spacing-lg);
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
     }
 
     .component-description {
         color: var(--color-text-light);
         margin-bottom: var(--spacing-lg);
+        max-width: 100%;
     }
 
     .example-container {
@@ -136,6 +141,9 @@
         padding: var(--spacing-lg);
         border-radius: var(--border-radius-md);
         margin-top: var(--spacing-md);
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     pre {
@@ -143,16 +151,21 @@
         padding: var(--spacing-md);
         border-radius: var(--border-radius-sm);
         overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     code {
         color: var(--color-text);
         font-family: monospace;
+        overflow-wrap: break-word;
     }
 
     .props-table {
         width: 100%;
         border-collapse: collapse;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .props-table th,
@@ -160,6 +173,7 @@
         padding: var(--spacing-sm) var(--spacing-md);
         text-align: left;
         border-bottom: 1px solid var(--color-border);
+        word-break: break-word;
     }
 
     .props-table th {

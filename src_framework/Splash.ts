@@ -4,7 +4,7 @@
     Splash is a utility class that allows you to map data to a template and apply it to an element.
 
     */
-module iignition {
+namespace iignition {
 
     export class Splash {
         constructor() {

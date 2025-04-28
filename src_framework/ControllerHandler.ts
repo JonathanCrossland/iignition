@@ -1,6 +1,6 @@
 /// <reference path="RoutingUtility.ts" />
 
-module iignition
+namespace iignition
 {
 
     export class ControllerHandler extends RouteComponent

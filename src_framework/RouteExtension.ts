@@ -1,6 +1,6 @@
 /// <reference path="Header.ts" />
 
-module iignition
+namespace iignition
 {
     export class RouteExtension extends Extension
     {

@@ -37,60 +37,7 @@
     --animation-duration: 0.5s;
     --animation-timing: cubic-bezier(0.4, 0, 0.2, 1);
 
-    /* Component Documentation Styles */
-    --component-content-bg: #2a1f1f;
-    --component-description-color: #d6d6d6;
-    --component-example-margin: 3rem;
-    --example-container-bg: #181313;
-    --component-usage-margin: 3rem;
-    --component-usage-pre-bg: #181313;
-    --component-usage-pre-padding: 1rem;
-    --component-usage-pre-border-radius: 0.5rem;
-    --component-usage-pre-overflow-x: auto;
-    --component-props-margin: 3rem;
-    --props-table-width: 100%;
-    --props-table-border-collapse: collapse;
-    --props-table-padding: 1rem;
-    --props-table-text-align: left;
-    --props-table-border-bottom: 1px solid #ffd8b2;
-    --props-table-th-color: #ff6b00;
-
-    /* Component-specific styles */
-    --knob-bg: #1e1e1e;
-    --knob-track: #3c3c3c;
-    --knob-progress: #007fd4;
-    --knob-text: #cccccc;
-
-    --toggle-bg: #1e1e1e;
-    --toggle-track: #3c3c3c;
-    --toggle-thumb: #007fd4;
-    --toggle-text: #cccccc;
-
-    --progress-bg: #1e1e1e;
-    --progress-track: #3c3c3c;
-    --progress-fill: #007fd4;
-    --progress-text: #cccccc;
-
-    /* Dockable View */
-    --dockable-bg: var(--color-background);
-    --dockable-window-bg: var(--color-card-bg);
-    --dockable-window-border: var(--color-border);
-    --dockable-header-bg: var(--color-primary);
-    --dockable-header-border: var(--color-primary-dark);
-    --dockable-preview-bg: rgba(255, 107, 0, 0.2);
-    --dockable-preview-border: 2px dashed var(--color-primary);
-    --dockable-text-color: var(--color-text);
-    --dockable-spacing: var(--spacing-sm);
-    --dockable-border-radius: var(--border-radius-sm);
-    --dockable-min-width: 200px;
-    --dockable-min-height: 150px;
-    --dockable-z-index: 1000;
-    --dockable-splitter-size: 4px;
-    --dockable-splitter-hover-size: 6px;
-    --dockable-scrollbar-width: 12px;
-    --dockable-transition-duration: 450ms;
-    --dockable-transition-timing: ease-out;
-    --dockable-splitter-transition-duration: 10ms;
+  
 
     /* Common styles */
     --primary-color: #007bff;
@@ -151,6 +98,136 @@
     --explorer-hover-bg: rgba(255, 107, 0, 0.1);
     --explorer-indent: 20px;
     --explorer-item-height: 22px;
+
+    /* Nav Bar */
+    --nav-bar-bg: rgb(46, 41, 41);
+    --nav-bar-width: 60px;
+    --nav-bar-item-size: 40px;
+    --nav-bar-item-color: var(--color-text);
+    --nav-bar-item-hover-bg: rgba(255, 107, 0, 0.1);
+    --nav-bar-item-active-bg: rgba(255, 107, 0, 0.2);
+    --nav-bar-item-active-indicator: var(--color-primary);
+    --nav-bar-tooltip-bg: var(--color-card-bg);
+    --nav-bar-tooltip-color: var(--color-text);
+    --nav-bar-tooltip-border: var(--color-border);
+    --nav-bar-icon-size: 24px;
+    --nav-bar-transition: 0.2s ease;
+
+
+    --folder-group-bg: #622222;
+    --folder-group-header-bg: #a50606;
+    --folder-group-header-hover-bg: #022f65;
+    --folder-group-header-color: #33172a;
+    --folder-group-content-bg: #181818;
+    --folder-group-border: none;
+    --folder-group-radius: 0;
+    --folder-group-font-family: 'Segoe UI', 'Inter', Arial, sans-serif;
+    --folder-group-font-size: 1rem;
+    --folder-group-font-weight: 600;
+    --folder-group-color: #d7dae0;
+    --folder-group-padding: 0.5rem 1.2rem;
+    --folder-group-content-color: #d7dae0;
+    --folder-item-bg: transparent;
+    --folder-item-hover-bg: #002f68;
+    --folder-item-color: #d7dae0;
+    --folder-item-font-family: 'Segoe UI', 'Inter', Arial, sans-serif;
+    --folder-item-font-size: 0.97rem;
+    --folder-item-font-weight: 400;
+    --folder-item-left-margin: 1.5rem;
+    --folder-item-padding: 0.35rem 0.5rem;
+
+
+    --tab-content-bg-color: var(--color-card-bg);
+    --tab-inactive-bg-color: var(--color-background);
+    --tab-active-bg-color: var(--color-card-bg);
+    --tab-color: var(--color-text);
+    --tab-border-color: var(--color-border);
+    --tab-active-border-color: var(--color-primary);
+    --tab-padding: var(--spacing-sm);
+    --tab-font-size: var(--font-size-sm);
+
+    /* Title Bar Custom Properties */
+    --titlebar-height: 80px;                       /* Height of the title bar */
+    --titlebar-bg: #1f1f1f;                        /* Background color of the title bar */
+    --titlebar-border: #333;                       /* Border color at the bottom of the title bar */
+    --titlebar-color: #fff;                        /* Text color in the title bar */
+    --titlebar-font-size: 14px;                    /* Font size for text in the title bar */
+    --titlebar-padding: 0 16px;                    /* Padding inside the title bar (REQUIRED) */
+
+    /* Dropdown Related */
+    --titlebar-dropdown-bg: #252525;               /* Background color of the dropdown menu */
+    --titlebar-dropdown-hover-bg: #333;            /* Background color when hovering over dropdown button */
+    --titlebar-dropdown-border: #444;              /* Border color of the dropdown menu */
+    --titlebar-dropdown-shadow: 0 4px 8px rgba(0,0,0,0.3); /* Box shadow of the dropdown menu */
+
+    /* Action Button Related */
+    --titlebar-action-size: 32px;                  /* Size of the action buttons */
+    --titlebar-action-spacing: 8px;                /* Spacing between action buttons */
+    --titlebar-action-hover-bg: rgba(255,255,255,0.1); /* Background color when hovering over action buttons */
+    --titlebar-action-icon-size: 16px;             /* Size of the action button icons */
+    --titlebar-action-label-size: 17px;            /* Font size for action button labels */
+
+    /* Animation Related */
+    --titlebar-transition: all 0.2s ease;          /* Transition duration and timing for animations */
+    
+
+      /* Component Documentation Styles */
+      --component-content-bg: #2a1f1f;
+      --component-description-color: #d6d6d6;
+      --component-example-margin: 3rem;
+      --example-container-bg: #181313;
+      --component-usage-margin: 3rem;
+      --component-usage-pre-bg: #181313;
+      --component-usage-pre-padding: 1rem;
+      --component-usage-pre-border-radius: 0.5rem;
+      --component-usage-pre-overflow-x: auto;
+      --component-props-margin: 3rem;
+      --props-table-width: 100%;
+      --props-table-border-collapse: collapse;
+      --props-table-padding: 1rem;
+      --props-table-text-align: left;
+      --props-table-border-bottom: 1px solid #ffd8b2;
+      --props-table-th-color: #ff6b00;
+  
+      /* Component-specific styles */
+      --knob-bg: #1e1e1e;
+      --knob-track: #3c3c3c;
+      --knob-progress: #007fd4;
+      --knob-text: #cccccc;
+  
+      --toggle-bg: #1e1e1e;
+      --toggle-track: #3c3c3c;
+      --toggle-thumb: #007fd4;
+      --toggle-text: #cccccc;
+  
+      --progress-bg: #1e1e1e;
+      --progress-track: #3c3c3c;
+      --progress-fill: #007fd4;
+      --progress-text: #cccccc;
+  
+      /* Dockable View */
+      --dockable-bg: var(--color-background);
+      --dockable-window-bg: var(--color-card-bg);
+      --dockable-window-border: var(--color-border);
+      --dockable-header-bg: var(--color-primary);
+      --dockable-header-border: var(--color-primary-dark);
+      --dockable-preview-bg: rgba(255, 107, 0, 0.2);
+      --dockable-preview-border: 2px dashed var(--color-primary);
+      --dockable-text-color: var(--color-text);
+      --dockable-border-radius: var(--border-radius-sm);
+      --dockable-min-width: 200px;
+      --dockable-min-height: 150px;
+      --dockable-z-index: 1000;
+      --dockable-splitter-size: 4px;
+      --dockable-splitter-hover-size: 6px;
+      --dockable-scrollbar-width: 12px;
+      --dockable-transition-duration: 150ms;
+      --dockable-transition-timing: ease-out;
+      --dockable-splitter-transition-duration: 0ms;
+      --dockable-header-padding: 22px;
+      --dockable-content-padding: 0;
+      --dockable-spacing: 0px;
+      
 }
 
 /* Reset and base styles */
@@ -1051,18 +1128,6 @@ progress-bar {
         margin-top: var(--spacing-md);
         margin-bottom: var(--spacing-xs);
     }
-}
-
-/* Tabbed View Component */
-tabbed-view {
-    --tab-content-bg-color: var(--color-card-bg);
-    --tab-inactive-bg-color: var(--color-background);
-    --tab-active-bg-color: var(--color-card-bg);
-    --tab-color: var(--color-text);
-    --tab-border-color: var(--color-border);
-    --tab-active-border-color: var(--color-primary);
-    --tab-padding: var(--spacing-sm);
-    --tab-font-size: var(--font-size-sm);
 }
 
 /* Components Section Styles */

@@ -1,5 +1,5 @@
 
-module iignition {
+namespace iignition {
 
     export class ViewPort {
         public el: any;

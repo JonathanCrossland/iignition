@@ -1,27 +1,50 @@
+<!DOCTYPE html>
 <div class="component-content">
     <h2>Dockable View</h2>
-    <p class="component-description">A window management component that allows child elements to be docked, dragged, and managed as individual windows. Each window can be minimized, maximized, and closed, with support for docking to the left or right edges of the container.</p>
+    <p class="component-description">A window management component that allows child elements to be docked, dragged, and
+        managed as individual windows. Each window can be minimized, maximized, and closed, with support for docking to
+        the left or right edges of the container.</p>
 
     <accordion-component title="Examples" open="true">
         <div slot="content">
             <style>
                 .dockable-example {
-                    --dockable-spacing: 20px;
-                    --dockable-border-radius: 4px;
-                    --dockable-bg: var(--color-card-bg);
-                    height: 400px;
+                    height: 500px;
                     position: relative;
+                    border: 1px solid var(--color-border, #444);
+                    margin-bottom: 20px;
                 }
+                
+                .dock-window folder-tree {
+                    background-color: var(--dockable-window-bg, #2d2d2d);
+                    color: var(--color-text, #eee);
+                }
+                
+               
             </style>
             <div class="example-container dockable-example">
+
                 <dockable-view style="height: 100%;">
-                    <div title="Window 1" class="dock-window" width="100px" min-width="200px">
-                        <h3>First Window</h3>
-                        <p>This window can be dragged, docked, minimized, and maximized.</p>
-                        <p>Try dragging the window header to move this window.</p>
-                        <p>Drag near the left or right edges to dock.</p>
+                    <div title="Window 1" class="dock-window" >
+                        <folder-tree id="demo-folder-tree" style="height:fit-content">
+                            <folder-group label="Scenes">
+                                <folder-item>scenes.md</folder-item>
+                                <folder-item>prologue.md</folder-item>
+                                <folder-item>scene 2.md</folder-item>
+                            </folder-group>
+                            <folder-group label="Characters">
+                                <folder-item>thalos.json</folder-item>
+                                <folder-item>lyanna.json</folder-item>
+                            </folder-group>
+                            <folder-group label="World" dock="bottom">
+                                <folder-item>burilchoas.json</folder-item>
+                            </folder-group>
+                            <folder-group label="Plot-Lines" dock="bottom">
+                                <folder-item>build-settings.json</folder-item>
+                            </folder-group>
+                        </folder-tree>
                     </div>
-                    <div title="Window 2" class="dock-window" width="500px" min-width="500px">
+                    <div title="Window 2" class="dock-window" width="500px" >
                         <h3>Second Window</h3>
                         <p>Try dragging this window to the edges to dock it.</p>
                         <p>Use the window controls in the header:</p>
@@ -31,7 +54,22 @@
                             <li>Close (×)</li>
                         </ul>
                     </div>
-                    <div title="Window 3" class="dock-window">
+                    <div title="Window 3" class="dock-window" >
+                       
+                    </div>
+
+                </dockable-view>
+            </div>
+            <div class="example-container dockable-example">
+
+                <dockable-view locked>
+                    <div id="main-window" title="Main Window" class="dock-window">
+                        Main window content
+                    </div>
+                    <div id="stacked-1" title="Stacked Window 1" class="dock-window" stacked="main-window">
+                        Stacked window 1 content
+                    </div>
+                    <div title="Window 2" class="dock-window" width="500px" min-width="500px" stacked="main-window">
                         <h3>Second Window</h3>
                         <p>Try dragging this window to the edges to dock it.</p>
                         <p>Use the window controls in the header:</p>
@@ -40,35 +78,85 @@
                             <li>Maximize (□)</li>
                             <li>Close (×)</li>
                         </ul>
-                    </div>
-                    <div title="Window 4" class="dock-window">
-                        <accordion-component title="Inner nested window">
-                            <div slot="content">
-                                Content
-                            </div>
-                        </accordion-component>  
                     </div>
                 </dockable-view>
             </div>
+            <p><strong>Note:</strong> <code>--dockable-header-padding</code> only affects the window header. <code>--dockable-content-padding</code> only affects the content area below the header.</p>
+            
+            <p><strong>Component Compatibility:</strong> When using web components with Shadow DOM (like <code>folder-tree</code>) inside dockable windows, ensure they have explicit dimensions (width/height) and appropriate styling. Shadow DOM components may not automatically inherit styles from the dockable container.</p>
+            
+            <pre><code class="language-css">/* Example: Properly configure components inside dockable windows */
+.dock-window folder-tree {
+    height: 300px;
+    width: 100%;
+    display: block;
+    overflow: auto;
+    background-color: var(--dockable-window-bg);
+}
+
+/* Ensure adequate space for component content */
+.window-content {
+    height: calc(100% - 40px); /* Subtract header height */
+    overflow: auto;
+}</code></pre>
         </div>
     </accordion-component>
 
     <accordion-component title="Usage">
         <div slot="content">
-            <p>The dockable-view component automatically makes its direct children into dockable windows. Each child element can have a title attribute for the window header:</p>
-            
-            <pre><code class="language-html">&lt;div style="height: 400px;"&gt;
-    &lt;dockable-view&gt;
-        &lt;div title="My Window"&gt;
-            Window content here
-        &lt;/div&gt;
-        &lt;div title="Another Window"&gt;
-            More content
-        &lt;/div&gt;
-    &lt;/dockable-view&gt;
-&lt;/div&gt;</code></pre>
+            <p>The dockable-view component automatically makes its direct children into dockable windows. Each child
+                element can have the following attributes:</p>
 
-            <p><strong>Important:</strong> The parent container must have a defined height for the dockable-view to be visible.</p>
+            <pre><code class="language-html">&lt;dockable-view&gt;
+    &lt;div 
+        title="My Window"
+        width="300px"
+        min-width="200px"
+        class="dock-window"&gt;
+        Window content here
+    &lt;/div&gt;
+&lt;/dockable-view&gt;</code></pre>
+
+            <h3>Window Attributes</h3>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Attribute</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>title</td>
+                        <td>string</td>
+                        <td>'Window'</td>
+                        <td>Title displayed in the window header</td>
+                    </tr>
+                    <tr>
+                        <td>width</td>
+                        <td>string</td>
+                        <td>'33.33%'</td>
+                        <td>Initial width of the window (px or %)</td>
+                    </tr>
+                    <tr>
+                        <td>min-width</td>
+                        <td>string</td>
+                        <td>'200px'</td>
+                        <td>Minimum width the window can be resized to</td>
+                    </tr>
+                    <tr>
+                        <td>controlbox</td>
+                        <td>"true" | "false"</td>
+                        <td>'true'</td>
+                        <td>Show or hide the maximize/close buttons in the window header. If set to 'false' or '0', the buttons are hidden.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>Important:</strong> The parent container must have a defined height for the dockable-view to be
+                visible.</p>
         </div>
     </accordion-component>
 
@@ -80,6 +168,7 @@
                 <li>Window controls (minimize, maximize, close)</li>
                 <li>Visual preview when dragging near dockable edges</li>
                 <li>Responsive layout that maintains window positions</li>
+                <li>Window resizing with splitters</li>
             </ul>
 
             <h3>Window Controls</h3>
@@ -94,6 +183,8 @@
 
     <accordion-component title="Styling">
         <div slot="content">
+            <p>The component can be styled using CSS custom properties:</p>
+
             <table class="props-table">
                 <thead>
                     <tr>
@@ -129,8 +220,18 @@
                         <td>Border color of window headers</td>
                     </tr>
                     <tr>
+                        <td>--dockable-header-padding</td>
+                        <td>10px</td>
+                        <td>Padding for the window header area</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-content-padding</td>
+                        <td>0</td>
+                        <td>Padding for the window content area (below the header)</td>
+                    </tr>
+                    <tr>
                         <td>--dockable-preview-bg</td>
-                        <td>rgba(0, 120, 215, 0.2)</td>
+                        <td>rgba(0, 150, 255, 0.2)</td>
                         <td>Background color of dock preview</td>
                     </tr>
                     <tr>
@@ -138,19 +239,45 @@
                         <td>2px dashed #0078d7</td>
                         <td>Border style of dock preview</td>
                     </tr>
+                    <tr>
+                        <td>--dockable-border-radius</td>
+                        <td>4px</td>
+                        <td>Border radius of windows</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-z-index</td>
+                        <td>1000</td>
+                        <td>Z-index for floating elements</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-transition-duration</td>
+                        <td>1150ms</td>
+                        <td>Duration of window transition animations</td>
+                    </tr>
                 </tbody>
             </table>
 
-            <p>Example of custom styling:</p>
-            <pre><code class="language-css">:root {
+            <h3>Example Custom Styling</h3>
+            <pre><code class="language-css">dockable-view {
     --dockable-bg: #1e1e1e;
     --dockable-window-bg: #2d2d2d;
     --dockable-window-border: #404040;
     --dockable-header-bg: #333333;
     --dockable-header-border: #555555;
-    --dockable-preview-bg: rgba(0, 120, 215, 0.2);
+    --dockable-preview-bg: rgba(0, 150, 255, 0.2);
     --dockable-preview-border: 2px dashed #0078d7;
-}</code></pre>
+    --dockable-header-padding: 20px;
+    --dockable-content-padding: 0;
+    --dockable-border-radius: 4px;
+    --dockable-transition-duration: 1150ms;
+    --dockable-maximized-offset: 1000;
+}
+/* Example: Set header and content padding independently */
+.dock-window {
+    --dockable-header-padding: 16px;
+    --dockable-content-padding: 0;
+}
+</code></pre>
         </div>
     </accordion-component>
-</div> 
+</div>

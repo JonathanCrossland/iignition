@@ -1,4 +1,4 @@
-module iignition {
+namespace iignition {
 //still to be developed
 
     export class Runtime

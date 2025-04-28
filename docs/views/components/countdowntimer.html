@@ -20,11 +20,22 @@
     <accordion-component title="Examples" open="true">
         <div slot="content">
             <div class="example-container">
+                <h3>Short Timer (1:20)</h3>
                 <countdown-timer 
-                    duration="120"
+                    duration="1:20"
                     warning-threshold="30"
                     warning-color="#FFC107"
-                    format="mm:ss">
+                    format="mm:ss"
+                    font-family="'Courier New', monospace">
+                </countdown-timer>
+
+                <h3>Long Timer (1:20:00)</h3>
+                <countdown-timer 
+                    duration="1:20:00"
+                    warning-threshold="600"
+                    warning-color="#FFC107"
+                    format="HH:mm:ss"
+                    font-family="'Courier New', monospace">
                 </countdown-timer>
             </div>
         </div>
@@ -32,11 +43,22 @@
 
     <accordion-component title="Usage">
         <div slot="content">
-            <pre><code class="language-html">&lt;countdown-timer 
-    duration="120"
+            <pre><code class="language-html">&lt;!-- Short timer (1:20) --&gt;
+&lt;countdown-timer 
+    duration="1:20"
     warning-threshold="30"
     warning-color="#FFC107"
-    format="mm:ss"&gt;
+    format="mm:ss"
+    font-family="'Courier New', monospace"&gt;
+&lt;/countdown-timer&gt;
+
+&lt;!-- Long timer (1:20:00) --&gt;
+&lt;countdown-timer 
+    duration="1:20:00"
+    warning-threshold="600"
+    warning-color="#FFC107"
+    format="HH:mm:ss"
+    font-family="'Courier New', monospace"&gt;
 &lt;/countdown-timer&gt;</code></pre>
         </div>
     </accordion-component>
@@ -71,6 +93,11 @@
                         <td>format</td>
                         <td>string</td>
                         <td>Time format pattern (e.g., "HH:mm:ss", "mm:ss")</td>
+                    </tr>
+                    <tr>
+                        <td>font-family</td>
+                        <td>string</td>
+                        <td>Font family for the timer</td>
                     </tr>
                 </tbody>
             </table>

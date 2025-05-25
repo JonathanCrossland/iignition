@@ -139,17 +139,7 @@ class FolderTree extends HTMLElement {
             ['folder-group-menu-click', 'folder-item-click'].forEach(eventName => {
                 topSlot.addEventListener(eventName, (e: Event) => {
                     console.log(`FolderTree: ${eventName} from top slot`, (e as CustomEvent).detail);
-                    
-                    // Re-dispatch the event from the host element if needed
-                    // This ensures the event continues to bubble up from the slot
-                    const originalEvent = e as CustomEvent;
-                    if (!e.defaultPrevented) {
-                        this.dispatchEvent(new CustomEvent(eventName, {
-                            detail: originalEvent.detail,
-                            bubbles: true,
-                            composed: true
-                        }));
-                    }
+                    // Allow event to bubble naturally
                 });
             });
         }
@@ -159,16 +149,7 @@ class FolderTree extends HTMLElement {
             ['folder-group-menu-click', 'folder-item-click'].forEach(eventName => {
                 bottomSlot.addEventListener(eventName, (e: Event) => {
                     console.log(`FolderTree: ${eventName} from bottom slot`, (e as CustomEvent).detail);
-                    
-                    // Re-dispatch the event from the host element if needed
-                    const originalEvent = e as CustomEvent;
-                    if (!e.defaultPrevented) {
-                        this.dispatchEvent(new CustomEvent(eventName, {
-                            detail: originalEvent.detail,
-                            bubbles: true,
-                            composed: true
-                        }));
-                    }
+                    // Allow event to bubble naturally
                 });
             });
         }

@@ -205,6 +205,18 @@
       --progress-fill: #007fd4;
       --progress-text: #cccccc;
   
+      /* Modal Dialog */
+      --modal-z-index: 1500;
+      --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+      --modal-bg: #1e1e1e;
+      --modal-color: #d4d4d4;
+      --modal-header-bg: #2d2d2d;
+      --modal-button-bg: #333333;
+      --modal-button-color: #d4d4d4;
+      --modal-button-hover-bg: #444444;
+      --modal-button-cancel-bg: #6c3838;
+      --modal-button-cancel-hover-bg: #8c4545;
+  
       /* Dockable View */
       --dockable-bg: var(--color-background);
       --dockable-window-bg: var(--color-card-bg);
@@ -227,7 +239,49 @@
       --dockable-header-padding: 22px;
       --dockable-content-padding: 0;
       --dockable-spacing: 0px;
-      
+
+    /* Character Plot */
+    --character-plot-bg: #252525;
+    --character-plot-circle: #919191;
+    --character-plot-line: #444;
+    --character-plot-line-width: 5px;
+    --character-plot-line-style: solid;
+    --character-plot-font-family: inherit;
+    --character-plot-font-size: 1rem;
+    --character-plot-selected-border: 3px solid #777777;
+    --character-plot-selected-bg: ;
+    --character-plot-dragging-border: 3px solid #0051ca;
+    --character-plot-circle-radius: 60px;
+    --character-plot-temp-line: #dabb7b;
+    --character-plot-relationship-start-border: 3px dashed #ff0000;
+    --character-plot-relationship-start-bg: #fff;
+}
+
+app-footer {
+  --app-footer-height: 2em;
+  --app-footer-bg: #02420c;
+  --app-footer-color: #ffffff;
+  --app-footer-hover-bg: rgba(255, 255, 255, 0.12);
+  --app-footer-active-bg: rgba(255, 255, 255, 0.18);
+  --app-footer-item-padding: 0 8px;
+  --app-footer-icon-margin: 0 5px 0 0;
+  --app-footer-icon-size: 14px;
+  --app-footer-font-size: 12px;
+  --app-footer-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --app-footer-border-top: none;
+  --app-footer-info-bg: transparent;
+  --app-footer-button-bg: transparent;
+  --app-footer-warning-bg: #f3bc36;
+  --app-footer-error-bg: #e51400;
+  --app-footer-warning-color: #000000;
+  --app-footer-error-color: #ffffff;
+}
+
+app-footer .app-footer-container,
+app-footer .app-footer-section,
+app-footer .app-footer-item,
+app-footer .app-footer-text {
+  /* No custom styles needed anymore */
 }
 
 /* Reset and base styles */

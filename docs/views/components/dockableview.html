@@ -37,7 +37,31 @@
                 }
             </style>
             <div class="example-container dockable-example">
-
+                <title-bar title="Project">
+                    <!-- App name via slot -->
+                    <div slot="app-name">LitForge</div>
+                    
+                    <!-- Dropdown items -->
+                    <div slot="dropdown-items">
+                        <div class="dropdown-item">Open Project</div>
+                        <div class="dropdown-item">Save Project</div>
+                        <div class="dropdown-item">Project Settings</div>
+                        <div class="dropdown-separator"></div>
+                        <div class="dropdown-item">Import Resources</div>
+                        <div class="dropdown-item">Export Resources</div>
+                    </div>
+                    
+                    <!-- Action buttons -->
+                    <title-action slot="actions" label="Build">
+                       
+                    </title-action>
+                    <title-action slot="actions" label="Preview">
+                      
+                    </title-action>
+                    <title-action slot="actions">
+                      
+                    </title-action>
+                </title-bar>
                 <dockable-view style="height: 100%;">
                     <div title="Window 1" class="dock-window" min-width="300px" width="300px">
                         <folder-tree id="demo-folder-tree" style="height:100%">
@@ -59,17 +83,15 @@
                         </folder-tree>
                     </div>
                     <div title="Window 2" class="dock-window" width="50%" >
-                        <h3>Second Window</h3>
-                        <p>Try dragging this window to the edges to dock it.</p>
-                        <p>Use the window controls in the header:</p>
-                        <ul>
-                            <li>Minimize (_)</li>
-                            <li>Maximize (□)</li>
-                            <li>Close (×)</li>
-                        </ul>
-                    </div>
-                    <div title="Window 3" class="dock-window" min-width="300px" width="300px">
                        
+                    </div>
+                    <div id="main-window" title="Main Window" class="dock-window">
+                        Main window content
+                      
+                    </div>
+                    <div id="stacked-1" title="Stacked Window 1" class="dock-window" stacked="main-window">
+                        Stacked window 1 content
+                        <character-plot id="demo-plot" style="height: 100%; width: 100%;"></character-plot>
                     </div>
 
                 </dockable-view>

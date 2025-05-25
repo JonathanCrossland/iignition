@@ -36,41 +36,33 @@ namespace iignition {
 
                     if (response.status !== 200) return reject();
                     
-                    var gettype = response.headers.get("Content-Type");
-
-                    if (response.headers.has("content-type")) {
-
-                        if (response.headers.get("content-type").indexOf("application/json") !== -1) {// checking response header
-                            return response.json();
-
-                        } else if (response.headers.get("content-type").indexOf("text/html") !== -1) {// checking response header
-                            return response.text();
-                        } else if (response.headers.get("content-type").indexOf("application/javascript") !== -1) {// checking response header
-                            return response.text();
-                        } else if (response.headers.get("content-type").indexOf("text/javascript") !== -1) {// checking response header
-                            return response.text();
-                        } else if (response.headers.get("content-type").indexOf("application/x-javascript") !== -1) {// checking response header
-                            return response.text();
-                        } else if (response.headers.get("content-type").indexOf("text/xml") !== -1) {// checking response header
-                            return response.text();
-                        } else if (response.headers.get("content-type").indexOf("application/xml") !== -1) {// checking response header
-                            return response.text();
-                        } else if (response.headers.get("content-type").indexOf("image/jpeg") !== -1) {// checking response header
-                            return response.blob();
-                        } else if (response.headers.get("content-type").indexOf("image/png") !== -1) {// checking response header
-                            return response.blob();
-
-                        } else if (response.headers.get("Content-Type").indexOf("application/pdf") !== -1) {// checking response header
-                            return response.clone()
-                        }
-                        else {
-
-                            const response = new Response();
-                            //throw new TypeError('Response from "' + url + '" has unexpected "content-type"');
-                        }
+                    const contentType = response.headers.get("content-type") || "";
+                    if (contentType.indexOf("application/json") !== -1) {
+                        return response.json();
+                    } else if (contentType.indexOf("text/html") !== -1) {
+                        return response.text();
+                    } else if (contentType.indexOf("application/javascript") !== -1) {
+                        return response.text();
+                    } else if (contentType.indexOf("text/javascript") !== -1) {
+                        return response.text();
+                    } else if (contentType.indexOf("application/x-javascript") !== -1) {
+                        return response.text();
+                    } else if (contentType.indexOf("text/xml") !== -1) {
+                        return response.text();
+                    } else if (contentType.indexOf("application/xml") !== -1) {
+                        return response.text();
+                    } else if (contentType.indexOf("text/markdown") !== -1) {
+                        return response.text();
+                    } else if (contentType.indexOf("image/jpeg") !== -1) {
+                        return response.blob();
+                    } else if (contentType.indexOf("image/png") !== -1) {
+                        return response.blob();
+                    } else if (contentType.indexOf("application/pdf") !== -1) {
+                        return response.clone();
+                    } else {
+                        // handle unknown content type
+                        return response.text();
                     }
-                    
-
                 })
                 .then((data) => {
                     resolve(data);
@@ -87,3 +79,4 @@ namespace iignition {
 
     }
 }
+

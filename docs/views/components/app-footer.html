@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<div class="component-content">
+    <h2>App Footer</h2>
+    <p class="component-description">A customizable footer bar resembling VS Code's status bar with support for status items, buttons, and indicators. Uses a tight UI with flex layout for positioning items.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <style>
+                .footer-example {
+                    height: 22px;
+                    margin-bottom: 20px;
+                    border: 1px solid var(--color-border, #444);
+                }
+                
+                /* For demos only */
+                .circle-icon {
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                    background-color: #4caf50;
+                    display: inline-block;
+                    margin-right: 5px;
+                }
+                
+                .example-image-icon {
+                    display: inline-block;
+                    width: 14px;
+                    height: 14px;
+                    background-size: contain;
+                    background-position: center;
+                    background-repeat: no-repeat;
+                    margin-right: 5px;
+                }
+
+         
+            </style>
+            <div class="example-container footer-example">
+                <app-footer id="demo-footer">
+                    <div footer-item position="left" type="info">
+                        <span class="circle-icon"></span>
+                        Ready
+                    </div>
+                    <div footer-item position="left" type="button">
+                        main*
+                    </div>
+                    <div footer-item position="right" type="button">
+                        UTF-8
+                    </div>
+                    <div footer-item position="right" type="button">
+                        JavaScript
+                    </div>
+                    <div footer-item position="right" type="button">
+                        Ln 1, Col 1
+                    </div>
+                </app-footer>
+            </div>
+            
+            <p>The same footer with a light theme:</p>
+            
+            <div class="example-container footer-example">
+                <app-footer theme="light">
+                    <div footer-item position="left" type="info">
+                        <span class="circle-icon"></span>
+                        Ready
+                    </div>
+                    <div footer-item position="left" type="button">
+                        main*
+                    </div>
+                    <div footer-item position="right" type="warning">
+                        2 Warnings
+                    </div>
+                    <div footer-item position="right" type="button">
+                        JavaScript
+                    </div>
+                </app-footer>
+            </div>
+            
+            <p>Footer with dynamically added items via JavaScript:</p>
+            
+            <div class="example-container footer-example">
+                <app-footer id="dynamic-footer"></app-footer>
+            </div>
+            
+            <script>
+                // Example of programmatically adding items
+                window.addEventListener('DOMContentLoaded', () => {
+                    const footer = document.getElementById('dynamic-footer');
+                    if (footer && 'addItem' in footer) {
+                        // Add items to footer
+                        footer.addItem('Ready', '<span class="circle-icon"></span>', 'left', 'info');
+                        footer.addItem('main*', null, 'left', 'button');
+                        footer.addItem('Problems: 0', null, 'right', 'button');
+                        footer.addItem('Spaces: 4', null, 'right', 'button');
+                        
+                        // Add click event listener
+                        footer.addEventListener('app-footer-item-click', (e) => {
+                            console.log('Footer item clicked:', e.detail.text);
+                            alert('Clicked: ' + e.detail.text);
+                        });
+                    }
+                });
+            </script>
+            
+            <h3>HTML Structure</h3>
+            <pre><code class="language-html">&lt;app-footer&gt;
+    &lt;div footer-item position="left" type="info"&gt;
+        &lt;span class="circle-icon"&gt;&lt;/span&gt;
+        Ready
+    &lt;/div&gt;
+    &lt;div footer-item position="left" type="button"&gt;
+        main*
+    &lt;/div&gt;
+    &lt;div footer-item position="right" type="button"&gt;
+        UTF-8
+    &lt;/div&gt;
+    &lt;div footer-item position="right" type="button"&gt;
+        JavaScript
+    &lt;/div&gt;
+&lt;/app-footer&gt;</code></pre>
+
+            <h3>JavaScript API</h3>
+            <pre><code class="language-javascript">// Get reference to the footer
+const footer = document.querySelector('app-footer');
+
+// Add an item programmatically
+const item = footer.addItem('Ready', '&lt;span class="status-icon"&gt;&lt;/span&gt;', 'left', 'info');
+
+// Update an item
+footer.updateItem(item, 'Not Ready', '&lt;span class="status-icon error"&gt;&lt;/span&gt;');
+
+// Listen for click events
+footer.addEventListener('app-footer-item-click', (e) => {
+    console.log('Clicked:', e.detail.text, e.detail.element);
+});</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>theme</td>
+                        <td>"light" | "dark"</td>
+                        <td>"dark"</td>
+                        <td>The color theme of the footer</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Footer Item Attributes</h3>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Attribute</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>footer-item</td>
+                        <td>boolean</td>
+                        <td>N/A</td>
+                        <td>Marks an element as a footer item</td>
+                    </tr>
+                    <tr>
+                        <td>position</td>
+                        <td>"left" | "right"</td>
+                        <td>"left"</td>
+                        <td>Determines which side the item appears on</td>
+                    </tr>
+                    <tr>
+                        <td>type</td>
+                        <td>"info" | "button" | "warning" | "error"</td>
+                        <td>"info"</td>
+                        <td>The type of item, determines styling and behavior</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <p>The component can be styled using CSS custom properties:</p>
+
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--app-footer-height</td>
+                        <td>22px</td>
+                        <td>Height of the footer</td>
+                    </tr>
+                    <tr>
+                        <td>--app-footer-bg</td>
+                        <td>#007acc</td>
+                        <td>Background color of the footer</td>
+                    </tr>
+                    <tr>
+                        <td>--app-footer-color</td>
+                        <td>#ffffff</td>
+                        <td>Text color of the footer</td>
+                    </tr>
+                    <tr>
+                        <td>--app-footer-hover-bg</td>
+                        <td>rgba(255, 255, 255, 0.12)</td>
+                        <td>Background color of items on hover</td>
+                    </tr>
+                    <tr>
+                        <td>--app-footer-active-bg</td>
+                        <td>rgba(255, 255, 255, 0.18)</td>
+                        <td>Background color of items when active/pressed</td>
+                    </tr>
+                    <tr>
+                        <td>--app-footer-item-padding</td>
+                        <td>0 8px</td>
+                        <td>Padding applied to footer items</td>
+                    </tr>
+                    <tr>
+                        <td>--app-footer-font-size</td>
+                        <td>12px</td>
+                        <td>Font size for footer text</td>
+                    </tr>
+                    <tr>
+                        <td>--app-footer-icon-size</td>
+                        <td>14px</td>
+                        <td>Size of icons in the footer</td>
+                    </tr>
+                    <tr>
+                        <td>--app-footer-icon-margin</td>
+                        <td>0 5px 0 0</td>
+                        <td>Margin around icons</td>
+                    </tr>
+                    <tr>
+                        <td>--app-footer-border-top</td>
+                        <td>none</td>
+                        <td>Border style for top of footer</td>
+                    </tr>
+                    <tr>
+                        <td>--app-footer-warning-bg</td>
+                        <td>#f3bc36</td>
+                        <td>Background color for warning items</td>
+                    </tr>
+                    <tr>
+                        <td>--app-footer-error-bg</td>
+                        <td>#e51400</td>
+                        <td>Background color for error items</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Example: Custom Styling</h3>
+            <pre><code class="language-css">app-footer {
+    --app-footer-height: 24px;
+    --app-footer-bg: #2c2c2c;
+    --app-footer-color: #cccccc;
+    --app-footer-hover-bg: rgba(255, 255, 255, 0.1);
+    --app-footer-active-bg: rgba(255, 255, 255, 0.15);
+    --app-footer-item-padding: 0 10px;
+    --app-footer-icon-size: 12px;
+    --app-footer-font-size: 11px;
+    --app-footer-warning-bg: #f0b000;
+    --app-footer-error-bg: #ff0000;
+}
+
+/* Light theme override */
+app-footer.light {
+    --app-footer-bg: #f0f0f0;
+    --app-footer-color: #333333;
+    --app-footer-hover-bg: rgba(0, 0, 0, 0.06);
+    --app-footer-active-bg: rgba(0, 0, 0, 0.1);
+    --app-footer-border-top: 1px solid #e0e0e0;
+}</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Methods">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Parameters</th>
+                        <th>Return Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>addItem</td>
+                        <td>(text: string, icon?: string, position?: 'left' | 'right', type?: 'button' | 'info' | 'warning' | 'error')</td>
+                        <td>HTMLElement</td>
+                        <td>Creates and adds a new footer item</td>
+                    </tr>
+                    <tr>
+                        <td>updateItem</td>
+                        <td>(item: HTMLElement, text?: string, icon?: string)</td>
+                        <td>void</td>
+                        <td>Updates an existing footer item's text and/or icon</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Events</h3>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Detail</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>app-footer-item-click</td>
+                        <td>{ text: string, element: HTMLElement }</td>
+                        <td>Fired when a footer item is clicked</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+</div>
+
+<div class="component-footer">
+    <div class="component-footer-item">
+        <span>See also:</span>
+        <a href="#!views/components/navbar.html" data-container="">Navbar</a>
+    </div>
+</div> 

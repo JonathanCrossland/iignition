@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iignition Demo Site</title>
+    <link rel="stylesheet" href="../index.css">
+    <script src="../dist/ii.js"></script>
+    <script src="../dist/ii_components.js"></script>
+</head>
+<body>
+    <header data-viewcontainer="header"></header>
+    <nav data-viewcontainer="nav"></nav>
+    <main data-viewcontainer="main"></main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 iignition Demo Site.</p>
+        </div>
+    </footer>
+    <script>
+        $i.ready({spa:true, debug:0, domainRoot: location.origin + location.pathname.replace(/\/[^/]*$/, '/')}, function(){});
+        $i.show('views/header.html', 'header');
+        $i.show('views/nav.html', 'nav');
+        $i.route({
+            'views/about.html': 'main',
+            'views/terms.html': 'main',
+            'views/contact.html': 'main',
+            '': 'main'
+        });
+        $i.show('views/about.html', 'main');
+    </script>
+</body>
+</html> 

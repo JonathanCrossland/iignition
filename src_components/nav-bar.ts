@@ -3,39 +3,34 @@ class NavBar extends HTMLElement {
     private container: HTMLElement;
     private bottomContainer: HTMLElement;
     private header: HTMLElement;
+    private styleElement: HTMLStyleElement;
 
     constructor() {
         super();
-        this.attachShadow({ mode: 'open' });
         
-        // Add styles
-        const style = document.createElement('style');
-        style.textContent = this.getStyles();
-        this.shadowRoot!.appendChild(style);
+        // Create scoped styles instead of using Shadow DOM
+        this.styleElement = document.createElement('style');
+        this.styleElement.textContent = this.getStyles();
+        this.appendChild(this.styleElement);
 
         // Create outer grid container
         this.outer = document.createElement('div');
-        this.outer.className = 'nav-outer';
-        this.shadowRoot!.appendChild(this.outer);
+        this.outer.className = 'nav-bar-outer';
+        this.appendChild(this.outer);
 
-        // Create header section (simplified)
+        // Create header section
         this.header = document.createElement('div');
-        this.header.className = 'nav-header';
+        this.header.className = 'nav-bar-header';
         this.outer.appendChild(this.header);
         
-        // Header now uses a slot for flexibility
-        const headerSlot = document.createElement('slot');
-        headerSlot.name = 'header';
-        this.header.appendChild(headerSlot);
-
         // Create main container (top items)
         this.container = document.createElement('div');
-        this.container.className = 'nav-container';
+        this.container.className = 'nav-bar-container';
         this.outer.appendChild(this.container);
 
         // Create bottom container (bottom-docked items)
         this.bottomContainer = document.createElement('div');
-        this.bottomContainer.className = 'nav-bottom-container';
+        this.bottomContainer.className = 'nav-bar-bottom-container';
         this.outer.appendChild(this.bottomContainer);
     }
 
@@ -56,18 +51,25 @@ class NavBar extends HTMLElement {
         const logoUrl = getComputedStyle(this).getPropertyValue('--nav-bar-header-logo-url').trim();
         if (logoUrl) {
             const img = document.createElement('img');
-            img.className = 'nav-header-logo';
+            img.className = 'nav-bar-header-logo';
             img.src = logoUrl.replace(/^['"]|['"]$/g, ''); // Remove quotes if present
             img.alt = 'Logo';
             this.header.appendChild(img);
         }
         // Separator
         const sep = document.createElement('div');
-        sep.className = 'nav-header-separator';
+        sep.className = 'nav-bar-header-separator';
         this.header.appendChild(sep);
     }
 
     connectedCallback() {
+        // Process any slotted header content
+        const headerContent = this.querySelector('[slot="header"]');
+        if (headerContent) {
+            this.header.appendChild(headerContent);
+            headerContent.removeAttribute('slot'); // No longer needed
+        }
+        
         // Clear containers
         this.container.innerHTML = '';
         this.bottomContainer.innerHTML = '';
@@ -76,26 +78,27 @@ class NavBar extends HTMLElement {
         const topItems: HTMLElement[] = [];
         const bottomItems: HTMLElement[] = [];
         
-        Array.from(this.children).forEach(child => {
+        // Find direct child nav-items and nav-groups
+        const navElements = Array.from(this.querySelectorAll('nav-item, nav-group'));
+        
+        navElements.forEach(child => {
             if (child instanceof HTMLElement) {
-                // Skip header slot items
-                if (child.slot === 'header') return;
+                // Skip if it's a descendant of another nav component
+                const parent = child.parentElement;
+                if (parent !== this && parent?.closest('nav-group') !== null) {
+                    return;
+                }
                 
-                // Process regular items
-                if (child.tagName.toLowerCase() === 'nav-item' || 
-                    child.tagName.toLowerCase() === 'nav-group') {
-                    
-                    // Add nav-item class for consistent styling
-                    if (child.tagName.toLowerCase() === 'nav-item') {
-                        this.makeNavItem(child);
-                    }
-                    
-                    // Sort into top or bottom containers
-                    if (child.getAttribute('dock') === 'bottom') {
-                        bottomItems.push(child);
-                    } else {
-                        topItems.push(child);
-                    }
+                // Add nav-item class for consistent styling
+                if (child.tagName.toLowerCase() === 'nav-item') {
+                    this.makeNavItem(child as HTMLElement);
+                }
+                
+                // Sort into top or bottom containers
+                if (child.getAttribute('dock') === 'bottom') {
+                    bottomItems.push(child as HTMLElement);
+                } else {
+                    topItems.push(child as HTMLElement);
                 }
             }
         });
@@ -107,8 +110,8 @@ class NavBar extends HTMLElement {
     }
 
     private makeNavItem(element: HTMLElement) {
-        // Add nav-item class
-        element.classList.add('nav-item');
+        // Add nav-bar-item class
+        element.classList.add('nav-bar-item');
         
         // Ensure item has an ID
         if (!element.id) {
@@ -126,7 +129,7 @@ class NavBar extends HTMLElement {
         // Add click handler
         element.addEventListener('click', () => {
             // Remove active class from all items
-            this.shadowRoot!.querySelectorAll('.nav-item').forEach(item => {
+            document.querySelectorAll('.nav-bar-item').forEach(item => {
                 item.classList.remove('active');
             });
             // Add active class to clicked item
@@ -147,7 +150,8 @@ class NavBar extends HTMLElement {
 
     private getStyles(): string {
         return `
-            :host {
+            /* Scoped styles for nav-bar element with class prefixes */
+            nav-bar {
                 --nav-bg-fallback: #1e1e1e;
                 --nav-width-fallback: 60px;
                 --nav-item-height-fallback: 50px;
@@ -172,12 +176,12 @@ class NavBar extends HTMLElement {
                 overflow: hidden;
                 z-index: var(--nav-bar-z-index, 1000);
             }
-            .nav-outer {
+            nav-bar .nav-bar-outer {
                 display: grid;
                 grid-template-rows: auto 1fr auto;
                 height: 100%;
             }
-            .nav-header {
+            nav-bar .nav-bar-header {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -185,20 +189,20 @@ class NavBar extends HTMLElement {
                 padding: 16px 0 8px 0;
             }
             /* Style for header separator if present */
-            .nav-header-separator {
+            nav-bar .nav-bar-header-separator {
                 width: 60%;
                 height: 1px;
                 background: var(--nav-bar-item-hover-bg, var(--nav-item-hover-bg-fallback));
                 margin: 8px 0;
                 border-radius: 1px;
             }
-            .nav-container {
+            nav-bar .nav-bar-container {
                 display: flex;
                 flex-direction: column;
                 padding: 8px 0 0 0;
                 box-sizing: border-box;
             }
-            .nav-bottom-container {
+            nav-bar .nav-bar-bottom-container {
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-end;
@@ -206,7 +210,7 @@ class NavBar extends HTMLElement {
                 box-sizing: border-box;
             }
             /* Style for nav-items (not nav-groups) */
-            .nav-item {
+            nav-bar .nav-bar-item {
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -218,13 +222,13 @@ class NavBar extends HTMLElement {
                 white-space: nowrap;
                 overflow: hidden;
             }
-            .nav-item:hover {
+            nav-bar .nav-bar-item:hover {
                 background: var(--nav-bar-item-hover-bg, var(--nav-item-hover-bg-fallback));
             }
-            .nav-item.active {
+            nav-bar .nav-bar-item.active {
                 background: var(--nav-bar-item-active-bg, var(--nav-item-active-bg-fallback));
             }
-            .nav-item.active::before {
+            nav-bar .nav-bar-item.active::before {
                 content: '';
                 position: absolute;
                 left: 0;
@@ -234,7 +238,7 @@ class NavBar extends HTMLElement {
                 background: var(--nav-bar-item-active-indicator, var(--nav-item-active-indicator-fallback));
             }
             /* Custom tooltip using ::after, VSCode style */
-            .nav-item[title]:hover::after {
+            nav-bar .nav-bar-item[title]:hover::after {
                 content: attr(title);
                 position: absolute;
                 left: 100%;

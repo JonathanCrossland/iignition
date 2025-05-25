@@ -1,0 +1,209 @@
+<style>
+
+.example-container {
+    height: 1000px !important;
+    width: 300%;
+}
+
+</style>
+<character-plot id="demo-plot" style="height: 800px; width: 1600px;"></character-plot>
+<div class="component-content">
+    <h2>Character Plot</h2>
+    <p class="component-description">
+        <strong>&lt;character-plot&gt;</strong> is a web component for visualizing and editing character relationship graphs. It allows users to add, move, and connect characters with relationships, supporting interactive editing and JSON import/export. Useful for writers, game designers, and anyone modeling character networks.
+    </p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <div class="example-container" >
+              
+            </div>
+            <pre><code class="language-html">&lt;character-plot style="height: 400px; width: 100%;"&gt;&lt;/character-plot&gt;</code></pre>
+            <pre><code class="language-javascript">// Add a character programmatically
+const plot = document.getElementById('demo-plot');
+plot.addCharacter('Alice');
+plot.addCharacter('Bob');
+plot.addRelationship(plot.getData().characters[0].id, plot.getData().characters[1].id, 'friends');
+</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <p>Place the <code>&lt;character-plot&gt;</code> element in your HTML. Use the toolbar to add characters, toggle relationship mode, and delete selected characters. Circles can be dragged to reposition, and double-clicked to rename. Relationships are created by toggling the relationship tool and clicking two characters in sequence.</p>
+            <pre><code class="language-html">&lt;character-plot style="height: 500px; width: 100%;"&gt;&lt;/character-plot&gt;</code></pre>
+            <p>To load data from JSON:</p>
+            <pre><code class="language-javascript">const plot = document.querySelector('character-plot');
+plot.load({
+    characters: [
+        { id: 'a1', name: 'Alice', x: 120, y: 200 },
+        { id: 'b2', name: 'Bob', x: 300, y: 250 }
+    ],
+    relationships: [
+        { from: 'a1', to: 'b2', type: 'friends' }
+    ]
+});
+</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>data</td>
+                        <td>string (JSON)</td>
+                        <td>Initial data for the plot (characters and relationships). Optional attribute.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Methods">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Arguments</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>load</td>
+                        <td>{ characters: Array, relationships: Array }</td>
+                        <td>Loads a new set of characters and relationships from a data object.</td>
+                    </tr>
+                    <tr>
+                        <td>getData</td>
+                        <td>none</td>
+                        <td>Returns the current data as an object: { characters, relationships }.</td>
+                    </tr>
+                    <tr>
+                        <td>addCharacter</td>
+                        <td>name: string</td>
+                        <td>Adds a new character to the plot.</td>
+                    </tr>
+                    <tr>
+                        <td>addRelationship</td>
+                        <td>from: string, to: string, type?: string</td>
+                        <td>Adds a relationship between two characters.</td>
+                    </tr>
+                    <tr>
+                        <td>removeCharacter</td>
+                        <td>id: string</td>
+                        <td>Removes a character and its relationships.</td>
+                    </tr>
+                    <tr>
+                        <td>removeRelationship</td>
+                        <td>from: string, to: string</td>
+                        <td>Removes a relationship between two characters.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Events">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Detail</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>change</td>
+                        <td>{ characters, relationships }</td>
+                        <td>Fired whenever the plot data changes (add, move, delete, or edit).</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--character-plot-bg</td>
+                        <td>#f8f8f8</td>
+                        <td>Background color of the plot area</td>
+                    </tr>
+                    <tr>
+                        <td>--character-plot-circle</td>
+                        <td>#b2e3ff</td>
+                        <td>Background color of character circles</td>
+                    </tr>
+                    <tr>
+                        <td>--character-plot-font-family</td>
+                        <td>inherit</td>
+                        <td>Font family for character labels</td>
+                    </tr>
+                    <tr>
+                        <td>--character-plot-font-size</td>
+                        <td>1rem</td>
+                        <td>Font size for character labels</td>
+                    </tr>
+                    <tr>
+                        <td>--character-plot-line</td>
+                        <td>#444</td>
+                        <td>Color of relationship lines</td>
+                    </tr>
+                    <tr>
+                        <td>--character-plot-line-width</td>
+                        <td>2px</td>
+                        <td>Thickness of relationship lines</td>
+                    </tr>
+                    <tr>
+                        <td>--character-plot-line-style</td>
+                        <td>solid</td>
+                        <td>Border style of relationship lines (solid, dashed, etc.)</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3>Example Custom Styling</h3>
+            <pre><code class="language-css">character-plot {
+    --character-plot-bg: #fffbe6;
+    --character-plot-circle: #ffe0b2;
+    --character-plot-line: #ff9800;
+    --character-plot-line-width: 3px;
+    --character-plot-line-style: dashed;
+    --character-plot-font-family: 'Segoe UI', Arial, sans-serif;
+    --character-plot-font-size: 1.2rem;
+}
+</code></pre>
+        </div>
+    </accordion-component>
+</div>
+
+<script>
+window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') {
+        e.preventDefault(); // Prevent browser from scrolling
+        spaceDown = true;
+        this.scrollWrapper.style.cursor = 'grab';
+    }
+});
+</script>

@@ -53,14 +53,19 @@ class FolderGroup extends HTMLElement {
         this.menuClickHandler = (e: Event) => {
             e.stopPropagation();
             console.log('Folder group menu clicked:', this.getAttribute('label'));
-            this.dispatchEvent(new CustomEvent('folder-group-menu-click', { 
+            
+            // Dispatch the menu click event
+            const event = new CustomEvent('folder-group-menu-click', { 
                 detail: { 
                     label: this.getAttribute('label'),
                     element: this
                 }, 
                 bubbles: true, 
                 composed: true 
-            }));
+            });
+            
+            console.log('Dispatching folder-group-menu-click event', event);
+            this.dispatchEvent(event);
         };
     }
 

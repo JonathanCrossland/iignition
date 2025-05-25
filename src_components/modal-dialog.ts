@@ -37,7 +37,7 @@ class ModalDialog extends HTMLElement {
             justify-content: center;
             align-items: center;
             visibility: hidden;
-            z-index: 1000;
+            z-index: var(--modal-z-index, 1500);
         }
         .modal-container{
             background-color: var(--modal-bg, #fff);
@@ -328,7 +328,7 @@ class ModalDialog extends HTMLElement {
                 const headerHeight = this._header.offsetHeight || 40;
                 const footerHeight = this._footer.offsetHeight || 42; // Reduced from 52 to account for smaller footer
                 const contentHeight = `calc(${height} - ${headerHeight + footerHeight}px)`;
-                this._content.style.maxHeight = contentHeight;
+                //this._content.style.maxHeight = contentHeight;
             });
         } else {
             // Restore default responsive behavior

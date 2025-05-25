@@ -8,7 +8,7 @@ namespace iignition {
             
             var evt = new CustomEvent(name, { detail: data });
             window.dispatchEvent(evt);
-
+            $i.RouteHandler.run(null);
         }
 
     }

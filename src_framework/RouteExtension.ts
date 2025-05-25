@@ -1,4 +1,3 @@
-/// <reference path="Header.ts" />
 
 namespace iignition
 {
@@ -63,17 +62,31 @@ namespace iignition
             if (!link) return;
 
             // Get the URL from either href or data-link
-            const url = link.getAttribute('href') || link.getAttribute('data-link');
-            const container = link.getAttribute('data-container');
+            var url = link.getAttribute('href') || link.getAttribute('data-link');
+            var container = link.getAttribute('data-container');
           
 
             let dataset = {data:{}};
+
+            if (url.includes('?')) {
+                const [baseUrl, queryString] = url.split('?');
+                const params = new URLSearchParams(queryString);
+                params.forEach((value, key) => {
+                    dataset.data[key] = value;
+                });
+                url = baseUrl; // Remove query string from url
+            }
+
             Object.assign(dataset, link.dataset);
             if (link.dataset.data){
                 dataset.data = JSON.parse(link.dataset.data);
             }
 
-            const stateObj = { view: url, data: dataset.data, container: container };
+            if (!container) {
+                container = '';
+            }
+            
+            const stateObj = { view: url, data: dataset.data, container: container, "spa": $i.Options.spa,"controllerPath": $i.Options.controllerPath, "controller": $i.Options.controller };
             history.pushState(stateObj, document.title, location.hash);
 
             console.info(`Route is ${url}`);
@@ -82,7 +95,7 @@ namespace iignition
             console.groupEnd();
           
             $i.ControllerHandler.run(stateObj);
-
+            $i.RouteHandler.run(stateObj);
             event.preventDefault();
         }
 

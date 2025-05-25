@@ -53,6 +53,7 @@ namespace iignition {
                    
                     if (container instanceof Element){
                         container.innerHTML = html;
+                        this.executeScripts(container as HTMLElement);
                         console.log('View Loaded');
                         Events.raiseEvent('onViewLoaded', { view: ctx.view })
                         
@@ -61,6 +62,7 @@ namespace iignition {
                             history.pushState({}, '', `#!${ctx.view}`);
                         }
                         
+                        
                         resolve();
                     }
 
@@ -68,6 +70,22 @@ namespace iignition {
                 .catch((e) => {
                     reject();
                 });
+            });
+        }
+
+        
+        executeScripts(container: HTMLElement) {
+            const scripts = container.querySelectorAll('script');
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                // Copy attributes
+                Array.from(oldScript.attributes).forEach(attr => {
+                    newScript.setAttribute(attr.name, attr.value);
+                });
+                // Copy inline script content
+                newScript.text = oldScript.text;
+                // Replace old script with new one
+                oldScript.parentNode?.replaceChild(newScript, oldScript);
             });
         }
     }

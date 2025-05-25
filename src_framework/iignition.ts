@@ -1,13 +1,3 @@
-/// <reference path="Options.ts" />
-/// <reference path="Header.ts" />
-/// <reference path="RouteExtension.ts" />
-/// <reference path="Extensions/FormExtension.ts" />
-/// <reference path="Extensions/ControllerExtension.ts" />
-/// <reference path="ControllerHandler.ts" />
-/// <reference path="RouteHandler.ts" />
-/// <reference path="Data.ts" />
-/// <reference path="Splash.ts" />  
-/// <reference path="Extensions/ViewExtension.ts" />
 namespace iignition{
     export class Core
     {
@@ -87,12 +77,14 @@ namespace iignition{
                 // Get the view from URL hash if present, otherwise use default
                 let view = "index.html";
                 const hash = window.location.hash;
+                const stateObj = { "spa": this.Options.spa, "view":view, "container":'' , "controllerPath": $i.Options.controllerPath, "controller": $i.Options.controller, "data": {} }
+
                 if (hash && hash.startsWith('#!')) {
                     view = hash;
-                    const stateObj = { view: view, data: {} };
+                    
                     this.ControllerHandler.run(stateObj);
                 } else {
-                    const stateObj = { view: view, data: {} };
+                    
                     this.ControllerHandler.run(stateObj);
                 }
             }

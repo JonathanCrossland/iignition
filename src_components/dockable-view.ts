@@ -639,20 +639,111 @@ class DockableView extends HTMLElement {
         // If no visible windows, nothing more to do
         if (visibleWindows.length === 0) return;
         
-        // Step 3: Recalculate widths - distribute evenly
+        // Step 3: Recalculate widths - respecting width attributes
         const containerWidth = this.container.offsetWidth;
-        const widthPercent = 100 / visibleWindows.length;
         
-        visibleWindows.forEach(window => {
-            window.style.width = `${widthPercent}%`;
-            window.style.flex = '1 1 0';
-        });
+        // Check if any windows have width attribute
+        const windowsWithWidth = visibleWindows.filter(window => 
+            window.hasAttribute('width') || 
+            window.style.width && !window.style.width.includes('auto')
+        );
+        
+        if (windowsWithWidth.length > 0) {
+            // Some windows have width - respect those widths
+            let remainingWidth = 100; // Percentage
+            let windowsWithoutWidth = 0;
+            
+            // Calculate total width specified by attributes
+            for (const window of visibleWindows) {
+                const widthAttr = window.getAttribute('width');
+                const styleWidth = window.style.width;
+                
+                if (widthAttr) {
+                    // Process attribute width
+                    if (widthAttr.endsWith('%')) {
+                        const percent = parseFloat(widthAttr);
+                        if (!isNaN(percent)) {
+                            window.style.width = `${percent}%`;
+                            window.style.flex = '0 0 auto';
+                            remainingWidth -= percent;
+                        } else {
+                            windowsWithoutWidth++;
+                        }
+                    } else if (widthAttr.endsWith('px')) {
+                        const pixels = parseFloat(widthAttr);
+                        if (!isNaN(pixels)) {
+                            const percent = (pixels / containerWidth) * 100;
+                            window.style.width = `${percent}%`;
+                            window.style.flex = '0 0 auto';
+                            remainingWidth -= percent;
+                        } else {
+                            windowsWithoutWidth++;
+                        }
+                    } else {
+                        // Try to parse as number (pixels)
+                        const pixels = parseFloat(widthAttr);
+                        if (!isNaN(pixels)) {
+                            const percent = (pixels / containerWidth) * 100;
+                            window.style.width = `${percent}%`;
+                            window.style.flex = '0 0 auto';
+                            remainingWidth -= percent;
+                        } else {
+                            windowsWithoutWidth++;
+                        }
+                    }
+                } else if (styleWidth && !styleWidth.includes('auto') && parseFloat(styleWidth) > 0) {
+                    // Keep existing style width if valid
+                    // Convert to percentage if needed
+                    if (styleWidth.endsWith('px')) {
+                        const pixels = parseFloat(styleWidth);
+                        const percent = (pixels / containerWidth) * 100;
+                        window.style.width = `${percent}%`;
+                    }
+                    window.style.flex = '0 0 auto';
+                    
+                    // Extract percent value
+                    const stylePercent = parseFloat(window.style.width);
+                    if (!isNaN(stylePercent)) {
+                        remainingWidth -= stylePercent;
+                    }
+                } else {
+                    windowsWithoutWidth++;
+                }
+            }
+            
+            // Distribute remaining width to windows without width
+            if (windowsWithoutWidth > 0 && remainingWidth > 0) {
+                const percentPerWindow = remainingWidth / windowsWithoutWidth;
+                
+                for (const window of visibleWindows) {
+                    if (!window.hasAttribute('width') && 
+                        (!window.style.width || window.style.width.includes('auto') || parseFloat(window.style.width) <= 0)) {
+                        window.style.width = `${percentPerWindow}%`;
+                        window.style.flex = '1 1 0';
+                    }
+                }
+            }
+        } else {
+            // No widths specified - distribute evenly
+            const widthPercent = 100 / visibleWindows.length;
+            
+            visibleWindows.forEach(window => {
+                window.style.width = `${widthPercent}%`;
+                window.style.flex = '1 1 0';
+            });
+        }
         
         // Step 4: Add splitters between visible windows
         visibleWindows.forEach((window, index) => {
             if (index < visibleWindows.length - 1) {
                 this.addSplitter(window);
             }
+        });
+        
+        // Step 5: Update any stacked windows to match their parent dimensions
+        visibleWindows.forEach(window => {
+            // Update stacked windows if any
+            this.updateStackedWindowSizes(window);
         });
     }
 

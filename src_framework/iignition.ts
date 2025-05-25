@@ -77,6 +77,7 @@ namespace iignition{
                 // Get the view from URL hash if present, otherwise use default
                 let view = "index.html";
                 const hash = window.location.hash;
+                if (hash) view = hash;
                 const stateObj = { "spa": this.Options.spa, "view":view, "container":'' , "controllerPath": $i.Options.controllerPath, "controller": $i.Options.controller, "data": {} }
 
                 if (hash && hash.startsWith('#!')) {

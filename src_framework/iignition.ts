@@ -12,11 +12,11 @@ namespace iignition{
         public Splash: iignition.Splash = new iignition.Splash();
         public RouteHandler;
         public ControllerHandler;
-      
+        public Reloaded: boolean = false;
 
         private _Pipeline = [];
         constructor(){
-
+            this.Reloaded = true;
             Console.disable();
             this.defaultOptions();
             this.RouteHandler = new iignition.RouteHandler()
@@ -73,21 +73,48 @@ namespace iignition{
             this.RouteHandler.run({});
             
             if (this.Options.spa == true) {
-            
-                // Get the view from URL hash if present, otherwise use default
+                const hash = document.location.hash;
                 let view = "index.html";
-                const hash = window.location.hash;
-                if (hash) view = hash;
-                const stateObj = { "spa": this.Options.spa, "view":view, "container":'' , "controllerPath": $i.Options.controllerPath, "controller": $i.Options.controller, "data": {} }
-
+                
+                // Properly parse the hash to get the view
                 if (hash && hash.startsWith('#!')) {
-                    view = hash;
-                    
-                    this.ControllerHandler.run(stateObj);
-                } else {
-                    
-                    this.ControllerHandler.run(stateObj);
+                    view = hash; // Keep the full hash format for routing
+                } else if (hash) {
+                    view = hash; // Use hash as-is if it exists
                 }
+                
+                let stateObj;
+                
+                // Check if we have existing state (from back/forward navigation)
+                if (history.state && history.state.view) {
+                    stateObj = history.state;
+                    // Ensure the view matches the current URL hash
+                    if (hash && hash !== stateObj.view) {
+                        stateObj.view = view;
+                    }
+                } else {
+                    // Create new state for fresh page load or refresh
+                    stateObj = {
+                        spa: this.Options.spa,
+                        view: view,
+                        container: '',
+                        controllerPath: this.Options.controllerPath,
+                        controller: this.Options.controller,
+                        data: {},
+                        timestamp: Date.now()
+                    };
+                    
+                    // Set initial state
+                    history.replaceState(stateObj, document.title, location.href);
+                }
+                
+                console.info(`Initial view loading: ${view}`);
+                console.group(`Initial State:`);
+                console.dir(stateObj);
+                console.groupEnd();
+                
+                // Load the view
+                this.ControllerHandler.run(stateObj);
             }
         }
 

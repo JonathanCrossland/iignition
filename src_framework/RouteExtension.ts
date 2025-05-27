@@ -1,4 +1,3 @@
-
 namespace iignition
 {
     export class RouteExtension extends Extension
@@ -21,11 +20,7 @@ namespace iignition
             window.removeEventListener('hashchange', this.hashChangeHandler);
             window.addEventListener('hashchange', this.hashChangeHandler);
 
-            var stateObj = { view: "index" };
-            history.pushState(stateObj, "index", location.hash);
-            
             this.Selector = ctx.selector;
-
         }
 
         add(extension: Extension) {
@@ -50,21 +45,36 @@ namespace iignition
                         element.addEventListener('click', this.clickHandler, true);
                     });
                 }
+
+                // Set initial state if none exists
+                if (!history.state && location.hash) {
+                    const initialState = this.createStateFromHash(location.hash);
+                    history.replaceState(initialState, document.title, location.href);
+                }
                
                 resolve();
-
             })
         }
 
+        private createStateFromHash(hash: string): any {
+            const view = hash || '#!index.html';
+            return {
+                view: view,
+                data: {},
+                container: '',
+                spa: $i.Options.spa,
+                controllerPath: $i.Options.controllerPath,
+                controller: $i.Options.controller,
+                timestamp: Date.now()
+            };
+        }
+
         clickHandler(event) {
-            // Find the closest element with either href or data-link attribute
             const link = event.target.closest('a[href], [data-link]');
             if (!link) return;
 
-            // Get the URL from either href or data-link
             var url = link.getAttribute('href') || link.getAttribute('data-link');
             var container = link.getAttribute('data-container');
-          
 
             let dataset = {data:{}};
 
@@ -74,7 +84,7 @@ namespace iignition
                 params.forEach((value, key) => {
                     dataset.data[key] = value;
                 });
-                url = baseUrl; // Remove query string from url
+                url = baseUrl;
             }
 
             Object.assign(dataset, link.dataset);
@@ -86,8 +96,28 @@ namespace iignition
                 container = '';
             }
             
-            const stateObj = { view: url, data: dataset.data, container: container, "spa": $i.Options.spa,"controllerPath": $i.Options.controllerPath, "controller": $i.Options.controller };
-            history.pushState(stateObj, document.title, location.hash);
+            const stateObj = {
+                view: url,
+                data: dataset.data,
+                container: container,
+                spa: $i.Options.spa,
+                controllerPath: $i.Options.controllerPath,
+                controller: $i.Options.controller,
+                timestamp: Date.now()
+            };
+
+            // Update URL hash to match the view for consistency
+            const newHash = url.startsWith('#!') ? url : `#!${url}`;
+            
+            // Only update URL if loading into root container
+            if (container === '' || !container) {
+                history.pushState(stateObj, document.title, newHash);
+            } else {
+                // For non-root containers, just update state without changing URL
+                const currentState = history.state || this.createStateFromHash(location.hash);
+                const updatedState = { ...currentState, timestamp: Date.now() };
+                history.replaceState(updatedState, document.title, location.href);
+            }
 
             console.info(`Route is ${url}`);
             console.group(`Route State is`);
@@ -100,14 +130,21 @@ namespace iignition
         }
 
         hashChangeHandler() {
-            
-            const stateObj = { view: location.hash };
-            history.pushState(stateObj, document.title, location.hash);
+            // Only handle hash changes that aren't from pushState
+            if (history.state && history.state.timestamp && (Date.now() - history.state.timestamp) < 100) {
+                return; // Skip if this was triggered by our own pushState
+            }
+
+            const stateObj = this.createStateFromHash(location.hash);
+            history.replaceState(stateObj, document.title, location.href);
             
             console.info('Route Hash Change');
             console.group(`Route State is`);
             console.dir(stateObj);
             console.groupEnd();
+
+            $i.ControllerHandler.run(stateObj);
+            $i.RouteHandler.run(stateObj);
         }
 
         popstateHandler(event) {
@@ -116,8 +153,27 @@ namespace iignition
             console.dir(event.state);
             console.groupEnd();
 
-            const stateObj = event.state;
-        
+            let stateObj;
+            
+            if (event.state) {
+                // Use the stored state
+                stateObj = event.state;
+            } else {
+                // Fallback: create state from current hash
+                const hash = document.location.hash;
+                const view = hash || '#!index.html';
+                stateObj = {
+                    spa: $i.Options.spa,
+                    view: view,
+                    container: '',
+                    controllerPath: $i.Options.controllerPath,
+                    controller: $i.Options.controller,
+                    data: {}
+                };
+            }
+
+            $i.ControllerHandler.run(stateObj);
+            $i.RouteHandler.run(stateObj);
         }
     }
 }

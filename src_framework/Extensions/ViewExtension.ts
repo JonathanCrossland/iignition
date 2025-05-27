@@ -52,6 +52,7 @@ namespace iignition {
                    
                    
                     if (container instanceof Element){
+                        Events.raiseEvent('onViewLoadeding', { view: ctx.view })
                         container.innerHTML = html;
                         this.executeScripts(container as HTMLElement);
                         console.log('View Loaded');
@@ -59,9 +60,9 @@ namespace iignition {
                         
                         // Only update URL if loading into root container
                         if (container.getAttribute('data-viewcontainer') === '') {
-                            history.pushState({}, '', `#!${ctx.view}`);
+                            history.replaceState({}, '', `#!${ctx.view}`);
                         }
-                        
+
                         
                         resolve();
                     }

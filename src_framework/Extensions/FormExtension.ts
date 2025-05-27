@@ -35,6 +35,7 @@ namespace iignition {
             let ctx = { form : this.Form, data: formData};  
             
             $i.ControllerHandler.run(ctx);
+            $i.RouteHandler.run(ctx);
             Events.raiseEvent('onFormSubmitted', formData);
         }
 

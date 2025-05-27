@@ -1,12 +1,26 @@
-# Readme
+# iignition
 
-Build the framework
+A minimal, maintainable TypeScript framework for building single-page applications with component-based architecture and dynamic view loading.
+
+## Features
+
+- **SPA Navigation**: Hash-based routing with automatic view loading
+- **View Containers**: Dynamic content loading into designated containers
+- **View Controllers**: Logic handlers for view initialization and interaction
+- **Component System**: Reusable UI components with built-in functionality
+- **Data Management**: Built-in fetch utilities with automatic content-type handling
+- **Data Templating**: Dynamic content binding and template rendering
+- **Custom Folder Structures**: Flexible project organization and configurable paths
+- **Event System**: Framework-wide event handling and communication
+- **State Management**: Automatic state tracking and URL synchronization
+- **TypeScript**: Full TypeScript support with strong typing
+
+## Build the framework
 
 ```
  tsc -p tsconfig-framework.json --watch
  tsc -p tsconfig-components.json --watch
  ```
- 
 
 ## Navigation
 

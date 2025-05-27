@@ -10,6 +10,8 @@ namespace iignition{
         public Options: Options;
         public Data: iignition.Data = new iignition.Data();
         public Splash: iignition.Splash = new iignition.Splash();
+        public State: iignition.State = iignition.State.getInstance();
+        public SEO = iignition.SEO;
         public RouteHandler;
         public ControllerHandler;
         public Reloaded: boolean = false;
@@ -93,16 +95,24 @@ namespace iignition{
                         stateObj.view = view;
                     }
                 } else {
-                    // Create new state for fresh page load or refresh
-                    stateObj = {
-                        spa: this.Options.spa,
-                        view: view,
-                        container: '',
-                        controllerPath: this.Options.controllerPath,
-                        controller: this.Options.controller,
-                        data: {},
-                        timestamp: Date.now()
-                    };
+                    // Try to restore state from State class (for page refresh)
+                    const storedState = $i.State.get(`view_${view}`);
+                    if (storedState) {
+                        stateObj = storedState;
+                        console.info(`Restored state from State class on page load for view: ${view}`);
+                    } else {
+                        // Create new state for fresh page load
+                        stateObj = {
+                            spa: this.Options.spa,
+                            view: view,
+                            container: '',
+                            controllerPath: this.Options.controllerPath,
+                            controller: this.Options.controller,
+                            data: {},
+                            timestamp: Date.now()
+                        };
+                        console.info(`Created new state for fresh page load: ${view}`);
+                    }
                     
                     // Set initial state
                     history.replaceState(stateObj, document.title, location.href);

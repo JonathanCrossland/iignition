@@ -20,6 +20,7 @@
         "src_framework/State.ts",
         "src_framework/Context.ts",
         "src_framework/Splash.ts",
+        "src_framework/SEO.ts",
         "src_framework/Extensions/FormExtension.ts",
         "src_framework/RouteExtension.ts",
         "src_framework/Extensions/ViewExtension.ts",

@@ -69,6 +69,16 @@ namespace iignition
             };
         }
 
+        private processRoute(stateObj: any, logContext: string): void {
+            console.info(`Route is ${stateObj.view}`);
+            console.group(`${logContext}:`);
+            console.dir(stateObj);
+            console.groupEnd();
+          
+            $i.ControllerHandler.run(stateObj);
+            $i.RouteHandler.run(stateObj);
+        }
+
         clickHandler(event) {
             const link = event.target.closest('a[href], [data-link]');
             if (!link) return;
@@ -106,45 +116,24 @@ namespace iignition
                 timestamp: Date.now()
             };
 
-            // Update URL hash to match the view for consistency
-            const newHash = url.startsWith('#!') ? url : `#!${url}`;
-            
-            // Only update URL if loading into root container
-            if (container === '' || !container) {
-                history.pushState(stateObj, document.title, newHash);
-            } else {
-                // For non-root containers, just update state without changing URL
-                const currentState = history.state || this.createStateFromHash(location.hash);
-                const updatedState = { ...currentState, timestamp: Date.now() };
-                history.replaceState(updatedState, document.title, location.href);
-            }
+            $i.State.add(`view_${url}`, stateObj);
+            $i.State.add('last_view', url);
 
-            console.info(`Route is ${url}`);
-            console.group(`Route State is`);
-            console.dir(stateObj);
-            console.groupEnd();
-          
-            $i.ControllerHandler.run(stateObj);
-            $i.RouteHandler.run(stateObj);
+            const newHash = url.startsWith('#!') ? url : `#!${url}`;
+            history.pushState(stateObj, document.title, newHash);
+
+            this.processRoute(stateObj, 'Route State pushed to history and State');
             event.preventDefault();
         }
 
         hashChangeHandler() {
-            // Only handle hash changes that aren't from pushState
+            // Only handle hash changes that aren't from our own pushState
             if (history.state && history.state.timestamp && (Date.now() - history.state.timestamp) < 100) {
                 return; // Skip if this was triggered by our own pushState
             }
 
-            const stateObj = this.createStateFromHash(location.hash);
-            history.replaceState(stateObj, document.title, location.href);
-            
-            console.info('Route Hash Change');
-            console.group(`Route State is`);
-            console.dir(stateObj);
-            console.groupEnd();
-
-            $i.ControllerHandler.run(stateObj);
-            $i.RouteHandler.run(stateObj);
+            // Don't replace state here - let popstate handle it
+            console.info('Route Hash Change - delegating to popstate');
         }
 
         popstateHandler(event) {
@@ -154,14 +143,20 @@ namespace iignition
             console.groupEnd();
 
             let stateObj;
+            const hash = document.location.hash;
+            let view = hash || '#!index.html';
             
-            if (event.state) {
-                // Use the stored state
-                stateObj = event.state;
+            if (view && !view.startsWith('#!')) {
+                view = `#!${view}`;
+            }
+            
+            console.info(`PopState: Processing view: ${view} from hash: ${hash}`);
+            
+            const storedState = $i.State.get(`view_${view}`);
+            if (storedState) {
+                stateObj = storedState;
+                console.info(`PopState: Restored state from State class for view: ${view}`);
             } else {
-                // Fallback: create state from current hash
-                const hash = document.location.hash;
-                const view = hash || '#!index.html';
                 stateObj = {
                     spa: $i.Options.spa,
                     view: view,
@@ -170,10 +165,13 @@ namespace iignition
                     controller: $i.Options.controller,
                     data: {}
                 };
+                console.info(`PopState: Created fallback state for view: ${view}`);
             }
+            
+            history.replaceState(stateObj, document.title, location.href);
 
-            $i.ControllerHandler.run(stateObj);
-            $i.RouteHandler.run(stateObj);
+            console.info(`PopState: Final state object:`);
+            this.processRoute(stateObj, 'PopState: Running ControllerHandler and RouteHandler');
         }
     }
 }

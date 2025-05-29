@@ -12,6 +12,7 @@ namespace iignition{
 		public viewPath:string = "views";
 		public controllerPath:string = "viewControllers";
 		public controllerjs: string = ""; // hard coded from client
+		public view: string = "";
 
 		apply(){
 			if (this.debug === true || (typeof this.debug === 'number' && this.debug > LogLevel.Off)){

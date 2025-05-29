@@ -76,7 +76,7 @@ namespace iignition{
             
             if (this.Options.spa == true) {
                 const hash = document.location.hash;
-                let view = "index.html";
+                let view =  this.Options.view || "index.html";
                 
                 // Properly parse the hash to get the view
                 if (hash && hash.startsWith('#!')) {

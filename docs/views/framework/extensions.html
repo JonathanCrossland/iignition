@@ -1,0 +1,145 @@
+<div class="component-content">
+    <h2>Extensions</h2>
+    <p class="component-description">Learn how to use and create iignition extensions to enhance your web applications.</p>
+
+    <accordion-component title="Extension Basics" open="true">
+        <div slot="content">
+            <h4>What are Extensions?</h4>
+            <p>Extensions are modular components that enhance iignition's functionality. They are added to pipelines and process content as it flows through the application.</p>
+            <ul>
+                <li>Extensions can be added to RouteHandler or ControllerHandler</li>
+                <li>They execute in the order they are added to the pipeline</li>
+                <li>Each extension can modify content or context before passing it to the next extension</li>
+            </ul>
+            <pre><code class="language-javascript">// Adding extensions to the pipeline
+$i.RouteHandler.add(new iignition.CustomExtension());</code></pre>
+
+            <h4>Extension Structure</h4>
+            <p>All extensions extend the base Extension class and implement a handle method:</p>
+            <pre><code class="language-typescript">namespace iignition {
+    export class CustomExtension extends Extension {
+        constructor(ctx: any = null) {
+            super(ctx);
+        }
+
+        handle(ctx: any): Promise<void> {
+            return new Promise((resolve, reject) => {
+                // Extension logic here
+                resolve();
+            });
+        }
+    }
+}</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Authentication Extension">
+        <div slot="content">
+            <h4>Authentication and Role-Based Access</h4>
+            <p>The AuthenticationHandler extension controls element visibility based on user authentication and roles.</p>
+            
+            <h5>Usage Examples</h5>
+            <pre><code class="language-html">&lt;!-- Only visible when NOT authenticated (sign-in button) --&gt;
+&lt;button data-role="anon" data-link="#!views/login.html"&gt;Sign In&lt;/button&gt;
+
+&lt;!-- Only visible when authenticated (any authenticated user) --&gt;
+&lt;button data-role&gt;Sign Out&lt;/button&gt;
+
+&lt;!-- Only visible for users with specific role --&gt;
+&lt;a href="#!views/admin.html" data-role="admin"&gt;Admin Panel&lt;/a&gt;
+
+&lt;!-- Visible for users with any of multiple roles --&gt;
+&lt;a href="#!views/reports.html" data-role="manager,admin"&gt;Reports&lt;/a&gt;</code></pre>
+
+            <h5>How It Works</h5>
+            <ul>
+                <li><code>data-role="anon"</code>: Only visible when user is NOT authenticated</li>
+                <li><code>data-role</code> (empty): Visible for any authenticated user</li>
+                <li><code>data-role="rolename"</code>: Visible only for authenticated users with that role</li>
+                <li><code>data-role="role1,role2"</code>: Visible if user has ANY of the listed roles</li>
+            </ul>
+            
+            <h5>Integration</h5>
+            <p>The AuthenticationHandler is typically added to both RouteHandler and ControllerHandler pipelines:</p>
+            <pre><code class="language-typescript">// Add to RouteHandler
+$i.RouteHandler.add(new iignition.AuthenticationHandler({ 
+    selector: 'a[href^="#!"],[data-link]'
+}));
+
+// Add to ControllerHandler
+$i.ControllerHandler.add(new iignition.AuthenticationHandler({ 
+    selector: 'a[href^="#!"],[data-link]'
+}));</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Image Error Handler">
+        <div slot="content">
+            <h4>Handling Broken Images</h4>
+            <p>The ImageErrorHandler extension automatically detects and handles broken images, replacing them with a transparent placeholder.</p>
+            
+            <h5>Features</h5>
+            <ul>
+                <li>Automatically detects broken images</li>
+                <li>Replaces broken images with a transparent 1x1 pixel</li>
+                <li>Adds 'image-error' class for styling</li>
+                <li>Preserves layout and dimensions</li>
+            </ul>
+            
+            <h5>Integration</h5>
+            <p>The ImageErrorHandler is typically added as the last extension in the RouteHandler pipeline:</p>
+            <pre><code class="language-typescript">// Add to RouteHandler
+$i.RouteHandler.add(new iignition.ImageErrorHandler());</code></pre>
+            
+            <h5>Styling Broken Images</h5>
+            <p>You can style broken images using the 'image-error' class:</p>
+            <pre><code class="language-css">/* Style broken images */
+.image-error {
+    border: 1px dashed #ccc;
+    background-color: #f8f8f8;
+    min-height: 50px;
+    min-width: 50px;
+}</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Creating Custom Extensions">
+        <div slot="content">
+            <h4>Building Your Own Extensions</h4>
+            <p>You can create custom extensions to add functionality to your iignition applications:</p>
+            
+            <pre><code class="language-typescript">namespace iignition {
+    export class MyCustomExtension extends Extension {
+        constructor(ctx: any = null) {
+            super(ctx);
+        }
+
+        handle(ctx: any): Promise<void> {
+            return new Promise((resolve, reject) => {
+                // Your custom logic here
+                console.log('Custom extension running');
+                
+                // Example: Modify elements matching a selector
+                if (this.Context && this.Context.selector) {
+                    const elements = document.querySelectorAll(this.Context.selector);
+                    elements.forEach(element => {
+                        // Process each element
+                    });
+                }
+                
+                // Always resolve when done
+                resolve();
+            });
+        }
+    }
+}</code></pre>
+
+            <h5>Adding Your Extension</h5>
+            <p>Add your custom extension to the appropriate pipeline:</p>
+            <pre><code class="language-typescript">// Add to RouteHandler
+$i.RouteHandler.add(new iignition.MyCustomExtension({ 
+    selector: 'your-selector' 
+}));</code></pre>
+        </div>
+    </accordion-component>
+</div> 

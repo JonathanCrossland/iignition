@@ -1,0 +1,224 @@
+
+
+<style>
+    typewriter-component {
+        --typewriter-cursor-color: #00abd6;
+        --typewriter-cursor-opacity: 1;
+        --typewriter-cursor-speed: 200ms;
+    }
+    
+   
+</style>
+<div class="component-content">
+    <h2>Typewriter Component</h2>
+    <p class="component-description">A typewriter effect component that types out text character by character with optional blinking cursor.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <div class="example-container">
+                <h3>Basic Typewriter</h3>
+                <typewriter-component content="Hello, World!" tag="h1" cursor="true" speed="100"></typewriter-component>
+            </div>
+
+            <div class="example-container">
+                <h3>As Different Tags</h3>
+                <typewriter-component content="This is a heading" tag="h2" cursor="true" speed="75"></typewriter-component>
+                <typewriter-component content="This is a paragraph of text being typed out slowly." tag="p" cursor="true" speed="50"></typewriter-component>
+            </div>
+
+            <div class="example-container">
+                <h3>Without Cursor</h3>
+                <typewriter-component content="No blinking cursor here" cursor="false" speed="60"></typewriter-component>
+            </div>
+
+            <div class="example-container">
+                <h3>Fast Typing</h3>
+                <typewriter-component content="This types very quickly!" cursor="true" speed="20"></typewriter-component>
+            </div>
+            
+            <div class="example-container">
+                <h3>CSS Debug Test</h3>
+                <typewriter-component id="test-typewriter" content="Test cursor color" cursor="true" speed="100"></typewriter-component>
+                <br><br>
+                <button onclick="testCursorColor()">Test Cursor Color</button>
+                <button onclick="debugCSSVars()">Debug CSS Variables</button>
+            </div>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <pre><code class="language-html">&lt;typewriter-component content="Your text here" cursor="true" tag="span" speed="50"&gt;&lt;/typewriter-component&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>content</td>
+                        <td>string</td>
+                        <td>""</td>
+                        <td>The text to type out character by character</td>
+                    </tr>
+                    <tr>
+                        <td>cursor</td>
+                        <td>boolean</td>
+                        <td>true</td>
+                        <td>Whether to display the blinking cursor</td>
+                    </tr>
+                    <tr>
+                        <td>tag</td>
+                        <td>string</td>
+                        <td>span</td>
+                        <td>The HTML tag to wrap the content (h1,h2,h3,h4,h5,h6,span,p)</td>
+                    </tr>
+                    <tr>
+                        <td>speed</td>
+                        <td>number</td>
+                        <td>50</td>
+                        <td>Typing speed in milliseconds between characters</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Methods">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Parameters</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>setContent(content)</td>
+                        <td>content: string</td>
+                        <td>Sets new content and starts typing</td>
+                    </tr>
+                    <tr>
+                        <td>startTyping()</td>
+                        <td>none</td>
+                        <td>Starts or resumes the typing animation</td>
+                    </tr>
+                    <tr>
+                        <td>stopTyping()</td>
+                        <td>none</td>
+                        <td>Stops the typing animation</td>
+                    </tr>
+                    <tr>
+                        <td>reset()</td>
+                        <td>none</td>
+                        <td>Resets to beginning of text</td>
+                    </tr>
+                    <tr>
+                        <td>complete()</td>
+                        <td>none</td>
+                        <td>Instantly completes the typing animation</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Events">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Detail</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>typewriter-progress</td>
+                        <td>{ text, progress, index }</td>
+                        <td>Fired on each character typed</td>
+                    </tr>
+                    <tr>
+                        <td>typewriter-complete</td>
+                        <td>{ text }</td>
+                        <td>Fired when typing animation completes</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--typewriter-font-family</td>
+                        <td>inherit</td>
+                        <td>Font family for the typewriter text</td>
+                    </tr>
+                    <tr>
+                        <td>--typewriter-font-size</td>
+                        <td>inherit</td>
+                        <td>Font size for the typewriter text</td>
+                    </tr>
+                    <tr>
+                        <td>--typewriter-color</td>
+                        <td>inherit</td>
+                        <td>Text color for the typewriter</td>
+                    </tr>
+                    <tr>
+                        <td>--typewriter-line-height</td>
+                        <td>inherit</td>
+                        <td>Line height for the typewriter text</td>
+                    </tr>
+                    <tr>
+                        <td>--typewriter-font-weight</td>
+                        <td>inherit</td>
+                        <td>Font weight for the typewriter text</td>
+                    </tr>
+                    <tr>
+                        <td>--typewriter-cursor-color</td>
+                        <td>currentColor</td>
+                        <td>Color of the blinking cursor</td>
+                    </tr>
+                    <tr>
+                        <td>--typewriter-cursor-speed</td>
+                        <td>1s</td>
+                        <td>Speed of cursor blinking animation</td>
+                    </tr>
+                    <tr>
+                        <td>--typewriter-cursor-weight</td>
+                        <td>normal</td>
+                        <td>Font weight of the cursor</td>
+                    </tr>
+                    <tr>
+                        <td>--typewriter-cursor-opacity</td>
+                        <td>1</td>
+                        <td>Opacity of the cursor when visible</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+</div>
+

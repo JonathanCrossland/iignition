@@ -29,15 +29,20 @@
 
     <script>
       
-      $i.ready({debug:3, spa:true,  "controllerPath":"controllers", "domainRoot": "http://localhost/iignition/docs/"},function(){
+      $i.ready({debug:3, spa:true,controller:true,  controllerPath:"controllers", domainRoot: "http://localhost/iignition/docs/"},function(){
      
+
+            $i.show('#!views/header.html', 'header');
+            $i.show('#!views/nav.html', 'componentnav');
         });
 
       
 
-
-        $i.show('#!views/header.html', 'header');
-        $i.show('#!views/nav.html', 'componentnav');
+        window.addEventListener('authorise', function(e){
+            $i.User.isAuthorised = true;
+            $i.User.username = 'admin';
+            $i.User.roles = 'admin,user';
+        });
         
     </script>
 </body>

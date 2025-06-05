@@ -1,0 +1,131 @@
+<accordion-component title="Contribution Calendar" open="true">
+    <div slot="content">
+        <p>A GitHub-style contribution calendar component. Displays a grid of cells representing activity levels (e.g., word count) per day, with customizable color levels and tooltips for each cell.</p>
+        <div class="example-container">
+            <contribution-calendar id="demoCalendar" responsive displaymonths="12"></contribution-calendar>
+        </div>
+    </div>
+</accordion-component>
+
+<accordion-component title="Usage">
+    <div slot="content">
+        <h3>Basic Usage</h3>
+        <pre><code class="language-html">&lt;contribution-calendar&gt;&lt;/contribution-calendar&gt;</code></pre>
+        <h3>Loading Data</h3>
+        <pre><code class="language-javascript">const calendar = document.querySelector('contribution-calendar');
+calendar.setData([
+    { year: 2024, month: 3, dayOfWeek: 1, level: 2 },
+    { year: 2024, month: 3, dayOfWeek: 2, level: 4 },
+    // ...
+]);</code></pre>
+        <h3>Static Data via Attribute</h3>
+        <pre><code class="language-html">&lt;contribution-calendar data='[{"year":2024,"month":3,"dayOfWeek":1,"level":2}]'&gt;&lt;/contribution-calendar&gt;</code></pre>
+    </div>
+</accordion-component>
+
+<accordion-component title="Properties">
+    <div slot="content">
+        <h3>Data Format</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>year</td>
+                    <td>number</td>
+                    <td>Year of the cell</td>
+                </tr>
+                <tr>
+                    <td>month</td>
+                    <td>number</td>
+                    <td>Month (1-12)</td>
+                </tr>
+                <tr>
+                    <td>dayOfWeek</td>
+                    <td>number</td>
+                    <td>Day of week (0=Sunday, 1=Monday, ... 6=Saturday)</td>
+                </tr>
+                <tr>
+                    <td>level</td>
+                    <td>number</td>
+                    <td>Activity level (0-5, determines cell color)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</accordion-component>
+
+<accordion-component title="Methods">
+    <div slot="content">
+        <table>
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>Parameters</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>setData</td>
+                    <td>(data: Array&lt;{ year: number, month: number, dayOfWeek: number, level: number }&gt;)</td>
+                    <td>Sets the calendar data and re-renders the grid</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</accordion-component>
+
+<accordion-component title="Styling">
+    <div slot="content">
+        <p>The contribution calendar can be themed using CSS custom properties.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>Default</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>--contribution-calendar-bg</td><td>#161b22</td><td>Background color of the calendar</td></tr>
+                <tr><td>--contribution-calendar-padding</td><td>8px</td><td>Padding around the calendar</td></tr>
+                <tr><td>--contribution-calendar-radius</td><td>6px</td><td>Border radius of the calendar</td></tr>
+                <tr><td>--contribution-calendar-week-gap</td><td>2px</td><td>Gap between weeks (columns)</td></tr>
+                <tr><td>--contribution-calendar-cell-gap</td><td>2px</td><td>Gap between cells (rows)</td></tr>
+                <tr><td>--contribution-calendar-cell-size</td><td>14px</td><td>Size of each cell</td></tr>
+                <tr><td>--contribution-calendar-cell-radius</td><td>3px</td><td>Border radius of each cell</td></tr>
+                <tr><td>--contribution-calendar-level-0</td><td>#21262d</td><td>Color for level 0 (no activity)</td></tr>
+                <tr><td>--contribution-calendar-level-1</td><td>#0e4429</td><td>Color for level 1</td></tr>
+                <tr><td>--contribution-calendar-level-2</td><td>#006d32</td><td>Color for level 2</td></tr>
+                <tr><td>--contribution-calendar-level-3</td><td>#26a641</td><td>Color for level 3</td></tr>
+                <tr><td>--contribution-calendar-level-4</td><td>#39d353</td><td>Color for level 4</td></tr>
+                <tr><td>--contribution-calendar-level-5</td><td>#a6f6a6</td><td>Color for level 5 (max activity)</td></tr>
+            </tbody>
+        </table>
+        <h3>Example Styling</h3>
+        <pre><code class="language-css">contribution-calendar {
+    --contribution-calendar-bg: #222;
+    --contribution-calendar-level-5: #00ff00;
+    --contribution-calendar-cell-size: 16px;
+}</code></pre>
+    </div>
+</accordion-component>
+
+<accordion-component title="Features">
+    <div slot="content">
+        <ul>
+            <li>GitHub-style grid of activity cells</li>
+            <li>Customizable color levels via CSS variables</li>
+            <li>Tooltips for each cell with date and level</li>
+            <li>Responsive and themeable</li>
+            <li>Data can be set via property or attribute</li>
+            <li>Minimal, maintainable, and extensible design</li>
+        </ul>
+    </div>
+</accordion-component> 

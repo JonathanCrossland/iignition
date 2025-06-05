@@ -15,17 +15,23 @@ namespace iignition{
         public RouteHandler;
         public ControllerHandler;
         public Reloaded: boolean = false;
+        public User: iignition.User = new iignition.User('', '');
 
         private _Pipeline = [];
         constructor(){
             this.Reloaded = true;
+         
+         
             Console.disable();
             this.defaultOptions();
             this.RouteHandler = new iignition.RouteHandler()
+            this.RouteHandler.add(new iignition.AuthenticationHandler({ selector : 'a[href^="#!"],[data-link]'}))
             this.RouteHandler.add(new RouteExtension({ selector : 'a[href^="#!"],[data-link]'}))
             this.RouteHandler.add(new FormExtension({ selector: 'form:not([data-staticform])' }))
+            this.RouteHandler.add(new iignition.ImageErrorHandler())
             
             this.ControllerHandler  = new iignition.ControllerHandler({});
+            this.ControllerHandler.add(new iignition.AuthenticationHandler({ selector : 'a[href^="#!"],[data-link]'}))
             this.ControllerHandler.add(new ViewExtension({ container: '[data-viewContainer]' }))
             this.ControllerHandler.add(new ControllerExtension({}))
 
@@ -126,6 +132,8 @@ namespace iignition{
                 // Load the view
                 this.ControllerHandler.run(stateObj);
             }
+
+            window.dispatchEvent(new CustomEvent('authorise', { detail: null }));
         }
 
         ready(options, callback: () => void){

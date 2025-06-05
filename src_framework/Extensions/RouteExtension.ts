@@ -2,13 +2,13 @@ namespace iignition
 {
     export class RouteExtension extends Extension
     {
-        public Selector: string;
+     
         public Pipeline: Extension;
         private _Pipeline: Extension[] = [];
 
         constructor(ctx:any=null){
             super(ctx);
-            this.Selector = '';
+          
             this.Pipeline = new Extension();
          
             this.clickHandler = this.clickHandler.bind(this); 
@@ -20,7 +20,7 @@ namespace iignition
             window.removeEventListener('hashchange', this.hashChangeHandler);
             window.addEventListener('hashchange', this.hashChangeHandler);
 
-            this.Selector = ctx.selector;
+         
         }
 
         add(extension: Extension) {
@@ -37,7 +37,12 @@ namespace iignition
             console.log('Route Extension')
             return new Promise<void>((resolve,reject) =>{
                 
-                let elements = document.querySelectorAll(this.Selector);
+                if (!this.Context || !this.Context.selector) {
+                    resolve();
+                    return;
+                }
+                
+                let elements = document.querySelectorAll(this.Context.Selector);
                 if (elements) {
                     elements.forEach(element => {
                         console.log('Click Event Handlers wired')

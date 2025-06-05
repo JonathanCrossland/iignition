@@ -95,6 +95,9 @@ namespace iignition {
                         if (mustClone) {
                             container.appendChild(clone);
                         }
+                        else{
+                            container?.setAttribute('data-splashtemplate', 'splashed');
+                        }
                     });
 
                     if (container.nodeName.toLowerCase() == 'select') {

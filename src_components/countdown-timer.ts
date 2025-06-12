@@ -1,10 +1,12 @@
-class CountdownTimer extends HTMLElement {
+// Countdown Timer Component
+class CountdownTimerElement extends HTMLElement {
     private _duration: number = 0;
     private _remainingSeconds: number = 0;
     private _timer: number | undefined;
     private _warningThreshold: number = 30;
     private _format: string = 'mm:ss';
     private _fontFamily: string = 'Arial, sans-serif';
+    private _lastHourMark: number = 0;
 
     constructor() {
         super();
@@ -19,6 +21,7 @@ class CountdownTimer extends HTMLElement {
         if (name === 'duration') {
             this._duration = this.parseTimeToSeconds(newValue);
             this._remainingSeconds = this._duration;
+            this._lastHourMark = Math.ceil(this._remainingSeconds / 3600) * 3600;
             this.updateDisplay();
         } else if (name === 'warning-threshold') {
             this._warningThreshold = parseInt(newValue);
@@ -55,6 +58,7 @@ class CountdownTimer extends HTMLElement {
     connectedCallback() {
         this._duration = this.parseTimeToSeconds(this.getAttribute('duration') || '0');
         this._remainingSeconds = this._duration;
+        this._lastHourMark = Math.ceil(this._remainingSeconds / 3600) * 3600;
         this._warningThreshold = parseInt(this.getAttribute('warning-threshold') || '30');
         this._format = this.getAttribute('format') || 'mm:ss';
         this._fontFamily = this.getAttribute('font-family') || 'Arial, sans-serif';
@@ -90,7 +94,23 @@ class CountdownTimer extends HTMLElement {
         if (this._remainingSeconds <= 0) {
             if (this._timer) {
                 window.clearInterval(this._timer);
+                this.dispatchEvent(new CustomEvent('complete'));
             }
+        }
+    }
+
+    private checkHourElapsed() {
+        // Check if we've crossed an hour boundary
+        const currentHourMark = Math.ceil(this._remainingSeconds / 3600) * 3600;
+        
+        if (currentHourMark < this._lastHourMark) {
+            this._lastHourMark = currentHourMark;
+            this.dispatchEvent(new CustomEvent('hourElapsed', {
+                detail: {
+                    hoursRemaining: Math.floor(this._remainingSeconds / 3600),
+                    totalSecondsRemaining: this._remainingSeconds
+                }
+            }));
         }
     }
 
@@ -98,11 +118,16 @@ class CountdownTimer extends HTMLElement {
         if (this._timer) {
             window.clearInterval(this._timer);
         }
+        
+        // Initialize the last hour mark
+        this._lastHourMark = Math.ceil(this._remainingSeconds / 3600) * 3600;
+        
         this._timer = window.setInterval(() => {
             this._remainingSeconds--;
+            this.checkHourElapsed();
             this.updateDisplay();
         }, 1000);
     }
 }
 
-customElements.define('countdown-timer', CountdownTimer);
+customElements.define('countdown-timer', CountdownTimerElement);

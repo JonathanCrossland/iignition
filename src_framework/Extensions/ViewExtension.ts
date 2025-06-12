@@ -56,7 +56,7 @@ namespace iignition {
                         container.innerHTML = html;
                         this.executeScripts(container as HTMLElement);
                         console.log('View Loaded');
-                        Events.raiseEvent('onViewLoaded', { view: ctx.view })
+                        Events.raiseEvent('onViewLoaded', { view: ctx.view, container: container })
                         
                         // Only update URL if loading into root container
                         if (container.getAttribute('data-viewcontainer') === '') {

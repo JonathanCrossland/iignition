@@ -62,7 +62,7 @@
                       
                     </title-action>
                 </title-bar>
-                <dockable-view style="height: 100%;">
+                <dockable-view style="height: 100%;" allow-stacking="false">
                     <div title="Window 1" class="dock-window" min-width="300px" width="300px">
                         <folder-tree id="demo-folder-tree" style="height:100%">
                             <folder-group label="Scenes">
@@ -190,13 +190,13 @@ folderTree.addEventListener('folder-group-menu-click', e => {
                         <td>width</td>
                         <td>string</td>
                         <td>'33.33%'</td>
-                        <td>Initial width of the window (px or %)</td>
+                        <td>Initial width of the window (px or %). Windows without explicit width will share remaining space equally.</td>
                     </tr>
                     <tr>
                         <td>min-width</td>
                         <td>string</td>
                         <td>'200px'</td>
-                        <td>Minimum width the window can be resized to</td>
+                        <td>Minimum width the window can be resized to. This is enforced during splitter resizing.</td>
                     </tr>
                     <tr>
                         <td>controlbox</td>
@@ -208,7 +208,13 @@ folderTree.addEventListener('folder-group-menu-click', e => {
                         <td>stacked</td>
                         <td>string</td>
                         <td>''</td>
-                        <td>ID of another window to stack this window on. The stacked window will share the same container as the target window.</td>
+                        <td>ID of another window to stack this window on. Creates a tabbed interface where windows share the same container space.</td>
+                    </tr>
+                    <tr>
+                        <td>id</td>
+                        <td>string</td>
+                        <td>auto-generated</td>
+                        <td>Unique identifier for the window. Required when using stacked windows. If not provided, one will be auto-generated.</td>
                     </tr>
                 </tbody>
             </table>
@@ -228,13 +234,13 @@ folderTree.addEventListener('folder-group-menu-click', e => {
                         <td>locked</td>
                         <td>boolean</td>
                         <td>false</td>
-                        <td>When set, prevents windows from being dragged or resized</td>
+                        <td>When set, prevents windows from being dragged. Note: Splitters remain functional even when locked.</td>
                     </tr>
                     <tr>
-                        <td>auto-layout</td>
+                        <td>allow-stacking</td>
                         <td>boolean</td>
                         <td>true</td>
-                        <td>When set, automatically arranges windows on initialization</td>
+                        <td>When set to false, prevents windows from being stacked via drag and drop. Static stacking (using the stacked attribute) still works.</td>
                     </tr>
                 </tbody>
             </table>
@@ -247,14 +253,16 @@ folderTree.addEventListener('folder-group-menu-click', e => {
     <accordion-component title="Features">
         <div slot="content">
             <ul>
-                <li>Automatic window management for child elements</li>
-                <li>Draggable windows with docking support (left/right edges)</li>
-                <li>Window controls (minimize, maximize, close)</li>
-                <li>Visual preview when dragging near dockable edges</li>
-                <li>Responsive layout that maintains window positions</li>
-                <li>Window resizing with splitters</li>
-                <li>Stacked windows feature for tabbed interfaces</li>
-                <li>Event propagation through Shadow DOM boundaries</li>
+                <li>Automatic window management with flexible width distribution</li>
+                <li>Draggable windows with live docking preview</li>
+                <li>Window stacking with tabbed interface</li>
+                <li>Smooth window transitions and animations</li>
+                <li>Resizable windows with splitters (functional even when locked)</li>
+                <li>Maximizable windows with proper z-index management</li>
+                <li>Customizable styling with CSS variables</li>
+                <li>Shadow DOM component support</li>
+                <li>Responsive layout with minimum width enforcement</li>
+                <li>Automatic width redistribution on window changes</li>
             </ul>
 
             <h3>Window Controls</h3>
@@ -277,29 +285,34 @@ folderTree.addEventListener('folder-group-menu-click', e => {
                 </thead>
                 <tbody>
                     <tr>
-                        <td>window-created</td>
-                        <td>{ window: Element, id: string }</td>
-                        <td>Fired when a new window is created</td>
-                    </tr>
-                    <tr>
-                        <td>window-closed</td>
-                        <td>{ window: Element, id: string }</td>
-                        <td>Fired when a window is closed</td>
-                    </tr>
-                    <tr>
                         <td>window-maximized</td>
-                        <td>{ window: Element, id: string }</td>
+                        <td>{ window: Element }</td>
                         <td>Fired when a window is maximized</td>
                     </tr>
                     <tr>
                         <td>window-restored</td>
-                        <td>{ window: Element, id: string }</td>
+                        <td>{ window: Element }</td>
                         <td>Fired when a window is restored from maximized state</td>
                     </tr>
                     <tr>
-                        <td>window-focused</td>
-                        <td>{ window: Element, id: string }</td>
-                        <td>Fired when a window gains focus</td>
+                        <td>window-closed</td>
+                        <td>{ window: Element }</td>
+                        <td>Fired when a window is closed</td>
+                    </tr>
+                    <tr>
+                        <td>window-stacked</td>
+                        <td>{ window: Element, parent: Element }</td>
+                        <td>Fired when a window is stacked onto another window</td>
+                    </tr>
+                    <tr>
+                        <td>window-unstacked</td>
+                        <td>{ window: Element, previousParent: Element }</td>
+                        <td>Fired when a window is removed from a stack</td>
+                    </tr>
+                    <tr>
+                        <td>stack-activated</td>
+                        <td>{ window: Element, parent: Element }</td>
+                        <td>Fired when a stacked window is activated/brought to front</td>
                     </tr>
                 </tbody>
             </table>
@@ -319,96 +332,35 @@ folderTree.addEventListener('folder-group-menu-click', e => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>--dockable-bg</td>
-                        <td>#1e1e1e</td>
-                        <td>Background color of the dockable container</td>
-                    </tr>
-                    <tr>
-                        <td>--dockable-window-bg</td>
-                        <td>#2d2d2d</td>
-                        <td>Background color of individual windows</td>
-                    </tr>
-                    <tr>
-                        <td>--dockable-window-border</td>
-                        <td>#404040</td>
-                        <td>Border color of windows</td>
-                    </tr>
-                    <tr>
-                        <td>--dockable-header-bg</td>
-                        <td>#333333</td>
-                        <td>Background color of window headers</td>
-                    </tr>
-                    <tr>
-                        <td>--dockable-header-border</td>
-                        <td>#555555</td>
-                        <td>Border color of window headers</td>
-                    </tr>
-                    <tr>
-                        <td>--dockable-header-padding</td>
-                        <td>10px</td>
-                        <td>Padding for the window header area</td>
-                    </tr>
-                    <tr>
-                        <td>--dockable-content-padding</td>
-                        <td>0</td>
-                        <td>Padding for the window content area (below the header)</td>
-                    </tr>
-                    <tr>
-                        <td>--dockable-preview-bg</td>
-                        <td>rgba(0, 150, 255, 0.2)</td>
-                        <td>Background color of dock preview</td>
-                    </tr>
-                    <tr>
-                        <td>--dockable-preview-border</td>
-                        <td>2px dashed #0078d7</td>
-                        <td>Border style of dock preview</td>
-                    </tr>
-                    <tr>
-                        <td>--dockable-border-radius</td>
-                        <td>4px</td>
-                        <td>Border radius of windows</td>
-                    </tr>
-                    <tr>
-                        <td>--dockable-z-index</td>
-                        <td>1000</td>
-                        <td>Z-index for floating elements</td>
-                    </tr>
-                    <tr>
-                        <td>--dockable-transition-duration</td>
-                        <td>150ms</td>
-                        <td>Duration of window transition animations</td>
-                    </tr>
-                    <tr>
-                        <td>--dockable-maximized-offset</td>
-                        <td>1000</td>
-                        <td>Z-index offset added to maximized windows</td>
-                    </tr>
-                    <tr>
-                        <td>--dockable-active-header-bg</td>
-                        <td>#444444</td>
-                        <td>Background color of the active window header</td>
-                    </tr>
-                    <tr>
-                        <td>--dockable-active-header-color</td>
-                        <td>#ffffff</td>
-                        <td>Text color of the active window header</td>
-                    </tr>
-                    <tr>
-                        <td>--dockable-inactive-header-color</td>
-                        <td>#cccccc</td>
-                        <td>Text color of inactive window headers</td>
-                    </tr>
-                    <tr>
-                        <td>--dockable-splitter-color</td>
-                        <td>#555555</td>
-                        <td>Color of the splitter between docked windows</td>
-                    </tr>
-                    <tr>
-                        <td>--dockable-splitter-hover-color</td>
-                        <td>#0078d7</td>
-                        <td>Color of the splitter when hovered</td>
-                    </tr>
+                    <tr><td>--dockable-bg</td><td>#1e1e1e</td><td>Background color of the dockable container</td></tr>
+                    <tr><td>--dockable-window-bg</td><td>#2d2d2d</td><td>Background color of individual windows</td></tr>
+                    <tr><td>--dockable-window-border</td><td>#404040</td><td>Border color of windows</td></tr>
+                    <tr><td>--dockable-header-bg</td><td>#333333</td><td>Background color of window headers</td></tr>
+                    <tr><td>--dockable-header-border</td><td>#555555</td><td>Border color of window headers</td></tr>
+                    <tr><td>--dockable-preview-bg</td><td>rgba(0, 150, 255, 0.2)</td><td>Background color of dock preview and stack highlight</td></tr>
+                    <tr><td>--dockable-preview-border</td><td>2px dashed #0096ff</td><td>Border style of dock preview and stack highlight</td></tr>
+                    <tr><td>--dockable-text-color</td><td>#ffffff</td><td>Text color inside dockable windows</td></tr>
+                    <tr><td>--dockable-border-radius</td><td>4px</td><td>Border radius of windows</td></tr>
+                    <tr><td>--dockable-min-width</td><td>200px</td><td>Default minimum width of a dockable window</td></tr>
+                    <tr><td>--dockable-min-height</td><td>150px</td><td>Minimum height of a dockable window</td></tr>
+                    <tr><td>--dockable-z-index</td><td>1000</td><td>Base z-index for floating elements</td></tr>
+                    <tr><td>--dockable-maximized-offset</td><td>1000</td><td>Z-index offset added to maximized windows</td></tr>
+                    <tr><td>--dockable-splitter-size</td><td>4px</td><td>Width of the splitter between docked windows</td></tr>
+                    <tr><td>--dockable-splitter-hover-size</td><td>6px</td><td>Width of the splitter when hovered</td></tr>
+                    <tr><td>--dockable-scrollbar-width</td><td>12px</td><td>Width of the custom scrollbar</td></tr>
+                    <tr><td>--dockable-transition-duration</td><td>150ms</td><td>Duration of window transition animations</td></tr>
+                    <tr><td>--dockable-transition-timing</td><td>ease-out</td><td>Timing function for window transitions</td></tr>
+                    <tr><td>--dockable-splitter-transition-duration</td><td>0.1s</td><td>Transition duration for splitter hover effect only</td></tr>
+                    <tr><td>--dockable-header-padding</td><td>10px</td><td>Padding for the window header area</td></tr>
+                    <tr><td>--dockable-content-padding</td><td>0</td><td>Padding for the window content area</td></tr>
+                    <tr><td>--dockable-spacing</td><td>0px</td><td>Spacing between dockable windows</td></tr>
+                    <tr><td>--dockable-splitter-color</td><td>var(--dockable-window-border)</td><td>Color of the splitter between windows</td></tr>
+                    <tr><td>--dockable-splitter-hover-color</td><td>var(--dockable-preview-border)</td><td>Color of the splitter when hovered</td></tr>
+                    <tr><td>--dockable-tab-bg</td><td>rgba(255,255,255,0.1)</td><td>Background color of inactive tabs</td></tr>
+                    <tr><td>--dockable-tab-hover-bg</td><td>rgba(255,255,255,0.15)</td><td>Background color of tabs on hover</td></tr>
+                    <tr><td>--dockable-active-tab-bg</td><td>rgba(0, 150, 255, 0.2)</td><td>Background color of active tab</td></tr>
+                    <tr><td>--dockable-active-tab-border</td><td>1px solid rgba(0, 150, 255, 0.5)</td><td>Border style of active tab</td></tr>
+                    <tr><td>--dockable-active-tab-indicator</td><td>2px solid #0096ff</td><td>Bottom border indicator for active tab</td></tr>
                 </tbody>
             </table>
 
@@ -423,14 +375,20 @@ folderTree.addEventListener('folder-group-menu-click', e => {
     --dockable-inactive-header-color: #cccccc;
     --dockable-header-border: #555555;
     --dockable-preview-bg: rgba(0, 150, 255, 0.2);
-    --dockable-preview-border: 2px dashed #0078d7;
+    --dockable-preview-border: 2px dashed #0096ff;
     --dockable-header-padding: 10px;
     --dockable-content-padding: 0;
     --dockable-border-radius: 4px;
     --dockable-transition-duration: 150ms;
     --dockable-maximized-offset: 1000;
-    --dockable-splitter-color: #555555;
-    --dockable-splitter-hover-color: #0078d7;
+    --dockable-splitter-color: var(--dockable-window-border);
+    --dockable-splitter-hover-color: var(--dockable-preview-border);
+    --dockable-splitter-size: 4px;
+    --dockable-splitter-hover-size: 6px;
+    --dockable-scrollbar-width: 12px;
+    --dockable-transition-timing: ease-out;
+    --dockable-splitter-transition-duration: 0.1s;
+    --dockable-spacing: 0px;
 }
 
 /* Example: Set header and content padding independently */

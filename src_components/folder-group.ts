@@ -10,6 +10,7 @@
  * @attr {string} dock - When set to "bottom", docks the group at the bottom of a folder-tree
  * @fires folder-group-menu-click - When the menu button in the header is clicked
  * @fires folder-group-connected - When the component is connected to the DOM
+ * @slot menu - Optional slot for custom menu content. If not provided, no menu will be shown.
  */
 class FolderGroup extends HTMLElement {
     private header: HTMLElement;
@@ -31,7 +32,9 @@ class FolderGroup extends HTMLElement {
             <style>${this.getStyles()}</style>
             <div class="folder-group-header">
                 <span class="folder-group-label"></span>
-                <span class="folder-group-menu" title="Group menu">...</span>
+                <span class="folder-group-menu" title="Group menu">
+                    <slot name="menu"></slot>
+                </span>
             </div>
             <div class="folder-group-content">
                 <slot></slot>
@@ -46,7 +49,7 @@ class FolderGroup extends HTMLElement {
         this.headerClickHandler = (e: Event) => {
             // Only toggle if not clicking the menu
             const target = e.target as HTMLElement;
-            if (target.classList.contains('folder-group-menu')) return;
+            if (target.closest('.folder-group-menu')) return;
             this.toggleCollapse();
         };
         
@@ -267,6 +270,11 @@ class FolderGroup extends HTMLElement {
                 border-radius: 3px;
                 padding: 0 0.25em;
                 transition: background 0.2s;
+                display: flex;
+                align-items: center;
+            }
+            .folder-group-menu:empty {
+                display: none;
             }
             .folder-group-menu:focus {
                 outline: 2px solid var(--folder-group-header-color, #d4d4d4);
@@ -285,6 +293,15 @@ class FolderGroup extends HTMLElement {
             ::slotted(folder-item) {
                 display: block;
                 width: 100%;
+            }
+            
+            /* Style for slotted menu content */
+            ::slotted([slot="menu"]) {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 1em;
+                min-height: 1em;
             }
         `;
     }

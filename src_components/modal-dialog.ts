@@ -15,6 +15,9 @@ class ModalDialog extends HTMLElement {
     private _modalStartY: number = 0;
     private _dragOffsetX: number = 0;
     private _dragOffsetY: number = 0;
+    private _originalParent: Element | null = null;
+    private _resizeObserver: ResizeObserver;
+    private _boundHandleResize: () => void;
 
 
     constructor() {
@@ -39,10 +42,10 @@ class ModalDialog extends HTMLElement {
             visibility: hidden;
             z-index: var(--modal-z-index, 1500);
         }
-        .modal-container{
+        .modal-container {
             background-color: var(--modal-bg, #fff);
             color: var(--modal-color, #333333);
-            max-width: var(--modal-max-width, 90%);
+            max-width: var(--modal-max-width, min(90%, 600px));
             max-height: var(--modal-max-height, 80vh);
             width: calc(100% - 30px);
             border-radius: var(--modal-border-radius, 5px);
@@ -53,8 +56,11 @@ class ModalDialog extends HTMLElement {
             transition: left 0.1s ease, top 0.1s ease;
             will-change: left, top, transform, opacity;
             box-shadow: var(--modal-shadow, 0 4px 6px rgba(0, 0, 0, 0.1));
-            display: grid;
-            grid-template-rows: auto 1fr 55px;
+            display: flex;
+            flex-direction: column;
+            min-width: min(300px, 90vw);
+            min-height: min(200px, 90vh);
+            overflow: hidden;
         }
         .modal-content {
             display: flex;
@@ -62,7 +68,8 @@ class ModalDialog extends HTMLElement {
             padding: var(--modal-padding, 10px);
             overflow-y: auto;
             overflow-x: hidden;
-            flex: 1;
+            flex: 1 1 auto;
+            min-height: 0;
             scrollbar-width: thin;
             scrollbar-color: var(--modal-scroll-thumb, #888) var(--modal-scroll-track, #f1f1f1);
         }
@@ -86,7 +93,8 @@ class ModalDialog extends HTMLElement {
             justify-content: space-between;
             cursor: move;
             user-select: none;
-            flex-shrink: 0;
+            flex: 0 0 auto;
+            min-height: 40px;
         }
         .title {
             font-weight: bold;
@@ -94,14 +102,17 @@ class ModalDialog extends HTMLElement {
         }
         .footer {
             border-top: 1px solid var(--modal-border-color, var(--modal-header-bg, #363636));
-            padding: 10px 20px;
+            padding: 12px 20px;
             border-bottom-left-radius: var(--modal-border-radius, 5px);
             border-bottom-right-radius: var(--modal-border-radius, 5px);
             display: flex;
             justify-content: flex-end;
-            flex-shrink: 0;
-            min-height: fit-content;
+            align-items: center;
+            gap: 10px;
+            flex: 0 0 auto;
+            min-height: 64px;
             box-sizing: border-box;
+            background-color: var(--modal-bg, #fff);
         }
         .close-button {
             cursor: pointer;
@@ -125,15 +136,19 @@ class ModalDialog extends HTMLElement {
             border: 1px solid var(--modal-button-border-color, transparent);
             background: var(--modal-button-bg, #f8f8f8);
             color: var(--modal-button-color, #333333);
-            padding: 6px 16px;
-            margin-left: 10px;
+            padding: 8px 16px;
             border-radius: var(--modal-button-border-radius, 5px);
             font-size: 0.9rem;
-            height: 32px;
+            height: 36px;
+            min-width: 80px;
             line-height: 1;
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            margin: 0;
+            white-space: nowrap;
+            flex-shrink: 0;
+            box-sizing: border-box;
         }
         .action-button:hover {
             background: var(--modal-button-hover-bg, #e0e0e0);
@@ -186,7 +201,7 @@ class ModalDialog extends HTMLElement {
         // Cancel button in footer
         this._cancelButton = document.createElement('button');
         this._cancelButton.classList.add('action-button');
-        this._cancelButton.textContent = 'Cancel';
+        this._cancelButton.textContent = this.getAttribute('cancel-text') || 'Cancel';
         this._cancelButton.onclick = () => {
             this.dispatchEvent(new CustomEvent('cancel'));
             this.hide();
@@ -195,7 +210,7 @@ class ModalDialog extends HTMLElement {
         // OK button in footer
         this._okButton = document.createElement('button');
         this._okButton.classList.add('action-button');
-        this._okButton.textContent = 'OK';
+        this._okButton.textContent = this.getAttribute('ok-text') || 'OK';
         this._okButton.onclick = () => {
             this.dispatchEvent(new CustomEvent('ok'));
             this.hide();
@@ -223,6 +238,12 @@ class ModalDialog extends HTMLElement {
         this._header.addEventListener('mousedown', this.startDragging.bind(this));
         document.addEventListener('mousemove', this.drag.bind(this));
         document.addEventListener('mouseup', this.stopDragging.bind(this));
+
+        // Bind the resize handler once
+        this._boundHandleResize = this.handleResize.bind(this);
+
+        // Initialize resize observer
+        this._resizeObserver = new ResizeObserver(this._boundHandleResize);
     }
 
     private startDragging(e: MouseEvent) {
@@ -288,7 +309,7 @@ class ModalDialog extends HTMLElement {
     }
 
     static get observedAttributes() {
-        return ['visible', 'buttons', 'width', 'height'];
+        return ['visible', 'buttons', 'width', 'height', 'ok-text', 'cancel-text'];
     }
 
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -302,39 +323,14 @@ class ModalDialog extends HTMLElement {
             this.updateButtons();
         } else if (name === 'width' || name === 'height') {
             this.updateDimensions();
+        } else if (name === 'ok-text' || name === 'cancel-text') {
+            this.updateButtonText();
         }
     }
 
     updateDimensions() {
-        const width = this.getAttribute('width');
-        const height = this.getAttribute('height');
-
-        if (width) {
-            this._modalContainer.style.width = width;
-            // Reset max-width when explicit width is provided
-            this._modalContainer.style.maxWidth = width;
-        } else {
-            // Restore default responsive behavior
-            this._modalContainer.style.width = 'calc(100% - 30px)';
-            this._modalContainer.style.maxWidth = 'var(--modal-max-width, 90%)';
-        }
-
-        if (height) {
-            this._modalContainer.style.height = height;
-            
-            // Wait for next frame to ensure footer height is calculated
-            requestAnimationFrame(() => {
-                // Adjust content area to respect the new height
-                const headerHeight = this._header.offsetHeight || 40;
-                const footerHeight = this._footer.offsetHeight || 42; // Reduced from 52 to account for smaller footer
-                const contentHeight = `calc(${height} - ${headerHeight + footerHeight}px)`;
-                //this._content.style.maxHeight = contentHeight;
-            });
-        } else {
-            // Restore default responsive behavior
-            this._modalContainer.style.height = '';
-           
-        }
+        // Trigger resize handler to update dimensions properly
+        this.handleResize();
     }
 
     updateButtons() {
@@ -343,30 +339,100 @@ class ModalDialog extends HTMLElement {
         this._cancelButton.style.display = buttons?.includes('cancel') ? 'block' : 'none';
     }
 
+    updateButtonText() {
+        const okText = this.getAttribute('ok-text') || 'OK';
+        const cancelText = this.getAttribute('cancel-text') || 'Cancel';
+        
+        this._okButton.textContent = okText;
+        this._cancelButton.textContent = cancelText;
+    }
+
+    connectedCallback() {
+        // When initially connected, set the modal to zero size to avoid scrollbars
+        this._modal.style.visibility = 'hidden';
+        this._modal.style.width = '0';
+        this._modal.style.height = '0';
+        this._modal.style.overflow = 'hidden';
+    }
+
+    private handleResize() {
+        if (!this._modal.style.visibility || this._modal.style.visibility === 'hidden') return;
+        
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        
+        // Calculate maximum allowed dimensions
+        const maxAllowedWidth = Math.min(viewportWidth * 0.9, 1200);
+        const maxAllowedHeight = Math.min(viewportHeight * 0.9, 800);
+        
+        // Get requested dimensions from attributes
+        const requestedWidth = this.getAttribute('width');
+        const requestedHeight = this.getAttribute('height');
+        
+        // Calculate final dimensions
+        const finalWidth = requestedWidth 
+            ? Math.min(parseInt(requestedWidth, 10), maxAllowedWidth)
+            : maxAllowedWidth;
+            
+        const finalHeight = requestedHeight
+            ? Math.min(parseInt(requestedHeight, 10), maxAllowedHeight)
+            : maxAllowedHeight;
+        
+        // Apply dimensions with smooth transition
+        this._modalContainer.style.transition = 'width 0.3s ease, height 0.3s ease, max-width 0.3s ease, max-height 0.3s ease';
+        this._modalContainer.style.width = `${finalWidth}px`;
+        this._modalContainer.style.height = `${finalHeight}px`;
+        this._modalContainer.style.maxWidth = `${maxAllowedWidth}px`;
+        this._modalContainer.style.maxHeight = `${maxAllowedHeight}px`;
+        
+        // Ensure modal stays centered and within viewport
+        this._modalContainer.style.left = '50%';
+        this._modalContainer.style.top = '50%';
+        this._modalContainer.style.transform = 'translate(-50%, -50%)';
+    }
+
     show() {
+        // Store the original parent to restore later
+        this._originalParent = this.parentElement;
+        
+        // Move to body for proper viewport positioning
+        document.body.appendChild(this);
+
         // Reset any previous transform/opacity
         this._modalContainer.style.opacity = '0';
         
-        // Reset position to centered
+        // Initial positioning
         this._modalContainer.style.left = '50%';
         this._modalContainer.style.top = '50%';
-        this._modalContainer.style.transform = 'translate(-50%, -50%) translateY(-20px)';
+        this._modalContainer.style.transform = 'translate(-50%, -50%)';
         
-        // Update dimensions before showing
-        this.updateDimensions();
+        // Start observing resize
+        this._resizeObserver.observe(this._modalContainer);
+        window.addEventListener('resize', this._boundHandleResize);
         
-        // Make visible
+        // Make visible and restore full size
         this._modal.style.visibility = 'visible';
+        this._modal.style.width = '100vw';
+        this._modal.style.height = '100vh';
+        this._modal.style.overflow = 'hidden';
+
+        // Handle initial sizing
+        this.handleResize();
 
         // Trigger the opening animation
         requestAnimationFrame(() => {
-            this._modalContainer.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+            this._modalContainer.style.transition = 'opacity 0.3s ease';
             this._modalContainer.style.opacity = '1';
-            this._modalContainer.style.transform = 'translate(-50%, -50%)';
         });
     }
 
     hide() {
+        // Stop observing resize
+        this._resizeObserver.unobserve(this._modalContainer);
+        
+        // Remove window resize listener
+        window.removeEventListener('resize', this._boundHandleResize);
+        
         // Start the closing animation
         this._modalContainer.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
         this._modalContainer.style.opacity = '0';
@@ -374,14 +440,30 @@ class ModalDialog extends HTMLElement {
 
         // Wait for the animation to complete before hiding
         setTimeout(() => {
+            // Set to zero size to avoid scrollbars
             this._modal.style.visibility = 'hidden';
+            this._modal.style.width = '0';
+            this._modal.style.height = '0';
+            this._modal.style.overflow = 'hidden';
+            
             // Reset the modal position and styles for next open
             this._modalContainer.style.opacity = '1';
             this._modalContainer.style.left = '50%';
             this._modalContainer.style.top = '50%';
             this._modalContainer.style.transform = 'translate(-50%, -50%)';
             this._modalContainer.style.transition = '';
+            
+            // Move back to original parent if it exists
+            if (this._originalParent) {
+                this._originalParent.appendChild(this);
+            }
         }, 200);
+    }
+
+    disconnectedCallback() {
+        // Clean up event listeners when element is removed
+        this._resizeObserver.disconnect();
+        window.removeEventListener('resize', this._boundHandleResize);
     }
 }
 

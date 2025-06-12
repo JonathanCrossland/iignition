@@ -9,15 +9,27 @@
         <div slot="content">
             <folder-tree id="ftree-example" style="height: 520px; background: #222;">
                 <folder-group label="Scenes">
-                    <folder-item>scenes.md</folder-item>
+                    <folder-item data-id="outline-scene">scenes.md</folder-item>
                     <folder-item>prologue.md</folder-item>
                     <folder-item>scene 2.md</folder-item>
                 </folder-group>
                 <folder-group label="Characters">
+                    <svg slot="menu" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="color: var(--folder-group-menu-color, #d4d4d4);">
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                    </svg>
                     <folder-item>thalos.json</folder-item>
                     <folder-item>lyanna.json</folder-item>
                 </folder-group>
                 <folder-group label="World" dock="bottom">
+                    <menu-dropdown slot="menu">
+                        <svg slot="trigger" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="color: var(--folder-group-menu-color, #d4d4d4);">
+                            <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                        </svg>
+                        <div slot="items">
+                            <div class="menu-item">Import...</div>
+                            <div class="menu-item">Export...</div>
+                        </div>
+                    </menu-dropdown>
                     <folder-item>burilchoas.json</folder-item>
                 </folder-group>
                 <folder-group label="Plot-Lines" dock="bottom">
@@ -25,16 +37,132 @@
                 </folder-group>
             </folder-tree>
             <pre><code class="language-html">&lt;folder-tree&gt;
+    &lt;!-- Group with no menu --&gt;
     &lt;folder-group label="Scenes"&gt;
         &lt;folder-item&gt;scenes.md&lt;/folder-item&gt;
         &lt;folder-item&gt;prologue.md&lt;/folder-item&gt;
     &lt;/folder-group&gt;
+
+    &lt;!-- Group with a simple add button --&gt;
+    &lt;folder-group label="Characters"&gt;
+        &lt;svg slot="menu" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"&gt;
+            &lt;path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/&gt;
+        &lt;/svg&gt;
+        &lt;folder-item&gt;thalos.json&lt;/folder-item&gt;
+    &lt;/folder-group&gt;
+
+    &lt;!-- Group with a dropdown menu --&gt;
     &lt;folder-group label="World" dock="bottom"&gt;
+        &lt;menu-dropdown slot="menu"&gt;
+            &lt;svg slot="trigger" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"&gt;
+                &lt;path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/&gt;
+            &lt;/svg&gt;
+            &lt;div slot="items"&gt;
+                &lt;div class="menu-item"&gt;Import...&lt;/div&gt;
+                &lt;div class="menu-item"&gt;Export...&lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/menu-dropdown&gt;
         &lt;folder-item&gt;burilchoas.json&lt;/folder-item&gt;
     &lt;/folder-group&gt;
 &lt;/folder-tree&gt;</code></pre>
-            <p><strong>Note:</strong> There are no built-in icons. You may add your own HTML or SVG if desired.</p>
-            <p><strong>Events:</strong> Try clicking a folder item or the <code>...</code> menu on a group to see the events in the console.</p>
+            <p><strong>Note:</strong> Each folder group can have an optional menu slot. You can add any HTML or SVG content to create custom menu buttons.</p>
+            <p><strong>Events:</strong> Click the menu buttons to see the <code>folder-group-menu-click</code> events in the console. You can use these events to trigger custom actions or show dropdown menus.</p>
+
+            <h3>Menu Examples</h3>
+            <p>The folder groups above demonstrate three common menu patterns:</p>
+            <ol>
+                <li>No menu - For read-only or simple groups</li>
+                <li>Single action button (+ icon) - For groups with a primary action like "add new"</li>
+                <li>Menu button (⋮) with dropdown - For groups with multiple actions</li>
+            </ol>
+
+            <p>Handle menu clicks in your code:</p>
+            <pre><code class="language-javascript">const tree = document.getElementById('ftree-example');
+tree.addEventListener('folder-group-menu-click', e => {
+    const { label, element } = e.detail;
+    
+    // Example: Handle different menu types
+    switch(label) {
+        case 'Characters':
+            // Handle add new character
+            console.log('Add new character');
+            break;
+        case 'World':
+            // Show dropdown menu
+            console.log('Show world options menu');
+            break;
+    }
+});</code></pre>
+
+            <style>
+                .menu-dropdown svg {
+                    opacity: 0.7;
+                    transition: opacity 0.2s;
+                    color: var(--folder-group-menu-color, #d4d4d4);
+                }
+                .menu-dropdown:hover svg {
+                    opacity: 1;
+                }
+                folder-group svg[slot="menu"] {
+                    color: var(--folder-group-menu-color, #d4d4d4);
+                }
+
+                /* Dropdown menu styles */
+                .folder-menu-dropdown {
+                    position: relative;
+                    display: inline-block;
+                }
+
+                .folder-menu-content {
+                    display: none;
+                    position: fixed; /* Changed to fixed to escape shadow DOM boundaries */
+                    min-width: 160px;
+                    background: var(--titlebar-dropdown-bg, #252525);
+                    border: 1px solid var(--titlebar-dropdown-border, #444);
+                    border-radius: 4px;
+                    box-shadow: var(--titlebar-dropdown-shadow, 0 4px 8px rgba(0, 0, 0, 0.3));
+                    z-index: 1000;
+                    margin-top: 5px;
+                }
+
+                .folder-menu-content.show {
+                    display: block;
+                }
+
+                .folder-menu-item {
+                    padding: 8px 16px;
+                    cursor: pointer;
+                    color: var(--folder-group-menu-color, #d4d4d4);
+                    transition: background 0.2s;
+                    white-space: nowrap;
+                }
+
+                .folder-menu-item:hover {
+                    background: var(--titlebar-dropdown-hover-bg, #333);
+                }
+
+                .folder-menu-separator {
+                    height: 1px;
+                    background: var(--titlebar-dropdown-border, #444);
+                    margin: 6px 0;
+                }
+            </style>
+
+            <script>
+                // Close dropdowns when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.folder-menu-dropdown')) {
+                        document.querySelectorAll('.folder-menu-content').forEach(menu => {
+                            menu.classList.remove('show');
+                        });
+                    }
+                });
+
+                // Handle menu item clicks
+                document.querySelector('menu-dropdown')?.addEventListener('menu-item-click', (e) => {
+                    console.log('Menu item clicked:', e.detail);
+                });
+            </script>
         </div>
     </accordion-component>
 
@@ -62,6 +190,12 @@
                         <td>"bottom"</td>
                         <td>If set to "bottom", docks the group at the bottom of the tree</td>
                     </tr>
+                    <tr>
+                        <td>folder-tree</td>
+                        <td>hidden</td>
+                        <td>boolean</td>
+                        <td>When present, hides the folder tree</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -85,8 +219,18 @@
                     </tr>
                     <tr>
                         <td>folder-item-click</td>
-                        <td>{ text: string }</td>
+                        <td>{ text: string, element: HTMLElement }</td>
                         <td>Emitted when a folder item is clicked</td>
+                    </tr>
+                    <tr>
+                        <td>folder-tree-connected</td>
+                        <td>none</td>
+                        <td>Emitted when the folder tree is connected to the DOM</td>
+                    </tr>
+                    <tr>
+                        <td>folder-item-connected</td>
+                        <td>{ text: string }</td>
+                        <td>Emitted when a folder item is connected to the DOM</td>
                     </tr>
                 </tbody>
             </table>
@@ -102,7 +246,7 @@ tree.addEventListener('folder-item-click', e => {
 
     <accordion-component title="Styling">
         <div slot="content">
-            <p>The component can be styled using the following CSS custom properties. The component now handles overflow internally and always stretches to the container width.</p>
+            <p>The component can be styled using the following CSS custom properties. The component handles overflow internally and always stretches to the container width.</p>
             <table class="props-table">
                 <thead>
                     <tr>
@@ -113,14 +257,15 @@ tree.addEventListener('folder-item-click', e => {
                 </thead>
                 <tbody>
                     <tr><td>--folder-bg</td><td>#181818</td><td>Background color of the folder tree</td></tr>
-                    <tr><td>--folder-divider</td><td>#222</td><td>Divider color between main and bottom sections</td></tr>
+                    <tr><td>--folder-bottom-border-color</td><td>#222</td><td>Color of the border above bottom-docked groups (preferred over --folder-divider)</td></tr>
+                    <tr><td>--folder-divider</td><td>#222</td><td>Legacy divider color between main and bottom sections</td></tr>
                     <tr><td>--folder-group-bg</td><td>#23272e</td><td>Background color of group</td></tr>
                     <tr><td>--folder-group-header-bg</td><td>#23272e</td><td>Background color of group header</td></tr>
                     <tr><td>--folder-group-header-hover-bg</td><td>#2c313a</td><td>Background color of group header on hover</td></tr>
                     <tr><td>--folder-group-header-color</td><td>#d7dae0</td><td>Text color of group header</td></tr>
                     <tr><td>--folder-group-border</td><td>none</td><td>Border of group</td></tr>
                     <tr><td>--folder-group-radius</td><td>0</td><td>Border radius of group</td></tr>
-                    <tr><td>--folder-group-font-family</td><td>'Segoe UI', 'Inter', Arial, sans-serif</td><td>Font family for group header</td></tr>
+                    <tr><td>--folder-group-font-family</td><td>'Inter', 'Segoe UI', Arial, sans-serif</td><td>Font family for group header</td></tr>
                     <tr><td>--folder-group-font-size</td><td>1rem</td><td>Font size for group header</td></tr>
                     <tr><td>--folder-group-font-weight</td><td>600</td><td>Font weight for group header</td></tr>
                     <tr><td>--folder-group-color</td><td>#d7dae0</td><td>Font color for group header</td></tr>
@@ -128,24 +273,28 @@ tree.addEventListener('folder-item-click', e => {
                     <tr><td>--folder-group-content-bg</td><td>#23272e</td><td>Background color for group content</td></tr>
                     <tr><td>--folder-group-content-color</td><td>#d7dae0</td><td>Text color for group content</td></tr>
                     <tr><td>--folder-item-bg</td><td>transparent</td><td>Background color of item</td></tr>
-                    <tr><td>--folder-item-hover-bg</td><td>#262b31</td><td>Background color of item on hover</td></tr>
-                    <tr><td>--folder-item-color</td><td>#d7dae0</td><td>Text color of item</td></tr>
-                    <tr><td>--folder-item-font-family</td><td>'Segoe UI', 'Inter', Arial, sans-serif</td><td>Font family for item</td></tr>
+                    <tr><td>--folder-item-hover-bg</td><td>#23272e</td><td>Background color of item on hover</td></tr>
+                    <tr><td>--folder-item-color</td><td>#d4d4d4</td><td>Text color of item</td></tr>
+                    <tr><td>--folder-item-font-family</td><td>'Inter', 'Segoe UI', Arial, sans-serif</td><td>Font family for item</td></tr>
                     <tr><td>--folder-item-font-size</td><td>0.97rem</td><td>Font size for item</td></tr>
                     <tr><td>--folder-item-font-weight</td><td>400</td><td>Font weight for item</td></tr>
                     <tr><td>--folder-item-left-margin</td><td>1.5rem</td><td>Left margin for item</td></tr>
                     <tr><td>--folder-item-padding</td><td>0.35rem 0.5rem</td><td>Padding for item</td></tr>
+                    <tr><td>--folder-item-focus-color</td><td>#007fd4</td><td>Color of the focus outline when item is focused</td></tr>
+                    <tr><td>--folder-group-menu-color</td><td>#d4d4d4</td><td>Color of the menu icons in group headers</td></tr>
                 </tbody>
             </table>
             <h3>Example: VSCode-like Styling</h3>
             <pre><code class="language-css">folder-tree {
+  --folder-bg: #181818;
+  --folder-bottom-border-color: #222;  /* New preferred way to style bottom border */
   --folder-group-bg: #23272e;
   --folder-group-header-bg: #23272e;
   --folder-group-header-hover-bg: #262b31;
   --folder-group-header-color: #d7dae0;
   --folder-group-border: none;
   --folder-group-radius: 0;
-  --folder-group-font-family: 'Segoe UI', 'Inter', Arial, sans-serif;
+  --folder-group-font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
   --folder-group-font-size: 1rem;
   --folder-group-font-weight: 600;
   --folder-group-color: #d7dae0;
@@ -155,13 +304,14 @@ tree.addEventListener('folder-item-click', e => {
 }
 folder-item {
   --folder-item-bg: transparent;
-  --folder-item-hover-bg: #262b31;
-  --folder-item-color: #d7dae0;
-  --folder-item-font-family: 'Segoe UI', 'Inter', Arial, sans-serif;
+  --folder-item-hover-bg: #23272e;
+  --folder-item-color: #d4d4d4;
+  --folder-item-font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
   --folder-item-font-size: 0.97rem;
   --folder-item-font-weight: 400;
   --folder-item-left-margin: 1.5rem;
   --folder-item-padding: 0.35rem 0.5rem;
+  --folder-item-focus-color: #007fd4;
 }
 </code></pre>
         </div>

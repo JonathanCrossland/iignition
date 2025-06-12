@@ -9,6 +9,9 @@
  * @fires folder-group-menu-click - When the menu button in a folder group is clicked
  * @fires folder-item-click - When an item within a folder group is clicked
  * @fires folder-tree-connected - When the folder tree is connected to the DOM
+ * @csspart bottom-container - The container for bottom-docked folder groups
+ * @property {string} --folder-bg - Background color of the folder tree (default: #181818)
+ * @property {string} --folder-bottom-border-color - Color of the border above bottom-docked groups (default: #222)
  */
 class FolderTree extends HTMLElement {
     private outer: HTMLElement;
@@ -306,7 +309,7 @@ class FolderTree extends HTMLElement {
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-end;
-                border-top: 1px solid var(--folder-divider, #222);
+                border-top: 1px solid var(--folder-bottom-border-color, var(--folder-divider, #222));
                 overflow-y: auto;
                 overflow-x: hidden;
                 width: 100%;

@@ -77,15 +77,19 @@ namespace iignition {
 
 		public loadScript(routing: RoutingUtility): Promise<Controller> {
 			return new Promise((resolve, reject) => {
-				
+				// Generate a unique id and class name based on the controllerjs path
+				const scriptId = routing.controllerjs!.replace(/[\/.]/g, '_'); // e.g. foldera_dashboard_js
+				const baseClassName = routing.controller; // e.g. dashboard
+				const uniqueClassName = routing.controllerjs.replace(/[^a-zA-Z0-9_$]/g, '_');
+
 				// Check if the script is already loaded
-				if (document.getElementById(routing.controllerjs)) {
-					// If the script is already loaded, resolve immediately
-					const existingController = eval(`new ${routing.controller}()`) as Controller;
-					resolve(existingController);
+				if (document.getElementById(scriptId)) {
+					// If already loaded, instantiate using the unique class name
+					const controller = eval(`new ${uniqueClassName}()`);
+					resolve(controller);
 					return;
 				}
-				
+
 				if (!routing.controllerjs) {
 					reject(new Error('No controller script path provided'));
 					return;
@@ -94,20 +98,20 @@ namespace iignition {
 				$i.Data.fetch(routing.controllerjs).then((html: string) => {
 					let scriptElement: HTMLScriptElement = document.getElementsByTagName("script")[0] as HTMLScriptElement;
 					let script: HTMLScriptElement = document.createElement("script") as HTMLScriptElement;
-					script.textContent = html;
-					script.id = routing.controllerjs!;
+					// Replace the class name with the unique class name
+					let classRegex = new RegExp(`class\\s+${baseClassName}\\b`);
+					let modifiedScript = html.replace(classRegex, `class ${uniqueClassName}`);
+					script.textContent = modifiedScript;
+					script.id = scriptId;
 
 					if (!scriptElement.parentNode) {
 						reject(new Error('No parent node found for script element'));
 						return;
+					} else {
+						scriptElement.parentNode.insertBefore(script, scriptElement);
 					}
-                    else{
-                        scriptElement.parentNode.insertBefore(script, scriptElement);
-                    }
-					
 
-					var controller = eval(`new ${routing.controller}()`) as Controller;
-
+					var controller = eval(`new ${uniqueClassName}()`);
 					resolve(controller);
 				}).catch((error) => {
 					reject(error);

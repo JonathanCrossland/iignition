@@ -67,11 +67,43 @@ $i.State.remove('tempData');</code></pre>
         <div slot="content">
             <h4>Methods</h4>
             <ul>
-                <li><code>add(key: string, value: any): void</code> - Stores a value with the specified key</li>
+                <li><code>add(key: string, value: any, silent?: boolean): void</code> - Stores a value with the specified key. Set silent to true to suppress events.</li>
                 <li><code>get(key: string): any</code> - Retrieves the value associated with the specified key</li>
-                <li><code>remove(key: string): void</code> - Removes the value associated with the specified key</li>
+                <li><code>remove(key: string, silent?: boolean): void</code> - Removes the value associated with the specified key. Set silent to true to suppress events.</li>
                 <li><code>has(key: string): boolean</code> - Returns `true` if the specified key exists in the state</li>
-                <li><code>clear(): void</code> - Removes all values from the state</li>
+                <li><code>clear(silent?: boolean): void</code> - Removes all values from the state. Set silent to true to suppress events.</li>
+                <li><code>flush(silent?: boolean): void</code> - Force saves the current state to storage. Set silent to true to suppress events.</li>
+            </ul>
+
+            <h4>Silent Operations</h4>
+            <p>All state modification methods accept an optional `silent` parameter. When set to true, the operation will not trigger any events:</p>
+            <pre><code class="language-javascript">// These operations will not trigger onStateSaved events
+$i.State.add('key', value, true);
+$i.State.remove('key', true);
+$i.State.clear(true);
+$i.State.flush(true);</code></pre>
+
+            <h4>Events</h4>
+            <p>The State class dispatches the following events on the window object (unless silent is true):</p>
+            <ul>
+                <li><code>onStateSaved</code> - Triggered whenever state changes and is saved to localStorage
+                    <pre><code class="language-javascript">window.addEventListener('onStateSaved', (e) => {
+    const stateObj = e.detail;
+    console.log('State saved:', stateObj);
+});</code></pre>
+                </li>
+                <li><code>onStateLoaded</code> - Triggered when state is loaded from localStorage on initialization
+                    <pre><code class="language-javascript">window.addEventListener('onStateLoaded', (e) => {
+    const stateObj = e.detail;
+    console.log('State loaded:', stateObj);
+});</code></pre>
+                </li>
+                <li><code>onStateError</code> - Triggered when an error occurs during state operations
+                    <pre><code class="language-javascript">window.addEventListener('onStateError', (e) => {
+    const { error, operation } = e.detail;
+    console.error(`State error during ${operation}:`, error);
+});</code></pre>
+                </li>
             </ul>
         </div>
     </accordion-component>

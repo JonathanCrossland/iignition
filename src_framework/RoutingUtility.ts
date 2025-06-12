@@ -34,6 +34,9 @@ namespace iignition
 
         private processUrl(url: string): void {
             this.originalUrl = url;
+
+          
+
             url = url.replace('.html', '');
             
             this.processRoot(url);
@@ -55,6 +58,7 @@ namespace iignition
 
         private processRoot(url: string): void {
             const stdReg = /\/$/;
+            url = url.split('?')[0];
             this.root = url.split('#')[0].replace(stdReg, '/');
             this.root = this.root.replace($i.Options.domainRoot, '');
             this.root = this.root.substr(0, this.root.lastIndexOf('/') + 1);
@@ -87,6 +91,9 @@ namespace iignition
 
         private processViewAndHash(url: string): void {
             const stdReg = /\/$/;
+            
+
+            url = url.split('?')[0]; // Remove querystring
 
             if (url.includes('#') && !url.includes('#!')) {
                 this.isHash = true;

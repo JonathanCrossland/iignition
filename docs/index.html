@@ -34,6 +34,15 @@
 
             $i.show('#!views/header.html', 'header');
             $i.show('#!views/nav.html', 'componentnav');
+
+            // Example of state event listeners
+            window.addEventListener('onStateSaved', function(e) {
+                console.log('State saved:', e.detail);
+            });
+
+            window.addEventListener('onStateLoaded', function(e) {
+                console.log('Initial state loaded:', e.detail);
+            });
         });
 
       
@@ -42,6 +51,15 @@
             $i.User.isAuthorised = true;
             $i.User.username = 'admin';
             $i.User.roles = 'admin,user';
+        });
+
+           
+        window.addEventListener('onStateSaved', function(e) {
+                console.log('State saved:', e.detail);
+        });
+
+        window.addEventListener('onStateLoaded', function(e) {
+            console.log('State loaded:', e.detail);
         });
         
     </script>

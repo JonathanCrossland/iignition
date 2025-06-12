@@ -5,9 +5,49 @@
     <accordion-component title="Examples" open="true">
         <div slot="content">
             <div class="example-container">
-                <modal-dialog visible="true" buttons="ok,cancel" width="800px" height="300px">
+                <button id="openModalBtn">Open Modal</button>
+                <div id="modalResult" style="margin-top: 10px; padding: 8px; border-radius: 4px; display: none;"></div>
+                
+                <modal-dialog id="exampleModal" title="Example Modal" ok-text="Y" cancel-text="N" width="1400px" height="4200px">
                     <p>This is a modal dialog with defined width and height.</p>
+                    <p>Click OK or Cancel to see the event handling.</p>
                 </modal-dialog>
+                
+                <script>
+                    $i.ready( () => {
+                        const modal = document.getElementById('exampleModal');
+                        const openBtn = document.getElementById('openModalBtn');
+                        const resultDiv = document.getElementById('modalResult');
+                        
+                        openBtn.addEventListener('click', () => {
+                            modal.setAttribute('visible', 'true');
+                        });
+                        
+                        modal.addEventListener('ok', () => {
+                            resultDiv.textContent = 'OK button was clicked!';
+                            resultDiv.style.display = 'block';
+                            resultDiv.style.backgroundColor = '#4CAF50';
+                            resultDiv.style.color = 'white';
+                            
+                            // Hide the result after 3 seconds
+                            setTimeout(() => {
+                                resultDiv.style.display = 'none';
+                            }, 3000);
+                        });
+                        
+                        modal.addEventListener('cancel', () => {
+                            resultDiv.textContent = 'Cancel button was clicked!';
+                            resultDiv.style.display = 'block';
+                            resultDiv.style.backgroundColor = '#F44336';
+                            resultDiv.style.color = 'white';
+                            
+                            // Hide the result after 3 seconds
+                            setTimeout(() => {
+                                resultDiv.style.display = 'none';
+                            }, 3000);
+                        });
+                    });
+                </script>
             </div>
         </div>
     </accordion-component>
@@ -17,6 +57,41 @@
             <pre><code class="language-html">&lt;modal-dialog visible="true" buttons="ok,cancel" width="400px" height="300px"&gt;
     &lt;p&gt;Your content here&lt;/p&gt;
 &lt;/modal-dialog&gt;</code></pre>
+
+            <h4>Event Handling Example</h4>
+            <pre><code class="language-html">&lt;!-- Modal with event handling --&gt;
+&lt;button id="openModalBtn"&gt;Open Modal&lt;/button&gt;
+&lt;div id="modalResult" style="display: none;"&gt;&lt;/div&gt;
+
+&lt;modal-dialog id="exampleModal" title="Example Modal" buttons="ok,cancel"&gt;
+    &lt;p&gt;Modal content here&lt;/p&gt;
+&lt;/modal-dialog&gt;
+
+&lt;script&gt;
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('exampleModal');
+        const openBtn = document.getElementById('openModalBtn');
+        const resultDiv = document.getElementById('modalResult');
+        
+        openBtn.addEventListener('click', () => {
+            modal.setAttribute('visible', 'true');
+        });
+        
+        modal.addEventListener('ok', () => {
+            // Handle OK button click
+            console.log('OK button clicked');
+            resultDiv.textContent = 'OK button was clicked!';
+            resultDiv.style.display = 'block';
+        });
+        
+        modal.addEventListener('cancel', () => {
+            // Handle Cancel button click
+            console.log('Cancel button clicked');
+            resultDiv.textContent = 'Cancel button was clicked!';
+            resultDiv.style.display = 'block';
+        });
+    });
+&lt;/script&gt;</code></pre>
         </div>
     </accordion-component>
 
@@ -55,6 +130,29 @@
                         <td>height</td>
                         <td>string</td>
                         <td>Height of the modal (e.g., "300px", "50vh"). Defaults to responsive sizing.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Events">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>ok</td>
+                        <td>Fired when the OK button is clicked</td>
+                    </tr>
+                    <tr>
+                        <td>cancel</td>
+                        <td>Fired when the Cancel button is clicked</td>
                     </tr>
                 </tbody>
             </table>
@@ -223,5 +321,19 @@
         --modal-max-width: 90%;
         --modal-max-height: 80vh;
         --modal-content-max-height: calc(80vh - 120px);
+    }
+    
+    #openModalBtn {
+        padding: 8px 16px;
+        background-color: var(--modal-button-bg, #0098fd);
+        color: var(--modal-button-color, #ffffff);
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1em;
+    }
+    
+    #openModalBtn:hover {
+        background-color: var(--modal-button-hover-bg, #007acc);
     }
 </style>

@@ -217,28 +217,7 @@
       --modal-button-cancel-bg: #6c3838;
       --modal-button-cancel-hover-bg: #8c4545;
   
-      /* Dockable View */
-      --dockable-bg: var(--color-background);
-      --dockable-window-bg: var(--color-card-bg);
-      --dockable-window-border: var(--color-border);
-      --dockable-header-bg: var(--color-primary);
-      --dockable-header-border: var(--color-primary-dark);
-      --dockable-preview-bg: rgba(255, 107, 0, 0.2);
-      --dockable-preview-border: 2px dashed var(--color-primary);
-      --dockable-text-color: var(--color-text);
-      --dockable-border-radius: var(--border-radius-sm);
-      --dockable-min-width: 200px;
-      --dockable-min-height: 150px;
-      --dockable-z-index: 1000;
-      --dockable-splitter-size: 4px;
-      --dockable-splitter-hover-size: 6px;
-      --dockable-scrollbar-width: 12px;
-      --dockable-transition-duration: 150ms;
-      --dockable-transition-timing: ease-out;
-      --dockable-splitter-transition-duration: 0ms;
-      --dockable-header-padding: 22px;
-      --dockable-content-padding: 0;
-      --dockable-spacing: 0px;
+    
 
     /* Character Plot */
     --character-plot-bg: #252525;
@@ -255,6 +234,33 @@
     --character-plot-temp-line: #dabb7b;
     --character-plot-relationship-start-border: 3px dashed #ff0000;
     --character-plot-relationship-start-bg: #fff;
+}
+
+dockable-view {
+    /* Dockable View */
+    --dockable-bg: red;
+    --dockable-window-bg: var(--color-card-bg);
+    --dockable-window-border: var(--color-border);
+    --dockable-header-bg: var(--color-primary);
+    --dockable-header-border: var(--color-primary-dark);
+    --dockable-preview-bg: rgba(255, 107, 0, 0.2);
+    --dockable-preview-border: 2px dashed var(--color-primary);
+    --dockable-text-color: var(--color-text);
+    --dockable-border-radius: var(--border-radius-sm);
+    --dockable-min-width: 200px;
+    --dockable-min-height: 150px;
+    --dockable-z-index: 1000;
+    --dockable-splitter-color: #555555; /* Splitter color */
+    --dockable-splitter-hover-color: #0078d7; /* Splitter hover color */
+    --dockable-splitter-size: 4px;
+    --dockable-splitter-hover-size: 6px;
+    --dockable-scrollbar-width: 12px;
+    --dockable-transition-duration: 150ms;
+    --dockable-transition-timing: ease-out;
+    --dockable-splitter-transition-duration: 0ms;
+    --dockable-header-padding: 22px;
+    --dockable-content-padding: 0;
+    --dockable-spacing: 0px;
 }
 
 app-footer {

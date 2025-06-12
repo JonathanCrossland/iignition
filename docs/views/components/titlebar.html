@@ -23,7 +23,17 @@
         overflow-x: hidden;
     }
 
-
+    :root{
+        
+        --titlebar-dropdown-bg: #818181;      /* Dropdown background */
+        --titlebar-color: #fff;               /* Text color */
+        --titlebar-dropdown-hover-bg: #d30000;   /* Hover background */
+        --titlebar-dropdown-item-bg: #e4838300;
+        --titlebar-dropdown-item-hover-bg: #d30000;
+        --titlebar-dropdown-item-bg: #ffffff00;
+        --titlebar-dropdown-item-hover-bg: #d30000;
+        
+    }
 
 </style>
     <accordion-component title="Examples" open="true">
@@ -273,7 +283,7 @@ titlebar.addEventListener('title-action-click', (e) => {
                     <tr>
                         <td>--titlebar-color</td>
                         <td>#fff</td>
-                        <td>Text color in the title bar</td>
+                        <td>Text color in the title bar and dropdown</td>
                     </tr>
                     <tr>
                         <td>--titlebar-font-size</td>
@@ -288,7 +298,7 @@ titlebar.addEventListener('title-action-click', (e) => {
                     <tr>
                         <td>--titlebar-dropdown-bg</td>
                         <td>#252525</td>
-                        <td>Background color of the dropdown menu</td>
+                        <td>Background color of the dropdown menu container</td>
                     </tr>
                     <tr>
                         <td>--titlebar-dropdown-hover-bg</td>
@@ -298,12 +308,22 @@ titlebar.addEventListener('title-action-click', (e) => {
                     <tr>
                         <td>--titlebar-dropdown-border</td>
                         <td>#444</td>
-                        <td>Border color of the dropdown menu</td>
+                        <td>Border color of the dropdown menu and separators</td>
                     </tr>
                     <tr>
                         <td>--titlebar-dropdown-shadow</td>
                         <td>0 4px 8px rgba(0,0,0,0.3)</td>
                         <td>Box shadow of the dropdown menu</td>
+                    </tr>
+                    <tr>
+                        <td>--titlebar-dropdown-item-bg</td>
+                        <td>transparent</td>
+                        <td>Background color of individual dropdown menu items</td>
+                    </tr>
+                    <tr>
+                        <td>--titlebar-dropdown-item-hover-bg</td>
+                        <td>rgba(255,255,255,0.1)</td>
+                        <td>Background color when hovering over dropdown menu items</td>
                     </tr>
                     <tr>
                         <td>--titlebar-action-size</td>
@@ -351,6 +371,8 @@ titlebar.addEventListener('title-action-click', (e) => {
     --titlebar-dropdown-hover-bg: #333;
     --titlebar-dropdown-border: #444;
     --titlebar-dropdown-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    --titlebar-dropdown-item-bg: transparent;
+    --titlebar-dropdown-item-hover-bg: rgba(255,255,255,0.1);
     --titlebar-action-size: 32px;
     --titlebar-action-spacing: 8px;
     --titlebar-action-hover-bg: rgba(255,255,255,0.1);

@@ -17,6 +17,29 @@ class TitleBar extends HTMLElement {
         style.textContent = this.getStyles();
         this.shadowRoot!.appendChild(style);
 
+        // Add light DOM styles for dropdown items
+        const lightStyles = document.createElement('style');
+        lightStyles.textContent = `
+            title-bar .dropdown-item {
+                padding: 8px 16px;
+                cursor: pointer;
+                background: var(--titlebar-dropdown-item-bg, transparent);
+                color: var(--titlebar-color, var(--titlebar-color-fallback));
+                transition: var(--titlebar-transition, all 0.2s ease);
+            }
+
+            title-bar .dropdown-item:hover {
+                background: var(--titlebar-dropdown-item-hover-bg, rgba(255, 255, 255, 0.1));
+            }
+
+            title-bar .dropdown-separator {
+                height: 1px;
+                background: var(--titlebar-dropdown-border, var(--titlebar-dropdown-border-fallback));
+                margin: 6px 0;
+            }
+        `;
+        document.head.appendChild(lightStyles);
+
         // Create main container
         const container = document.createElement('div');
         container.className = 'titlebar-container';
@@ -150,6 +173,8 @@ class TitleBar extends HTMLElement {
                 --titlebar-action-spacing-fallback: 8px;
                 --titlebar-action-hover-bg-fallback: rgba(255, 255, 255, 0.1);
                 --titlebar-transition-fallback: all 0.2s ease;
+                --titlebar-dropdown-item-bg-fallback: transparent;
+                --titlebar-dropdown-item-hover-bg-fallback: rgba(255, 255, 255, 0.1);
                 
                 display: flex;
                 align-items: center;
@@ -280,6 +305,7 @@ class TitleBar extends HTMLElement {
                 max-height: 80vh;
                 overflow-y: auto;
                 background: var(--titlebar-dropdown-bg, var(--titlebar-dropdown-bg-fallback));
+                color: var(--titlebar-color, var(--titlebar-color-fallback));
                 border: 1px solid var(--titlebar-dropdown-border, var(--titlebar-dropdown-border-fallback));
                 border-radius: 4px;
                 box-shadow: var(--titlebar-dropdown-shadow, var(--titlebar-dropdown-shadow-fallback));

@@ -23,6 +23,7 @@ class DockableView extends HTMLElement {
     private stackedWindows: Map<string, HTMLElement[]> = new Map();
     private activeStackedWindow: HTMLElement | null = null;
     private locked: boolean = false;
+    private allowStacking: boolean = true;
 
     constructor() {
         super();
@@ -50,13 +51,15 @@ class DockableView extends HTMLElement {
     }
 
     static get observedAttributes() {
-        return ['locked'];
+        return ['locked', 'allow-stacking'];
     }
 
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
         if (name === 'locked') {
             this.locked = newValue !== null && newValue !== 'false' && newValue !== '0';
             this.updateLockedState();
+        } else if (name === 'allow-stacking') {
+            this.allowStacking = !(newValue === 'false' || newValue === '0');
         }
     }
 
@@ -516,6 +519,9 @@ class DockableView extends HTMLElement {
     }
 
     private findWindowUnderCursor(e: MouseEvent): HTMLElement | null {
+        // If stacking is not allowed, return null to prevent stacking
+        if (!this.allowStacking) return null;
+
         const elements = document.elementsFromPoint(e.clientX, e.clientY);
         for (const element of elements) {
             // Check specifically for header elements
@@ -957,98 +963,25 @@ class DockableView extends HTMLElement {
         const y = e.clientY - containerRect.top - this.dragOffset.y;
         this.dragGhost.style.transform = `translate(${x}px, ${y}px)`;
 
-        // If this is the first actual drag movement, handle stacked window state
-        if (!this.dragGhost.dataset.dragStarted) {
-            this.dragGhost.dataset.dragStarted = 'true';
-
-            // Check if this window has stacked windows or is stacked
-            const hasStackedWindows = this.stackedWindows.has(this.draggingWindow.id);
-            const isStacked = this.draggingWindow.hasAttribute('stacked');
-
-            if (hasStackedWindows) {
-                // We're dragging a main window that has stacked windows
-                const stackedWindows = this.stackedWindows.get(this.draggingWindow.id) || [];
-                
-                // Keep the main window in place but semi-transparent
-                this.draggingWindow.style.position = this.dragStartState?.position || 'relative';
-                this.draggingWindow.style.left = this.dragStartState?.left || '';
-                this.draggingWindow.style.top = this.dragStartState?.top || '';
-                this.draggingWindow.style.opacity = '0.3';
-                
-                // Ensure dragging window content stays visible
-                const contentEl = this.draggingWindow.querySelector('.dockable-view-window-content') as HTMLElement;
-                if (contentEl) {
-                    contentEl.style.visibility = 'visible';
-                    contentEl.style.display = 'block';
-                    contentEl.style.opacity = '1';
-                }
-                
-                // Keep stacked windows visible but inactive
-                stackedWindows.forEach(window => {
-                    window.style.opacity = '0.3';
-                    window.style.pointerEvents = 'none';
-                    
-                    // Ensure stacked window content remains visible
-                    const stackedContentEl = window.querySelector('.dockable-view-window-content') as HTMLElement;
-                    if (stackedContentEl) {
-                        stackedContentEl.style.display = 'block';
-                        stackedContentEl.style.visibility = 'visible';
-                    }
-                });
-                
-                // If there's an active stacked window, keep it visible
-                if (this.activeStackedWindow) {
-                    this.activeStackedWindow.style.opacity = '1';
-                    this.activeStackedWindow.style.pointerEvents = 'auto';
-                    this.activeStackedWindow.style.zIndex = '1';
-                    
-                    // Ensure active stacked window content is visible
-                    const activeContentEl = this.activeStackedWindow.querySelector('.dockable-view-window-content') as HTMLElement;
-                    if (activeContentEl) {
-                        activeContentEl.style.display = 'block';
-                        activeContentEl.style.visibility = 'visible';
-                        activeContentEl.style.opacity = '1';
-                    }
-                }
-            } else if (isStacked) {
-                // Handle dragging a stacked window
-                const parentId = this.draggingWindow.getAttribute('stacked');
-                if (parentId) {
-                    const parentWindow = this.container.querySelector(`#${parentId}`) as HTMLElement;
-                    if (parentWindow) {
-                        // Keep parent window visible
-                        parentWindow.style.zIndex = '1';
-                        parentWindow.style.pointerEvents = 'auto';
-                        parentWindow.style.opacity = '1';
-                        
-                        // Ensure parent window content is visible
-                        const parentContentEl = parentWindow.querySelector('.dockable-view-window-content') as HTMLElement;
-                        if (parentContentEl) {
-                            parentContentEl.style.display = 'block';
-                            parentContentEl.style.visibility = 'visible';
-                            parentContentEl.style.opacity = '1';
-                        }
-                    }
-                }
-            }
-        }
-
         // Show dock preview if near edges
         this.updateDockPreview(e);
         
-        // Check for potential stacking
-        const potentialStack = this.findWindowUnderCursor(e);
-        
-        // Remove highlight from all windows and headers first
-        this.container.querySelectorAll('.stack-highlight').forEach(el => {
-            el.classList.remove('stack-highlight');
-        });
-        
-        // If hovering over a window header, highlight only the header
-        if (potentialStack && potentialStack !== this.draggingWindow) {
-            const header = potentialStack.querySelector('.dockable-view-window-header');
-            if (header) {
-                header.classList.add('stack-highlight');
+        // Only check for stacking if it's allowed
+        if (this.allowStacking) {
+            // Check for potential stacking
+            const potentialStack = this.findWindowUnderCursor(e);
+            
+            // Remove highlight from all windows and headers first
+            this.container.querySelectorAll('.stack-highlight').forEach(el => {
+                el.classList.remove('stack-highlight');
+            });
+            
+            // If hovering over a window header, highlight only the header
+            if (potentialStack && potentialStack !== this.draggingWindow) {
+                const header = potentialStack.querySelector('.dockable-view-window-header');
+                if (header) {
+                    header.classList.add('stack-highlight');
+                }
             }
         }
     }
@@ -1165,6 +1098,14 @@ class DockableView extends HTMLElement {
             left: leftWindow?.classList.contains('dockable-view-window') ? leftWindow : null,
             right: rightWindow?.classList.contains('dockable-view-window') ? rightWindow : null
         };
+
+        // Add resizing class to both windows
+        if (this.adjacentWindows.left) {
+            this.adjacentWindows.left.classList.add('resizing');
+        }
+        if (this.adjacentWindows.right) {
+            this.adjacentWindows.right.classList.add('resizing');
+        }
 
         // Store initial positions and widths in pixels
         if (this.adjacentWindows.left) {
@@ -1335,6 +1276,14 @@ class DockableView extends HTMLElement {
 
     private endResize() {
         if (!this.resizingSplitter) return;
+        
+        // Remove resizing class from both windows
+        if (this.adjacentWindows.left) {
+            this.adjacentWindows.left.classList.remove('resizing');
+        }
+        if (this.adjacentWindows.right) {
+            this.adjacentWindows.right.classList.remove('resizing');
+        }
         
         // Re-sync stacked windows after resize to ensure they have the correct dimensions
         if (this.adjacentWindows.left && this.adjacentWindows.left.dataset.needsSyncAfterResize === 'true') {
@@ -1510,16 +1459,18 @@ class DockableView extends HTMLElement {
             this.dragGhost = null;
         }
 
-        // Check for stacking
-        const targetWindow = this.findWindowUnderCursor(e);
-        if (targetWindow) {
-            // Remove the dragging window from its current parent if it's stacked
-            if (this.draggingWindow.parentElement !== this.container) {
-                this.container.appendChild(this.draggingWindow);
+        // Check for stacking only if it's allowed
+        if (this.allowStacking) {
+            const targetWindow = this.findWindowUnderCursor(e);
+            if (targetWindow) {
+                // Remove the dragging window from its current parent if it's stacked
+                if (this.draggingWindow.parentElement !== this.container) {
+                    this.container.appendChild(this.draggingWindow);
+                }
+                targetWindow.classList.remove('stack-highlight');
+                this.stackWindow(this.draggingWindow, targetWindow);
+                return;
             }
-            targetWindow.classList.remove('stack-highlight');
-            this.stackWindow(this.draggingWindow, targetWindow);
-            return;
         }
 
         const dockPosition = this.dockPreview.dataset.dockPosition;
@@ -2067,6 +2018,12 @@ class DockableView extends HTMLElement {
                 position: relative;
             }
 
+            /* Add class to disable transitions during resize */
+            .dockable-view-window.resizing {
+                transition: none !important;
+                will-change: width;
+            }
+
             .dockable-view-window.transitioning {
                 transition: all var(--dockable-transition-duration) var(--dockable-transition-timing) !important;
             }
@@ -2205,16 +2162,17 @@ class DockableView extends HTMLElement {
 
             .window-splitter {
                 width: var(--dockable-splitter-size);
-                background: var(--dockable-window-border);
+                background: var(--dockable-splitter-color);
                 cursor: ew-resize;
                 flex: 0 0 auto;
-                transition: width var(--dockable-splitter-transition-duration) ease,
-                           background var(--dockable-splitter-transition-duration) ease;
+                /* Remove transition from width to make drag more responsive */
+                transition: background var(--dockable-splitter-transition-duration) ease;
+                will-change: width;
             }
 
             .window-splitter:hover {
                 width: var(--dockable-splitter-hover-size);
-                background: var(--dockable-header-border);
+                background: var(--dockable-splitter-hover-color);
             }
 
             .drag-ghost {

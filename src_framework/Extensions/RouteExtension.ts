@@ -42,7 +42,7 @@ namespace iignition
                     return;
                 }
                 
-                let elements = document.querySelectorAll(this.Context.Selector);
+                let elements = document.querySelectorAll(this.Context.selector);
                 if (elements) {
                     elements.forEach(element => {
                         console.log('Click Event Handlers wired')

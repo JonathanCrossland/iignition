@@ -11,6 +11,52 @@
         font-size: 2em;
         margin: 20px;
     }
+    
+    .timer-controls {
+        margin: 15px 0;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    .timer-controls input {
+        padding: 8px;
+        font-size: 1em;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+    
+    .timer-controls button {
+        padding: 8px 16px;
+        font-size: 1em;
+        border-radius: 4px;
+        background: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .timer-controls button:hover {
+        background: #45a049;
+    }
+    
+    .timer-notification {
+        margin-top: 10px;
+        padding: 8px;
+        border-radius: 4px;
+        background-color: #F44336;
+        color: white;
+        display: none;
+    }
+    
+    .hour-notification {
+        margin-top: 10px;
+        padding: 8px;
+        border-radius: 4px;
+        background-color: #2196F3;
+        color: white;
+        display: none;
+    }
 </style>
 
 <div class="component-content">
@@ -29,14 +75,63 @@
                     font-family="'Courier New', monospace">
                 </countdown-timer>
 
-                <h3>Long Timer (1:20:00)</h3>
+                <h3>Long Timer (3:00:00)</h3>
                 <countdown-timer 
-                    duration="1:20:00"
+                    duration="3:00:00"
                     warning-threshold="600"
                     warning-color="#FFC107"
                     format="HH:mm:ss"
                     font-family="'Courier New', monospace">
                 </countdown-timer>
+                
+                <h3>External Controls with Events</h3>
+                <countdown-timer 
+                    id="controlledTimer"
+                    duration="0:00"
+                    warning-threshold="30"
+                    format="mm:ss"
+                    font-family="'Courier New', monospace">
+                </countdown-timer>
+                <div class="timer-controls">
+                    <input type="text" id="timerInput" placeholder="Enter time (mm:ss or HH:mm:ss)" value="1:00:00">
+                    <button id="startTimer">Start</button>
+                </div>
+                <div id="timerNotification" class="timer-notification">Timer completed!</div>
+                <div id="hourNotification" class="hour-notification"></div>
+                
+                <script>
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const timer = document.getElementById('controlledTimer');
+                        const input = document.getElementById('timerInput');
+                        const startBtn = document.getElementById('startTimer');
+                        const notification = document.getElementById('timerNotification');
+                        const hourNotification = document.getElementById('hourNotification');
+                        
+                        startBtn.addEventListener('click', () => {
+                            const timeValue = input.value;
+                            timer.setAttribute('duration', timeValue);
+                            timer.startCountdown();
+                            notification.style.display = 'none';
+                            hourNotification.style.display = 'none';
+                        });
+                        
+                        timer.addEventListener('complete', () => {
+                            notification.style.display = 'block';
+                            setTimeout(() => {
+                                notification.style.display = 'none';
+                            }, 3000);
+                        });
+                        
+                        timer.addEventListener('hourElapsed', (e) => {
+                            const { hoursRemaining } = e.detail;
+                            hourNotification.textContent = `Hour elapsed! ${hoursRemaining} hours remaining`;
+                            hourNotification.style.display = 'block';
+                            setTimeout(() => {
+                                hourNotification.style.display = 'none';
+                            }, 3000);
+                        });
+                    });
+                </script>
             </div>
         </div>
     </accordion-component>
@@ -52,14 +147,63 @@
     font-family="'Courier New', monospace"&gt;
 &lt;/countdown-timer&gt;
 
-&lt;!-- Long timer (1:20:00) --&gt;
+&lt;!-- Long timer (3:00:00) --&gt;
 &lt;countdown-timer 
-    duration="1:20:00"
+    duration="3:00:00"
     warning-threshold="600"
     warning-color="#FFC107"
     format="HH:mm:ss"
     font-family="'Courier New', monospace"&gt;
-&lt;/countdown-timer&gt;</code></pre>
+&lt;/countdown-timer&gt;
+
+&lt;!-- External controls for timer with event handling --&gt;
+&lt;countdown-timer 
+    id="controlledTimer"
+    duration="0:00"
+    warning-threshold="30"
+    format="mm:ss"
+    font-family="'Courier New', monospace"&gt;
+&lt;/countdown-timer&gt;
+&lt;div class="timer-controls"&gt;
+    &lt;input type="text" id="timerInput" placeholder="Enter time (mm:ss or HH:mm:ss)" value="1:00:00"&gt;
+    &lt;button id="startTimer"&gt;Start&lt;/button&gt;
+&lt;/div&gt;
+&lt;div id="timerNotification" class="timer-notification"&gt;Timer completed!&lt;/div&gt;
+&lt;div id="hourNotification" class="hour-notification"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+    document.addEventListener('DOMContentLoaded', () => {
+        const timer = document.getElementById('controlledTimer');
+        const input = document.getElementById('timerInput');
+        const startBtn = document.getElementById('startTimer');
+        const notification = document.getElementById('timerNotification');
+        const hourNotification = document.getElementById('hourNotification');
+        
+        startBtn.addEventListener('click', () => {
+            const timeValue = input.value;
+            timer.setAttribute('duration', timeValue);
+            timer.startCountdown();
+            notification.style.display = 'none';
+            hourNotification.style.display = 'none';
+        });
+        
+        timer.addEventListener('complete', () => {
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        });
+        
+        timer.addEventListener('hourElapsed', (e) => {
+            const { hoursRemaining } = e.detail;
+            hourNotification.textContent = `Hour elapsed! ${hoursRemaining} hours remaining`;
+            hourNotification.style.display = 'block';
+            setTimeout(() => {
+                hourNotification.style.display = 'none';
+            }, 3000);
+        });
+    });
+&lt;/script&gt;</code></pre>
         </div>
     </accordion-component>
 
@@ -98,6 +242,48 @@
                         <td>font-family</td>
                         <td>string</td>
                         <td>Font family for the timer</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Methods">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>startCountdown()</td>
+                        <td>Starts the countdown timer</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Events">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>complete</td>
+                        <td>Fired when the countdown reaches zero</td>
+                    </tr>
+                    <tr>
+                        <td>hourElapsed</td>
+                        <td>Fired every hour during the countdown. The event detail contains: hoursRemaining and totalSecondsRemaining.</td>
                     </tr>
                 </tbody>
             </table>

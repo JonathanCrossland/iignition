@@ -69,8 +69,8 @@ namespace iignition {
                     Events.raiseEvent('onDataReceived', input);
 
                 })
-                .catch(() => {
-                    reject();
+                .catch((error) => {
+                    reject(error);
                 })
 
             });

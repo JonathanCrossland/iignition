@@ -1,0 +1,163 @@
+<div class="component-content">
+    <h2>Word Counter Component</h2>
+    <p class="component-description">A live word counter that attaches to a textarea, input, or other element and displays the current word count. Attach using <code>document="idofelement"</code>.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <div class="example-container">
+                <textarea id="outline">This is a test. Type more words here!</textarea>
+                <word-counter document="outline"></word-counter>
+                <textarea id="demo-textarea" rows="4" style="width:100%">This is a test. Type more words here!</textarea>
+                <br>
+                <word-counter document="demo-textarea"></word-counter>
+            </div>
+            <pre><code class="language-html">&lt;textarea id="mytext"&gt;&lt;/textarea&gt;
+&lt;word-counter document="mytext"&gt;&lt;/word-counter&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <pre><code class="language-html">&lt;word-counter document="idofelement"&gt;&lt;/word-counter&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>document</td>
+                        <td>string</td>
+                        <td>ID of the element to attach to (input, textarea, or other)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--wordcounter-font-size</td>
+                        <td>1rem</td>
+                        <td>Font size of the word counter</td>
+                    </tr>
+                    <tr>
+                        <td>--wordcounter-color</td>
+                        <td>#333</td>
+                        <td>Text color of the word counter</td>
+                    </tr>
+                    <tr>
+                        <td>--wordcounter-bg</td>
+                        <td>transparent</td>
+                        <td>Background color of the word counter</td>
+                    </tr>
+                    <tr>
+                        <td>--wordcounter-padding</td>
+                        <td>0.25em 0.5em</td>
+                        <td>Padding for the word counter</td>
+                    </tr>
+                    <tr>
+                        <td>--wordcounter-radius</td>
+                        <td>4px</td>
+                        <td>Border radius for the word counter</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+</div>
+
+<style>
+
+    word-counter {
+        --wordcounter-color: red;
+    }
+
+    .component-content {
+        background-color: var(--color-card-bg);
+        border-radius: var(--border-radius-md);
+        padding: var(--spacing-lg);
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+
+    .component-description {
+        color: var(--color-text-light);
+        margin-bottom: var(--spacing-lg);
+        max-width: 100%;
+    }
+
+    .example-container {
+        background-color: var(--color-background);
+        padding: var(--spacing-lg);
+        border-radius: var(--border-radius-md);
+        margin-top: var(--spacing-md);
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    pre {
+        background: var(--color-background);
+        padding: var(--spacing-md);
+        border-radius: var(--border-radius-sm);
+        overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    code {
+        color: var(--color-text);
+        font-family: monospace;
+        overflow-wrap: break-word;
+    }
+
+    .props-table {
+        width: 100%;
+        border-collapse: collapse;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .props-table th,
+    .props-table td {
+        padding: var(--spacing-sm) var(--spacing-md);
+        text-align: left;
+        border-bottom: 1px solid var(--color-border);
+        word-break: break-word;
+    }
+
+    .props-table th {
+        color: var(--color-primary);
+    }
+</style>
+
+<script>
+    $i.ready(function(){
+        $i.SEO.update({
+            title: "Word Counter Component",
+            description: "Live word counter for textareas, inputs, or any element. Attach with document=\"idofelement\".",
+            keywords: "word counter, web component, iignition"
+        });
+    });
+</script> 

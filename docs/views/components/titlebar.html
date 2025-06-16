@@ -39,19 +39,10 @@
     <accordion-component title="Examples" open="true">
         <div slot="content">
             <div class="example-container">
-                <title-bar title="Project">
+                <title-bar title="Project" menu-id="project-menu">
                     <!-- App name via slot -->
                     <div slot="app-name">iignition</div>
-                    
-                    <!-- Dropdown items -->
-                    <div slot="dropdown-items">
-                        <div class="dropdown-item">Open Project</div>
-                        <div class="dropdown-item">Save Project</div>
-                        <div class="dropdown-item">Project Settings</div>
-                        <div class="dropdown-separator"></div>
-                        <div class="dropdown-item">Import Resources</div>
-                        <div class="dropdown-item">Export Resources</div>
-                    </div>
+                   
                     
                     <!-- Action buttons -->
                     <title-action slot="actions" label="Build">
@@ -70,6 +61,15 @@
                         </svg>
                     </title-action>
                 </title-bar>
+                <!-- External dropdown menu -->
+                <dropdown-menu menu-id="project-menu" position="center">
+                    <div class="dropdown-item">Open Project</div>
+                    <div class="dropdown-item">Save Project</div>
+                    <div class="dropdown-item">Project Settings</div>
+                    <div class="dropdown-separator"></div>
+                    <div class="dropdown-item">Import Resources</div>
+                    <div class="dropdown-item">Export Resources</div>
+                </dropdown-menu>
             </div>
             <pre><code class="language-html">&lt;title-bar title="Project"&gt;
     &lt;!-- App name via slot --&gt;

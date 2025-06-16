@@ -8,6 +8,7 @@
       "preserveConstEnums": true
   },
   "include": [
-      "src_components/**/*.ts"
+      "src_components/**/*.ts",
+      "src_components/wordcounter.ts"
   ]
 }

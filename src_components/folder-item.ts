@@ -6,10 +6,13 @@
  * 
  * @element folder-item
  * @fires folder-item-click - When the item is clicked, with text content in the detail
+ * @fires folder-item-menu-click - When an action slot item is clicked
  * @fires folder-item-connected - When the component is connected to the DOM
+ * @slot action - Optional slot for action icons/buttons that appear on the right side
  */
 class FolderItem extends HTMLElement {
     private clickHandler: (e: Event) => void;
+    private actionClickHandler: (e: Event) => void;
     
     constructor() {
         super();
@@ -19,13 +22,24 @@ class FolderItem extends HTMLElement {
         this.shadowRoot!.innerHTML = `
             <style>${this.getStyles()}</style>
             <div class="item-content">
-                <slot></slot>
+                <span class="item-text"><slot></slot></span>
+                <span class="item-actions"><slot name="action"></slot></span>
             </div>
         `;
         
-        // Store event handler reference for proper cleanup
+        // Store event handler references for proper cleanup
         this.clickHandler = (e: Event) => {
+            // Don't trigger item click when clicking actions
+            if ((e.target as Element)?.closest('.item-actions')) {
+                return;
+            }
             this.handleClick(e);
+        };
+
+        // Handle action slot clicks
+        this.actionClickHandler = (e: Event) => {
+            e.stopPropagation(); // Prevent triggering the main item click
+            this.handleActionClick(e);
         };
     }
     
@@ -34,6 +48,10 @@ class FolderItem extends HTMLElement {
         
         // Add event listeners
         this.addEventListener('click', this.clickHandler);
+        const actionsContainer = this.shadowRoot!.querySelector('.item-actions');
+        if (actionsContainer) {
+            actionsContainer.addEventListener('click', this.actionClickHandler);
+        }
         
         // Set role for accessibility
         if (!this.hasAttribute('role')) {
@@ -60,6 +78,10 @@ class FolderItem extends HTMLElement {
         
         // Clean up event listeners
         this.removeEventListener('click', this.clickHandler);
+        const actionsContainer = this.shadowRoot!.querySelector('.item-actions');
+        if (actionsContainer) {
+            actionsContainer.removeEventListener('click', this.actionClickHandler);
+        }
     }
     
     /**
@@ -74,6 +96,25 @@ class FolderItem extends HTMLElement {
             detail: { 
                 text: this.textContent?.trim() || '',
                 element: this
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    /**
+     * Handle click events on action slot items
+     * @private
+     */
+    private handleActionClick(e: Event) {
+        console.log('FolderItem action clicked:', this.textContent?.trim());
+        
+        // Dispatch menu click event with item details
+        this.dispatchEvent(new CustomEvent('folder-item-menu-click', {
+            detail: { 
+                text: this.textContent?.trim() || '',
+                element: this,
+                action: (e.target as Element)?.closest('[slot="action"]')
             },
             bubbles: true,
             composed: true
@@ -113,13 +154,38 @@ class FolderItem extends HTMLElement {
             }
             
             .item-content {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
                 padding: var(--folder-item-padding, 0.35rem 0.5rem);
                 padding-left: var(--folder-item-left-margin, 1.5rem);
                 box-sizing: border-box;
                 width: 100%;
+            }
+
+            .item-text {
+                flex: 1;
+                min-width: 0;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
+            }
+
+            .item-actions {
+                display: none;
+                align-items: center;
+                gap: 4px;
+                margin-left: 8px;
+                opacity: 0.7;
+                transition: opacity 0.2s;
+            }
+
+            .item-actions:not(:empty) {
+                display: flex;
+            }
+
+            .item-actions:hover {
+                opacity: 1;
             }
             
             :host(:hover) {
@@ -129,6 +195,17 @@ class FolderItem extends HTMLElement {
             :host(:focus-visible) {
                 outline: 2px solid var(--folder-item-focus-color, #007fd4);
                 outline-offset: -2px;
+            }
+
+            /* Style slotted action elements */
+            ::slotted([slot="action"]) {
+                cursor: pointer;
+                opacity: 0.7;
+                transition: opacity 0.2s;
+            }
+
+            ::slotted([slot="action"]:hover) {
+                opacity: 1;
             }
         `;
     }

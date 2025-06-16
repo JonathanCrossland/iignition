@@ -62,8 +62,9 @@
                       
                     </title-action>
                 </title-bar>
+                
                 <dockable-view style="height: 100%;" allow-stacking="false">
-                    <div title="Window 1" class="dock-window" min-width="300px" width="300px">
+                    <div id="window1" class="dock-window" min-width="300px" width="300px">
                         <folder-tree id="demo-folder-tree" style="height:100%">
                             <folder-group label="Scenes">
                                 <folder-item>scenes.md</folder-item>
@@ -86,8 +87,9 @@
                        
                     </div>
                     <div id="main-window" title="Main Window" class="dock-window">
-                        Main window content
-                      
+                       
+                        <textarea id="outline">This is a test. Type more words here!</textarea>
+                        <word-counter document="outline"></word-counter>
                     </div>
                     <div id="stacked-1" title="Stacked Window 1" class="dock-window" stacked="main-window">
                         Stacked window 1 content

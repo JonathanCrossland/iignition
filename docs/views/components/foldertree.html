@@ -94,6 +94,70 @@ tree.addEventListener('folder-group-menu-click', e => {
     }
 });</code></pre>
 
+<h3>Dynamic Items Example</h3>
+<p>Here's an example of dynamically adding folder items with action slots:</p>
+
+<folder-tree id="dynamic-tree" style="height: 200px; background: #222;">
+    <folder-group label="Dynamic Items">
+        <!-- Items will be added here -->
+    </folder-group>
+</folder-tree>
+
+<button onclick="window.addDynamicItem()" style="margin-top: 10px; padding: 5px 10px;">Add Item</button>
+
+            <pre><code class="language-javascript">// Function to create a delete icon SVG
+function createDeleteIcon() {
+    const deleteIcon = document.createElement('svg');
+    deleteIcon.setAttribute('slot', 'action');
+    deleteIcon.classList.add('delete-icon');
+    deleteIcon.setAttribute('width', '14');
+    deleteIcon.setAttribute('height', '14');
+    deleteIcon.setAttribute('viewBox', '0 0 16 16');
+    deleteIcon.setAttribute('fill', 'currentColor');
+    deleteIcon.innerHTML = `
+        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+    `;
+    return deleteIcon;
+}
+
+// Example of handling item menu clicks
+const dynamicTree = document.getElementById('dynamic-tree');
+dynamicTree?.addEventListener('folder-item-menu-click', e => {
+    // If it's a delete action, remove the item
+    if (e.detail.action?.classList.contains('delete-icon')) {
+        e.detail.element.remove();
+    }
+});
+
+// Function to add a new dynamic item
+function addDynamicItem() {
+    const group = document.querySelector('#dynamic-tree folder-group');
+    if (!group) return;
+    
+    // Create new folder item
+    const item = document.createElement('folder-item');
+    item.textContent = `Dynamic Item ${window.itemCounter++}`;
+    
+    // Create delete icon and add it to item
+    const deleteIcon = createDeleteIcon();
+    item.appendChild(deleteIcon);
+    
+    // Add item to group
+    group.appendChild(item);
+}
+
+// Initialize counter for unique item names
+window.itemCounter = 1;</code></pre>
+
+            <p><strong>Note:</strong> The example above demonstrates:</p>
+            <ul>
+                <li>Dynamic creation of folder items</li>
+                <li>Adding action slots (delete icon) to items</li>
+                <li>Handling action click events</li>
+                <li>Proper cleanup when items are removed</li>
+            </ul>
+
             <style>
                 .menu-dropdown svg {
                     opacity: 0.7;
@@ -162,6 +226,64 @@ tree.addEventListener('folder-group-menu-click', e => {
                 document.querySelector('menu-dropdown')?.addEventListener('menu-item-click', (e) => {
                     console.log('Menu item clicked:', e.detail);
                 });
+
+                // Initialize dynamic example functionality
+                (function initializeDynamicExample() {
+                    // Function to create a delete icon SVG
+                    window.createDeleteIcon = function() {
+                        const deleteIcon = document.createElement('svg');
+                        deleteIcon.setAttribute('slot', 'action');
+                        deleteIcon.classList.add('delete-icon');
+                        deleteIcon.setAttribute('width', '14');
+                        deleteIcon.setAttribute('height', '14');
+                        deleteIcon.setAttribute('viewBox', '0 0 16 16');
+                        deleteIcon.setAttribute('fill', 'currentColor');
+                        deleteIcon.innerHTML = `
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        `;
+                        return deleteIcon;
+                    };
+
+                    // Initialize counter for unique item names
+                    window.itemCounter = 1;
+
+                    // Function to add a new dynamic item
+                    window.addDynamicItem = function() {
+                        const group = document.querySelector('#dynamic-tree folder-group');
+                        if (!group) {
+                            console.error('Could not find dynamic tree group');
+                            return;
+                        }
+                        
+                        // Create new folder item
+                        const item = document.createElement('folder-item');
+                        item.textContent = `Dynamic Item ${window.itemCounter++}`;
+                        
+                        // Create delete icon and add it to item
+                        const deleteIcon = window.createDeleteIcon();
+                        item.appendChild(deleteIcon);
+                        
+                        // Add item to group
+                        group.appendChild(item);
+                    };
+
+                    // Set up event listener for menu clicks
+                    const dynamicTree = document.getElementById('dynamic-tree');
+                    if (dynamicTree) {
+                        dynamicTree.addEventListener('folder-item-menu-click', e => {
+                            console.log('Dynamic item menu clicked:', e.detail);
+                            // If it's a delete action, remove the item
+                            if (e.detail.action?.classList.contains('delete-icon')) {
+                                e.detail.element.remove();
+                            }
+                        });
+
+                        // Add initial items
+                        window.addDynamicItem();
+                        window.addDynamicItem();
+                    }
+                })();
             </script>
         </div>
     </accordion-component>

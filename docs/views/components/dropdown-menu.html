@@ -1,0 +1,181 @@
+<div class="component-content">
+    <h2>Dropdown Menu Component</h2>
+    <p class="component-description">A flexible dropdown menu that can be triggered from anywhere in your app using a global event. The menu content is slotted, and the menu is shown/hidden by dispatching an <code>open-menu</code> event with a matching <code>menu-id</code>.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <button onclick="
+              window.dispatchEvent(
+                new CustomEvent('open-menu', {
+                  detail: { id: 'demo-menu', trigger: this }
+                }) 
+              )
+            ">Open Demo Menu</button>
+            <button onclick="window.dispatchEvent(new CustomEvent('close-menu'))">Close Menu</button>
+            <dropdown-menu menu-id="demo-menu" position="left" id="demoDropdownMenu">
+                <div class="dropdown-item" data-value="1">Menu Item 1</div>
+                <div class="dropdown-item" data-value="2">Menu Item 2</div>
+                <div class="dropdown-separator"></div>
+                <div class="dropdown-item" data-value="3">Menu Item 3</div>
+                <div class="dropdown-item" data-value="4">Menu Item 4</div>
+            </dropdown-menu>
+            <script>
+              document.getElementById('demoDropdownMenu').addEventListener('dropdown-menu-item-click', function(e) {
+                const { item, attributes } = e.detail;
+                alert('Clicked: ' + item.textContent + '\nValue: ' + attributes['data-value']);
+              });
+            </script>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <pre><code class="language-html">&lt;dropdown-menu menu-id="main-menu"&gt;
+    &lt;div class="dropdown-item" data-action="edit"&gt;Edit&lt;/div&gt;
+    &lt;div class="dropdown-separator"&gt;&lt;/div&gt;
+    &lt;div class="dropdown-item" data-action="delete"&gt;Delete&lt;/div&gt;
+&lt;/dropdown-menu&gt;
+
+&ltscript&gt;
+document.querySelector('dropdown-menu').addEventListener('dropdown-menu-item-click', function(e) {
+  const { item, attributes, menu, trigger } = e.detail;
+  // item: the clicked element
+  // attributes: all attributes of the item as an object
+  // menu: the dropdown-menu instance
+  // trigger: the element that triggered the menu opening
+  console.log('Clicked item:', item.textContent, attributes, menu, trigger);
+});
+&lt;/script&gt;
+
+&lt;button onclick="window.dispatchEvent(new CustomEvent('open-menu', { detail: { id: 'main-menu', trigger: this } }))"&gt;Open Menu&lt;/button&gt;
+</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+          
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>menu-id</td>
+                        <td>string</td>
+                        <td>Unique id for the menu. Used to match with the <code>open-menu</code> event.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h4>Events</h4>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Detail Properties</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>dropdown-menu-item-click</td>
+                        <td>
+                            <code>item</code>: The clicked element<br>
+                            <code>attributes</code>: Object of all item attributes<br>
+                            <code>menu</code>: The dropdown-menu instance<br>
+                            <code>trigger</code>: The element that triggered the menu
+                        </td>
+                        <td>Fired when a menu item is clicked</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--dropdown-menu-bg</td>
+                        <td>#252525</td>
+                        <td>Background color of the menu</td>
+                    </tr>
+                    <tr>
+                        <td>--dropdown-menu-color</td>
+                        <td>#fff</td>
+                        <td>Text color of the menu</td>
+                    </tr>
+                    <tr>
+                        <td>--dropdown-menu-border</td>
+                        <td>#444</td>
+                        <td>Border color of the menu</td>
+                    </tr>
+                    <tr>
+                        <td>--dropdown-menu-shadow</td>
+                        <td>0 4px 8px rgba(0,0,0,0.3)</td>
+                        <td>Box shadow for the menu</td>
+                    </tr>
+                    <tr>
+                        <td>--dropdown-menu-item-bg</td>
+                        <td>transparent</td>
+                        <td>Background color of menu items</td>
+                    </tr>
+                    <tr>
+                        <td>--dropdown-menu-item-hover-bg</td>
+                        <td>rgba(255,255,255,0.1)</td>
+                        <td>Background color of menu items on hover</td>
+                    </tr>
+                    <tr>
+                        <td>--dropdown-menu-separator-color</td>
+                        <td>#444</td>
+                        <td>Color of the separator line</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+</div>
+
+<style>
+    .component-content {
+        background-color: var(--color-card-bg);
+        border-radius: var(--border-radius-md);
+        padding: var(--spacing-lg);
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+    .component-description {
+        color: var(--color-text-light);
+        margin-bottom: var(--spacing-lg);
+        max-width: 100%;
+    }
+    .dropdown-item {
+        padding: 8px 16px;
+        cursor: pointer;
+        background: var(--dropdown-menu-item-bg, transparent);
+        color: inherit;
+        transition: all 0.2s ease;
+    }
+    .dropdown-item:hover {
+        background: var(--dropdown-menu-item-hover-bg, rgba(255,255,255,0.1));
+    }
+    .dropdown-separator {
+        height: 1px;
+        background: var(--dropdown-menu-separator-color, #444);
+        margin: 6px 0;
+    }
+</style> 

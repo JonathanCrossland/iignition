@@ -4,9 +4,8 @@ class TitleBar extends HTMLElement {
     private rightSection: HTMLElement;
     private dropdown: HTMLElement;
     private dropdownButton: HTMLElement;
-    private dropdownContent: HTMLElement;
-    private dropdownLabel: HTMLElement;
     private dropdownArrow: HTMLElement;
+    private menuId: string;
 
     constructor() {
         super();
@@ -69,9 +68,9 @@ class TitleBar extends HTMLElement {
         this.dropdown.appendChild(this.dropdownButton);
 
         // Create dropdown label
-        this.dropdownLabel = document.createElement('span');
-        this.dropdownLabel.className = 'titlebar-dropdown-label';
-        this.dropdownButton.appendChild(this.dropdownLabel);
+        const dropdownLabel = document.createElement('span');
+        dropdownLabel.className = 'titlebar-dropdown-label';
+        this.dropdownButton.appendChild(dropdownLabel);
 
         // Create dropdown arrow
         this.dropdownArrow = document.createElement('span');
@@ -79,13 +78,12 @@ class TitleBar extends HTMLElement {
         this.dropdownArrow.innerHTML = '▼';
         this.dropdownButton.appendChild(this.dropdownArrow);
 
-        // Create dropdown content (initially hidden)
-        this.dropdownContent = document.createElement('div');
-        this.dropdownContent.className = 'titlebar-dropdown-content';
-        const dropdownSlot = document.createElement('slot');
-        dropdownSlot.name = 'dropdown-items';
-        this.dropdownContent.appendChild(dropdownSlot);
-        this.dropdown.appendChild(this.dropdownContent);
+        // Determine menu id (use attribute or generate)
+        this.menuId = this.getAttribute('menu-id') || ('titlebar-menu-' + Math.random().toString(36).substr(2, 9));
+        // If attribute not set, set it for reference
+        if (!this.hasAttribute('menu-id')) {
+            this.setAttribute('menu-id', this.menuId);
+        }
 
         // Create right section (actions)
         this.rightSection = document.createElement('div');
@@ -95,17 +93,31 @@ class TitleBar extends HTMLElement {
         this.rightSection.appendChild(actionsSlot);
         container.appendChild(this.rightSection);
 
-        // Add event listeners
-        this.dropdownButton.addEventListener('click', () => {
-            this.toggleDropdown();
+        // Track open state
+        let menuOpen = false;
+
+        // Add event listener to trigger menu
+        this.dropdownButton.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            if (menuOpen) {
+                window.dispatchEvent(new CustomEvent('close-menu'));
+                this.dropdownButton.classList.remove('active');
+                menuOpen = false;
+            } else {
+                window.dispatchEvent(new CustomEvent('open-menu', {
+                    detail: { id: this.menuId, trigger: this.dropdownButton }
+                }));
+                this.dropdownButton.classList.add('active');
+                menuOpen = true;
+            }
         });
 
         // Close dropdown when clicking outside
         document.addEventListener('click', (event) => {
-            if (!this.contains(event.target as Node) && 
-                !this.dropdownContent.contains(event.target as Node) && 
-                !this.dropdownButton.contains(event.target as Node)) {
-                this.closeDropdown();
+            if (!this.contains(event.target as Node)) {
+                window.dispatchEvent(new CustomEvent('close-menu'));
+                this.dropdownButton.classList.remove('active');
+                menuOpen = false;
             }
         });
     }
@@ -116,7 +128,10 @@ class TitleBar extends HTMLElement {
 
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
         if (name === 'title' && oldValue !== newValue) {
-            this.dropdownLabel.textContent = newValue;
+            const dropdownLabel = this.shadowRoot!.querySelector('.titlebar-dropdown-label');
+            if (dropdownLabel) {
+                dropdownLabel.textContent = newValue;
+            }
         }
     }
 
@@ -124,7 +139,10 @@ class TitleBar extends HTMLElement {
         // Set dropdown label from title attribute
         const title = this.getAttribute('title');
         if (title) {
-            this.dropdownLabel.textContent = title;
+            const dropdownLabel = this.shadowRoot!.querySelector('.titlebar-dropdown-label');
+            if (dropdownLabel) {
+                dropdownLabel.textContent = title;
+            }
         }
 
         // Add title-action class to direct title-action elements
@@ -133,27 +151,8 @@ class TitleBar extends HTMLElement {
                 child.classList.add('title-action');
             }
         });
-    }
 
-    toggleDropdown() {
-        this.dropdownContent.classList.toggle('show');
-        this.dropdownButton.classList.toggle('active');
-        const isOpen = this.dropdownContent.classList.contains('show');
-        this.dispatchEvent(new CustomEvent('dropdown-toggle', {
-            detail: { open: isOpen },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
-    closeDropdown() {
-        this.dropdownContent.classList.remove('show');
-        this.dropdownButton.classList.remove('active');
-    }
-
-    openDropdown() {
-        this.dropdownContent.classList.add('show');
-        this.dropdownButton.classList.add('active');
+        // (No internal dropdown items; external component will define menu)
     }
 
     private getStyles(): string {
@@ -293,34 +292,6 @@ class TitleBar extends HTMLElement {
             
             .titlebar-dropdown-button.active .titlebar-dropdown-arrow {
                 transform: rotate(180deg);
-            }
-            
-            .titlebar-dropdown-content {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                min-width: 180px;
-                max-width: 90vw;
-                max-height: 80vh;
-                overflow-y: auto;
-                background: var(--titlebar-dropdown-bg, var(--titlebar-dropdown-bg-fallback));
-                color: var(--titlebar-color, var(--titlebar-color-fallback));
-                border: 1px solid var(--titlebar-dropdown-border, var(--titlebar-dropdown-border-fallback));
-                border-radius: 4px;
-                box-shadow: var(--titlebar-dropdown-shadow, var(--titlebar-dropdown-shadow-fallback));
-                z-index: 999;
-                margin-top: 5px;
-                box-sizing: border-box;
-                visibility: hidden;
-                opacity: 0;
-                transition: visibility 0s, opacity 0.2s;
-            }
-            
-            .titlebar-dropdown-content.show {
-                display: block;
-                visibility: visible;
-                opacity: 1;
             }
             
             /* Style for title-action elements */

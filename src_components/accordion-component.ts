@@ -60,7 +60,7 @@ class AccordionComponent extends HTMLElement {
 
                 .panel.open {
                     padding: var(--accordion-padding);
-                    max-height: 1000px;
+                    max-height: fit-content;
                 }
 
                 .icon {

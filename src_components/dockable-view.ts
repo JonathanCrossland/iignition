@@ -51,7 +51,7 @@ class DockableView extends HTMLElement {
     }
 
     static get observedAttributes() {
-        return ['locked', 'allow-stacking'];
+        return ['locked', 'allow-stacking', 'title'];
     }
 
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -60,6 +60,48 @@ class DockableView extends HTMLElement {
             this.updateLockedState();
         } else if (name === 'allow-stacking') {
             this.allowStacking = !(newValue === 'false' || newValue === '0');
+        } else if (name === 'title') {
+            // Update title in window header and stack tabs if this is a window
+            const header = this.querySelector('.dockable-view-window-header');
+            if (header) {
+                // Update title in header
+                const titleElement = header.querySelector('.dockable-view-window-title');
+                if (titleElement) {
+                    titleElement.textContent = newValue;
+                }
+                
+                // Update title in stack tabs if they exist
+                const stackTabs = header.querySelector('.dockable-view-stack-tabs');
+                if (stackTabs) {
+                    // Update both the window title and stack tab if they exist
+                    const windowTitle = stackTabs.querySelector('.dockable-view-window-title');
+                    if (windowTitle) {
+                        windowTitle.textContent = newValue;
+                    }
+                    
+                    const stackTab = stackTabs.querySelector('.dockable-view-stack-tab');
+                    if (stackTab) {
+                        stackTab.textContent = newValue;
+                    }
+                }
+            }
+            
+            // If this window is stacked, also update its tab in the parent window
+            if (this.hasAttribute('stacked')) {
+                const parentId = this.getAttribute('stacked');
+                const parentWindow = this.parentElement?.querySelector(`#${parentId}`);
+                if (parentWindow) {
+                    const parentTabs = parentWindow.querySelector('.dockable-view-stack-tabs');
+                    if (parentTabs) {
+                        const tabs = parentTabs.querySelectorAll('.dockable-view-stack-tab');
+                        tabs.forEach(tab => {
+                            if (tab.textContent === oldValue) {
+                                tab.textContent = newValue;
+                            }
+                        });
+                    }
+                }
+            }
         }
     }
 
@@ -104,6 +146,62 @@ class DockableView extends HTMLElement {
         this.locked = this.hasAttribute('locked') && 
                      this.getAttribute('locked') !== 'false' && 
                      this.getAttribute('locked') !== '0';
+        
+        // MutationObserver to watch for title changes on child windows
+        const observer = new MutationObserver(mutations => {
+            for (const mutation of mutations) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'title') {
+                    const target = mutation.target as HTMLElement;
+                    if (target.classList.contains('dockable-view-window')) {
+                        // Update header and stack tabs for this window
+                        const newValue = target.getAttribute('title') || '';
+                        const header = target.querySelector('.dockable-view-window-header');
+                        if (header) {
+                            // Update title in header
+                            const titleElement = header.querySelector('.dockable-view-window-title');
+                            if (titleElement) {
+                                titleElement.textContent = newValue;
+                            }
+                            // Update title in stack tabs if they exist
+                            const stackTabs = header.querySelector('.dockable-view-stack-tabs');
+                            if (stackTabs) {
+                                // Update both the window title and stack tab if they exist
+                                const windowTitle = stackTabs.querySelector('.dockable-view-window-title');
+                                if (windowTitle) {
+                                    windowTitle.textContent = newValue;
+                                }
+                                const stackTab = stackTabs.querySelector('.dockable-view-stack-tab');
+                                if (stackTab) {
+                                    stackTab.textContent = newValue;
+                                }
+                            }
+                        }
+                        // If this window is stacked, also update its tab in the parent window
+                        if (target.hasAttribute('stacked')) {
+                            const parentId = target.getAttribute('stacked');
+                            const parentWindow = this.container.querySelector(`#${parentId}`);
+                            if (parentWindow) {
+                                const parentTabs = parentWindow.querySelector('.dockable-view-stack-tabs');
+                                if (parentTabs) {
+                                    const tabs = parentTabs.querySelectorAll('.dockable-view-stack-tab');
+                                    tabs.forEach(tab => {
+                                        if (tab.textContent === mutation.oldValue) {
+                                            tab.textContent = newValue;
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        observer.observe(this.container, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['title'],
+            attributeOldValue: true
+        });
         
         // Move all direct children to the container (still in light DOM)
         const children = Array.from(this.children).filter(child => 
@@ -378,7 +476,7 @@ class DockableView extends HTMLElement {
             header.className = 'dockable-view-window-header';
             header.innerHTML = `
                 <div class="dockable-view-stack-tabs">
-                    <div class="dockable-view-window-title">${element.getAttribute('title') || 'Window'}</div>
+                    <div class="dockable-view-window-title">${element.getAttribute('title') || ''}</div>
                 </div>
                 <div class="dockable-view-window-controls">
                     ${showControls ? '<button class="dockable-view-maximize">□</button><button class="dockable-view-close">×</button>' : ''}
@@ -792,7 +890,7 @@ class DockableView extends HTMLElement {
             // Add tab for main window
             const mainTab = document.createElement('div');
             mainTab.className = stackedWindows.length > 0 ? 'dockable-view-stack-tab' : 'dockable-view-window-title';
-            mainTab.textContent = window.getAttribute('title') || 'Window';
+            mainTab.textContent = window.getAttribute('title') || '';
             mainTab.onclick = () => {
                 if (stackedWindows.length > 0) {
                     this.activateStackedWindow(window, null);
@@ -811,7 +909,7 @@ class DockableView extends HTMLElement {
             stackedWindows.forEach(stackedWindow => {
                 const tab = document.createElement('div');
                 tab.className = 'dockable-view-stack-tab';
-                tab.textContent = stackedWindow.getAttribute('title') || 'Window';
+                tab.textContent = stackedWindow.getAttribute('title') || '';
                 tab.onclick = () => {
                     this.activateStackedWindow(window, stackedWindow);
                     
@@ -1410,7 +1508,7 @@ class DockableView extends HTMLElement {
                         stackTabs.innerHTML = '';
                         const title = document.createElement('div');
                         title.className = 'dockable-view-window-title';
-                        title.textContent = oldParent.getAttribute('title') || 'Window';
+                        title.textContent = oldParent.getAttribute('title') || '';
                         stackTabs.appendChild(title);
                     }
                 }
@@ -1438,7 +1536,7 @@ class DockableView extends HTMLElement {
                 stackTabs.innerHTML = '';
                 const title = document.createElement('div');
                 title.className = 'dockable-view-window-title';
-                title.textContent = window.getAttribute('title') || 'Window';
+                title.textContent = window.getAttribute('title') || '';
                 stackTabs.appendChild(title);
             }
         }
@@ -1617,7 +1715,7 @@ class DockableView extends HTMLElement {
                             stackTabs.innerHTML = '';
                             const title = document.createElement('div');
                             title.className = 'dockable-view-window-title';
-                            title.textContent = newMainWindow.getAttribute('title') || 'Window';
+                            title.textContent = newMainWindow.getAttribute('title') || '';
                             stackTabs.appendChild(title);
                         }
                     }
@@ -1638,7 +1736,7 @@ class DockableView extends HTMLElement {
                 stackTabs.innerHTML = '';
                 const title = document.createElement('div');
                 title.className = 'dockable-view-window-title';
-                title.textContent = this.draggingWindow.getAttribute('title') || 'Window';
+                title.textContent = this.draggingWindow.getAttribute('title') || '';
                 stackTabs.appendChild(title);
             }
         }

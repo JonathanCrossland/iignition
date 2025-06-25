@@ -36,6 +36,10 @@ namespace iignition
                 routing.container = `[data-viewcontainer=""]`;
             }
 
+            if (!ctx.data){
+                ctx.data = history.state;
+            }
+
             routing.data = ctx.data;
         
             //using await, because we need the view and the controller loaded.

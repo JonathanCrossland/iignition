@@ -112,4 +112,113 @@ $i.on('view:unloaded', (view, container) => {
             </ul>
         </div>
     </accordion-component>
+
+    <accordion-component title="Dockable Views">
+        <div slot="content">
+            <h4>Overview</h4>
+            <p>Dockable views allow you to create resizable, draggable, and stackable window-like interfaces in your application. They are perfect for building complex layouts like IDEs, dashboards, or multi-panel applications.</p>
+
+            <h4>Basic Usage</h4>
+            <pre><code class="language-html">&lt;dockable-view&gt;
+    &lt;div class="dockable-view-window"&gt;
+        &lt;div class="dockable-view-window-header"&gt;
+            &lt;div class="dockable-view-window-title"&gt;Window Title&lt;/div&gt;
+            &lt;div class="dockable-view-window-controls"&gt;
+                &lt;button class="dockable-view-maximize"&gt;□&lt;/button&gt;
+                &lt;button class="dockable-view-close"&gt;×&lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="dockable-view-window-content"&gt;
+            Your content here
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/dockable-view&gt;</code></pre>
+
+            <h4>Attributes</h4>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Attribute</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>locked</td>
+                        <td>When set to "true", prevents window dragging and resizing</td>
+                    </tr>
+                    <tr>
+                        <td>allow-stacking</td>
+                        <td>When set to "true", allows windows to be stacked on top of each other</td>
+                    </tr>
+                    <tr>
+                        <td>title</td>
+                        <td>Sets the window title</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Features</h4>
+            <ul>
+                <li><strong>Draggable Windows:</strong> Click and drag window headers to move them</li>
+                <li><strong>Resizable:</strong> Drag the splitter between windows to resize them</li>
+                <li><strong>Window Stacking:</strong> Stack multiple windows and switch between them using tabs</li>
+                <li><strong>Maximization:</strong> Windows can be maximized to fill the entire container</li>
+                <li><strong>Customizable Styling:</strong> Uses CSS variables for easy theming</li>
+            </ul>
+
+            <h4>CSS Variables</h4>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--dockable-window-bg</td>
+                        <td>Window background color</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-window-border</td>
+                        <td>Window border color</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-header-bg</td>
+                        <td>Window header background color</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-header-border</td>
+                        <td>Window header border color</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-text-color</td>
+                        <td>Text color for window title and controls</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-splitter-color</td>
+                        <td>Color of the resize splitter</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-splitter-size</td>
+                        <td>Width of the resize splitter</td>
+                    </tr>
+                    <tr>
+                        <td>--dockable-content-padding</td>
+                        <td>Padding inside window content area</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Best Practices</h4>
+            <ul>
+                <li>Use meaningful titles for each window to help users identify content</li>
+                <li>Consider using the locked attribute for windows that should maintain their position</li>
+                <li>Implement a logical stacking order for related windows</li>
+                <li>Provide sufficient padding in window content for better readability</li>
+                <li>Use consistent styling across all dockable views in your application</li>
+            </ul>
+        </div>
+    </accordion-component>
 </div>

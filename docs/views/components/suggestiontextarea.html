@@ -1,0 +1,741 @@
+<div class="component-content">
+    <h2>Suggestion Textarea Component</h2>
+    <p class="component-description">An invisible enhancement component that attaches to existing textareas and text inputs, providing AI suggestion capabilities. When suggestions are available, it temporarily replaces the input element with a VSCode-style diff view showing original text (red deletions) and suggested text (green additions). Users can click directly on green lines to edit suggestions inline before accepting or declining them.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <div class="example-container">
+                <h4>Basic Usage with Textarea</h4>
+                <textarea 
+                    id="demo-textarea" 
+                    placeholder="Enter your character description here..."
+                    rows="4"
+                    style="width: 100%; font-family: inherit;">Sarah is a mysterious character who lives in the old mansion.</textarea>
+                <suggestion-textarea target="demo-textarea"></suggestion-textarea>
+                <br><br>
+                <button onclick="provideSuggestion()">Get AI Suggestion</button>
+                <button onclick="clearSuggestion()">Clear Suggestion</button>
+            </div>
+
+            <div class="example-container">
+                <h4>Text Input Support</h4>
+                <input 
+                    type="text" 
+                    id="demo-input" 
+                    placeholder="Enter character name or short description..."
+                    value="Sarah"
+                    style="width: 100%; font-family: inherit; padding: 12px; border: 2px solid var(--color-border); border-radius: 8px; background: var(--color-card-bg); color: var(--color-text);">
+                <suggestion-textarea target="demo-input"></suggestion-textarea>
+                <br><br>
+                <button onclick="suggestInputText()">Enhance Name</button>
+                <button onclick="clearInputSuggestion()">Clear</button>
+            </div>
+
+            <pre><code class="language-html">&lt;!-- Works with textarea --&gt;
+&lt;textarea id="my-textarea" placeholder="Enter text here..."&gt;&lt;/textarea&gt;
+&lt;suggestion-textarea target="my-textarea"&gt;&lt;/suggestion-textarea&gt;
+
+&lt;!-- Also works with text input --&gt;
+&lt;input type="text" id="my-input" placeholder="Enter name..."&gt;
+&lt;suggestion-textarea target="my-input"&gt;&lt;/suggestion-textarea&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Interactive Example">
+        <div slot="content">
+            <div class="example-container">
+                <h4>Character Development Tool</h4>
+                <textarea 
+                    id="character-textarea" 
+                    placeholder="Describe your character..."
+                    rows="6"
+                    style="width: 100%; font-family: inherit; min-height: 120px;"></textarea>
+                <suggestion-textarea target="character-textarea"></suggestion-textarea>
+                <br>
+                <div class="button-group">
+                    <button onclick="suggestImprovement()">Improve Writing</button>
+                    <button onclick="suggestPersonality()">Add Personality</button>
+                    <button onclick="suggestBackground()">Add Background</button>
+                </div>
+            </div>
+            <pre><code class="language-javascript">// Create suggestion component and attach to textarea
+const suggestionComponent = document.querySelector('suggestion-textarea');
+
+// Listen for suggestion events
+suggestionComponent.addEventListener('suggestion-accepted', (e) => {
+    console.log('Suggestion accepted:', e.detail);
+});
+
+suggestionComponent.addEventListener('suggestion-declined', (e) => {
+    console.log('Suggestion declined:', e.detail);
+});
+
+// Provide a suggestion
+suggestionComponent.setSuggestion('Enhanced character description...');</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="JavaScript API">
+        <div slot="content">
+            <div class="example-container">
+                <h4>Programmatic Attachment</h4>
+                <textarea 
+                    id="api-textarea" 
+                    placeholder="This textarea is attached via JavaScript API..."
+                    rows="4"
+                    style="width: 100%; font-family: inherit;"></textarea>
+                <suggestion-textarea id="api-suggestion"></suggestion-textarea>
+                <br><br>
+                <button onclick="attachViaAPI()">Attach via API</button>
+                <button onclick="detachAPI()">Detach</button>
+                <button onclick="suggestViaAPI()">Suggest via API</button>
+            </div>
+            <pre><code class="language-javascript">// Get references
+const textareaEl = document.getElementById('my-textarea');
+const suggestionEl = document.querySelector('suggestion-textarea');
+
+// Attach programmatically
+suggestionEl.setTarget(textareaEl);
+
+// Or by ID
+suggestionEl.setTargetById('my-textarea');
+
+// Detach
+suggestionEl.setTarget(null);</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <h4>HTML Attribute Method</h4>
+            <pre><code class="language-html">&lt;textarea id="story-textarea" 
+    placeholder="Write your story..."
+    rows="8"&gt;&lt;/textarea&gt;
+
+&lt;suggestion-textarea target="story-textarea"&gt;&lt;/suggestion-textarea&gt;</code></pre>
+            
+            <h4>JavaScript API Method</h4>
+            <pre><code class="language-javascript">// Create component
+const suggestionComponent = document.createElement('suggestion-textarea');
+document.body.appendChild(suggestionComponent);
+
+// Attach to existing textarea
+const textareaElement = document.getElementById('story-textarea');
+suggestionComponent.setTarget(textareaElement);
+
+// Provide suggestions
+suggestionComponent.setSuggestion('Your enhanced story text...');</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties & Methods">
+        <div slot="content">
+            <h4>Attributes</h4>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>target</td>
+                        <td>string</td>
+                        <td>ID of the textarea or text input element to attach to</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4>Properties</h4>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>suggestion</td>
+                        <td>string</td>
+                        <td>Get the current suggestion text</td>
+                    </tr>
+                    <tr>
+                        <td>hasSuggestion</td>
+                        <td>boolean</td>
+                        <td>Check if there's currently a suggestion</td>
+                    </tr>
+                    <tr>
+                        <td>targetTextarea</td>
+                        <td>HTMLTextAreaElement | HTMLInputElement | null</td>
+                        <td>Get reference to the attached textarea or input element</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Methods</h4>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Parameters</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>setTarget(element)</td>
+                        <td>HTMLTextAreaElement | HTMLInputElement | null</td>
+                        <td>Programmatically attach to a textarea or text input element</td>
+                    </tr>
+                    <tr>
+                        <td>setTargetById(id)</td>
+                        <td>string | null</td>
+                        <td>Attach to a textarea or text input by its ID</td>
+                    </tr>
+                    <tr>
+                        <td>setSuggestion(text)</td>
+                        <td>string</td>
+                        <td>Set a suggestion and show the diff view</td>
+                    </tr>
+                    <tr>
+                        <td>clearSuggestion()</td>
+                        <td>none</td>
+                        <td>Clear the current suggestion and restore original textarea</td>
+                    </tr>
+                    <tr>
+                        <td>acceptSuggestion()</td>
+                        <td>none</td>
+                        <td>Accept the current suggestion (with any edits)</td>
+                    </tr>
+                    <tr>
+                        <td>declineSuggestion()</td>
+                        <td>none</td>
+                        <td>Decline the current suggestion</td>
+                    </tr>
+                    <tr>
+                        <td>focus()</td>
+                        <td>none</td>
+                        <td>Focus the target element (if no suggestion is active)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Events">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Detail</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>suggestion-set</td>
+                        <td>{ suggestion: string }</td>
+                        <td>Fired when a suggestion is provided</td>
+                    </tr>
+                    <tr>
+                        <td>suggestion-accepted</td>
+                        <td>{ oldValue: string, newValue: string, suggestion: string }</td>
+                        <td>Fired when a suggestion is accepted</td>
+                    </tr>
+                    <tr>
+                        <td>suggestion-declined</td>
+                        <td>{ suggestion: string }</td>
+                        <td>Fired when a suggestion is declined</td>
+                    </tr>
+                    <tr>
+                        <td>suggestion-cleared</td>
+                        <td>none</td>
+                        <td>Fired when the suggestion is cleared</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p><strong>Note:</strong> The original textarea will also receive <code>input</code> and <code>change</code> events when suggestions are accepted.</p>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Diff View Features">
+        <div slot="content">
+            <div class="example-container">
+                <h4>VSCode-Style Diff Interface</h4>
+                <ul>
+                    <li><strong>Red Lines (Deletions):</strong> Show the original text with <code>-</code> line numbers</li>
+                    <li><strong>Green Lines (Additions):</strong> Show the suggested text with <code>+</code> line numbers</li>
+                    <li><strong>Inline Editing:</strong> Click on any green line to edit the suggestion directly</li>
+                    <li><strong>Monospace Font:</strong> Uses Monaco, Menlo, or Ubuntu Mono for consistent diff display</li>
+                    <li><strong>Sticky Headers:</strong> Header and buttons remain visible when scrolling long diffs</li>
+                    <li><strong>Size Matching:</strong> Diff view automatically matches the original textarea's dimensions</li>
+                </ul>
+                
+                <h4>User Interaction</h4>
+                <ul>
+                    <li><strong>Edit:</strong> Click on green addition lines to edit text inline</li>
+                    <li><strong>Navigate:</strong> Use Enter key to move between editable lines</li>
+                    <li><strong>Accept:</strong> Click Accept button to apply the suggestion (with any edits)</li>
+                    <li><strong>Decline:</strong> Click Decline button to reject the suggestion</li>
+                </ul>
+            </div>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <p>The component automatically inherits styling from the target textarea and applies GitHub/VSCode-style diff colors. The diff view maintains the same dimensions, fonts, and positioning as the original textarea.</p>
+            
+            <h4>CSS Custom Properties</h4>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--suggestion-diff-bg</td>
+                        <td>#fff</td>
+                        <td>Background color of the diff view container</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-diff-border</td>
+                        <td>#e1e4e8</td>
+                        <td>Border color of the diff view</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-diff-header-bg</td>
+                        <td>#f6f8fa</td>
+                        <td>Background color of the diff header</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-diff-header-color</td>
+                        <td>#586069</td>
+                        <td>Text color of the diff header</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-line-number-bg</td>
+                        <td>#fafbfc</td>
+                        <td>Background color of line numbers</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-line-number-color</td>
+                        <td>#586069</td>
+                        <td>Text color of line numbers</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-deletion-bg</td>
+                        <td>#ffeef0</td>
+                        <td>Background color of deletion lines</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-deletion-line-bg</td>
+                        <td>#fdb8c0</td>
+                        <td>Background color of deletion line numbers</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-deletion-color</td>
+                        <td>#86181d</td>
+                        <td>Text color of deletion lines</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-addition-bg</td>
+                        <td>#e6ffed</td>
+                        <td>Background color of addition lines</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-addition-line-bg</td>
+                        <td>#acf2bd</td>
+                        <td>Background color of addition line numbers</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-addition-color</td>
+                        <td>#28a745</td>
+                        <td>Text color of addition lines</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-button-bg</td>
+                        <td>#fafbfc</td>
+                        <td>Background color of action buttons</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-button-color</td>
+                        <td>#24292e</td>
+                        <td>Text color of action buttons</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-button-border</td>
+                        <td>#d1d5da</td>
+                        <td>Border color of action buttons</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-button-hover-bg</td>
+                        <td>#f3f4f6</td>
+                        <td>Background color of buttons on hover</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-accept-bg</td>
+                        <td>#28a745</td>
+                        <td>Background color of accept button</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-accept-hover-bg</td>
+                        <td>#22863a</td>
+                        <td>Background color of accept button on hover</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-decline-bg</td>
+                        <td>#d73a49</td>
+                        <td>Background color of decline button</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-decline-hover-bg</td>
+                        <td>#cb2431</td>
+                        <td>Background color of decline button on hover</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-tabs-bg</td>
+                        <td>#f6f8fa</td>
+                        <td>Background color of the button container</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-tabs-border</td>
+                        <td>#e1e4e8</td>
+                        <td>Border color of the button container</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-hint-bg</td>
+                        <td>#f6f8fa</td>
+                        <td>Background color of the hint text</td>
+                    </tr>
+                    <tr>
+                        <td>--suggestion-hint-color</td>
+                        <td>#586069</td>
+                        <td>Text color of the hint text</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4>Customization</h4>
+            <p>Since the component creates a temporary overlay, you can style the original textarea as needed. The diff view will automatically adapt to match the textarea's appearance.</p>
+            
+            <pre><code class="language-css">/* Style your textarea normally */
+textarea {
+    font-family: 'Fira Code', monospace;
+    font-size: 16px;
+    line-height: 1.6;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    background: #1e1e1e;
+    color: #d4d4d4;
+}
+
+/* Customize the diff view for dark theme */
+suggestion-textarea {
+    --suggestion-diff-bg: var(--color-card-bg);
+    --suggestion-diff-border: var(--color-border);
+    --suggestion-diff-header-bg: var(--color-background);
+    --suggestion-diff-header-color: var(--color-text-light);
+    --suggestion-deletion-bg: #3c1e1e;
+    --suggestion-deletion-color: #ff8a80;
+    --suggestion-addition-bg: #1e3c1e;
+    --suggestion-addition-color: #69f0ae;
+    --suggestion-button-bg: var(--color-card-bg);
+    --suggestion-button-color: var(--color-text);
+    --suggestion-button-border: var(--color-border);
+    --suggestion-button-hover-bg: var(--color-primary);
+    --suggestion-button-hover-color: white;
+    --suggestion-accept-bg: #2e7d32;
+    --suggestion-accept-hover-bg: #388e3c;
+    --suggestion-decline-bg: #d32f2f;
+    --suggestion-decline-hover-bg: #f44336;
+    --suggestion-tabs-bg: var(--color-background);
+    --suggestion-tabs-border: var(--color-border);
+    --suggestion-hint-bg: var(--color-background);
+    --suggestion-hint-color: var(--color-text);
+}
+
+/* The diff view will automatically inherit these styles */</code></pre>
+        </div>
+    </accordion-component>
+</div>
+
+<style>
+    .component-content {
+        background-color: var(--color-card-bg);
+        border-radius: var(--border-radius-md);
+        padding: var(--spacing-lg);
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+
+    .component-description {
+        color: var(--color-text-light);
+        margin-bottom: var(--spacing-lg);
+        max-width: 100%;
+    }
+
+    .example-container {
+        background-color: var(--color-background);
+        padding: var(--spacing-lg);
+        border-radius: var(--border-radius-md);
+        margin-top: var(--spacing-md);
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+    }
+
+    .button-group button {
+        padding: 0.5rem 1rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: #f8f8f8;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .button-group button:hover {
+        background: #e0e0e0;
+    }
+
+    pre {
+        background: var(--color-background);
+        padding: var(--spacing-md);
+        border-radius: var(--border-radius-sm);
+        overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    code {
+        color: var(--color-text);
+        font-family: monospace;
+        overflow-wrap: break-word;
+    }
+
+    .props-table {
+        width: 100%;
+        border-collapse: collapse;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .props-table th,
+    .props-table td {
+        padding: var(--spacing-sm);
+        text-align: left;
+        border-bottom: 1px solid var(--color-border);
+        vertical-align: top;
+        word-break: break-word;
+    }
+
+    .props-table th {
+        background-color: var(--color-background);
+        font-weight: bold;
+        position: sticky;
+        top: 0;
+    }
+
+    .props-table code {
+        background-color: var(--color-background);
+        padding: 0.125rem 0.25rem;
+        border-radius: var(--border-radius-sm);
+        font-size: 0.875rem;
+    }
+
+    h4 {
+        margin-top: var(--spacing-lg);
+        margin-bottom: var(--spacing-md);
+        color: var(--color-text);
+    }
+
+    ul {
+        padding-left: 1.5rem;
+    }
+
+    li {
+        margin-bottom: 0.5rem;
+    }
+
+    /* Style the demo textareas to match the dark theme */
+    textarea {
+        background: var(--color-card-bg);
+        color: var(--color-text);
+        border: 2px solid var(--color-border);
+        border-radius: var(--border-radius-md);
+        padding: var(--spacing-md);
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        resize: vertical;
+        transition: all 0.2s ease;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    textarea:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+    }
+
+    textarea::placeholder {
+        color: var(--color-text);
+        opacity: 0.6;
+    }
+
+    /* Custom properties for suggestion textarea component to match theme */
+    suggestion-textarea {
+        width: 100%;
+        
+        /* Dark theme customization */
+        --suggestion-diff-bg: var(--color-card-bg);
+        --suggestion-diff-border: var(--color-border);
+        --suggestion-diff-header-bg: var(--color-background);
+        --suggestion-diff-header-color: var(--color-text-light);
+        
+        /* Line numbers */
+        --suggestion-line-number-bg: var(--color-background);
+        --suggestion-line-number-color: var(--color-text);
+        
+        /* Deletion lines (red) */
+        --suggestion-deletion-bg: #3c1e1e;
+        --suggestion-deletion-line-bg: #5a2d2d;
+        --suggestion-deletion-color: #ff8a80;
+        
+        /* Addition lines (green) */
+        --suggestion-addition-bg: #1e3c1e;
+        --suggestion-addition-line-bg: #2d5a2d;
+        --suggestion-addition-color: #69f0ae;
+        
+        /* Buttons */
+        --suggestion-button-bg: var(--color-card-bg);
+        --suggestion-button-color: var(--color-text);
+        --suggestion-button-border: var(--color-border);
+        --suggestion-button-hover-bg: var(--color-primary);
+        --suggestion-button-hover-color: white;
+        
+        /* Accept button */
+        --suggestion-accept-bg: #2e7d32;
+        --suggestion-accept-hover-bg: #388e3c;
+        
+        /* Decline button */
+        --suggestion-decline-bg: #d32f2f;
+        --suggestion-decline-hover-bg: #f44336;
+        
+        /* Tab container */
+        --suggestion-tabs-bg: var(--color-background);
+        --suggestion-tabs-border: var(--color-border);
+        
+        /* Hint text */
+        --suggestion-hint-bg: var(--color-background);
+        --suggestion-hint-color: var(--color-text);
+    }
+</style>
+
+<script>
+    // Demo functions for the examples
+    function provideSuggestion() {
+        const suggestionComponent = document.querySelector('suggestion-textarea[target="demo-textarea"]');
+        suggestionComponent.setSuggestion('Sarah is an enigmatic figure who dwells within the shadows of the ancient Victorian mansion. Her piercing emerald eyes hold secrets from a bygone era, and her presence carries an air of mystery that both intrigues and unsettles visitors.');
+    }
+
+    function clearSuggestion() {
+        const suggestionComponent = document.querySelector('suggestion-textarea[target="demo-textarea"]');
+        suggestionComponent.clearSuggestion();
+    }
+
+    // Input text example functions
+    function suggestInputText() {
+        const suggestionComponent = document.querySelector('suggestion-textarea[target="demo-input"]');
+        const inputElement = document.getElementById('demo-input');
+        const currentText = inputElement.value || 'Character';
+        suggestionComponent.setSuggestion(`${currentText} the Shadowweaver - a mysterious figure with ancient knowledge and piercing emerald eyes`);
+    }
+
+    function clearInputSuggestion() {
+        const suggestionComponent = document.querySelector('suggestion-textarea[target="demo-input"]');
+        suggestionComponent.clearSuggestion();
+    }
+
+    function suggestImprovement() {
+        const textarea = document.getElementById('character-textarea');
+        const suggestionComponent = document.querySelector('suggestion-textarea[target="character-textarea"]');
+        const currentText = textarea.value || 'A character';
+        suggestionComponent.setSuggestion(`${currentText} - Enhanced with vivid imagery: Their distinctive features tell a story of adventures lived and challenges overcome, with each scar and line adding depth to their compelling presence.`);
+    }
+
+    function suggestPersonality() {
+        const textarea = document.getElementById('character-textarea');
+        const suggestionComponent = document.querySelector('suggestion-textarea[target="character-textarea"]');
+        const currentText = textarea.value || 'A character';
+        suggestionComponent.setSuggestion(`${currentText} They possess a quick wit and infectious laugh, though beneath their jovial exterior lies a fierce determination and unwavering loyalty to those they hold dear.`);
+    }
+
+    function suggestBackground() {
+        const textarea = document.getElementById('character-textarea');
+        const suggestionComponent = document.querySelector('suggestion-textarea[target="character-textarea"]');
+        const currentText = textarea.value || 'A character';
+        suggestionComponent.setSuggestion(`${currentText} Born into humble beginnings in a small coastal town, they learned early that survival required both cunning and compassion. Years of wandering distant lands have shaped them into someone equally comfortable in royal courts and tavern brawls.`);
+    }
+
+    // JavaScript API demo functions
+    function attachViaAPI() {
+        const textareaEl = document.getElementById('api-textarea');
+        const suggestionEl = document.getElementById('api-suggestion');
+        suggestionEl.setTarget(textareaEl);
+        alert('Component attached via JavaScript API!');
+    }
+
+    function detachAPI() {
+        const suggestionEl = document.getElementById('api-suggestion');
+        suggestionEl.setTarget(null);
+        alert('Component detached!');
+    }
+
+    function suggestViaAPI() {
+        const suggestionEl = document.getElementById('api-suggestion');
+        suggestionEl.setSuggestion('This suggestion was provided via the JavaScript API. You can edit this green text by clicking on it before accepting or declining.');
+    }
+
+    // Add event listeners for demos
+    document.addEventListener('DOMContentLoaded', function() {
+        const suggestionComponents = document.querySelectorAll('suggestion-textarea');
+
+        suggestionComponents.forEach(component => {
+            component.addEventListener('suggestion-accepted', (e) => {
+                console.log('Suggestion accepted:', e.detail);
+            });
+
+            component.addEventListener('suggestion-declined', (e) => {
+                console.log('Suggestion declined:', e.detail);
+            });
+
+            component.addEventListener('suggestion-set', (e) => {
+                console.log('Suggestion set:', e.detail);
+            });
+
+            component.addEventListener('suggestion-cleared', (e) => {
+                console.log('Suggestion cleared');
+            });
+        });
+    });
+</script> 

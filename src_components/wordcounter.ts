@@ -5,6 +5,7 @@ class WordCounter extends HTMLElement {
     private _inputHandler: (() => void) | null = null;
     private _display: HTMLElement;
     private _pollInterval: number | null = null;
+    private _programmaticTarget: HTMLElement | null = null;
 
     constructor() {
         super();
@@ -49,14 +50,49 @@ class WordCounter extends HTMLElement {
         this.detach();
     }
 
+    /**
+     * Programmatically set the target element to monitor
+     * @param element The HTMLElement to monitor for word count, or null to clear
+     */
+    public setTarget(element: HTMLElement | null) {
+        this._programmaticTarget = element;
+        this.detach();
+        this.attachToTarget();
+    }
+
+    /**
+     * Programmatically set the target element by ID
+     * @param elementId The ID of the element to monitor, or null to clear
+     */
+    public setTargetById(elementId: string | null) {
+        if (elementId) {
+            const element = document.getElementById(elementId);
+            this.setTarget(element);
+        } else {
+            this.setTarget(null);
+        }
+    }
+
     private attachToTarget() {
-        const docId = this.getAttribute('document');
-        if (!docId) return;
-        const el = document.getElementById(docId);
-        if (!el) return;
-        this._target = el;
-        this.subscribe();
-        this.updateCount();
+        // Priority: programmatic target > attribute-based target
+        if (this._programmaticTarget) {
+            this._target = this._programmaticTarget;
+            this.subscribe();
+            this.updateCount();
+        } else {
+            const docId = this.getAttribute('document');
+            if (docId) {
+                const el = document.getElementById(docId);
+                if (el) {
+                    this._target = el;
+                    this.subscribe();
+                    this.updateCount();
+                    return;
+                }
+            }
+            // If no target found, still update to show initial state
+            this.updateCount();
+        }
     }
 
     private detach() {
@@ -108,7 +144,11 @@ class WordCounter extends HTMLElement {
             this._count = WordCounter.countWords(this._target.textContent || '');
         }
         this._display.textContent = `${this._count} word${this._count === 1 ? '' : 's'}`;
-        this.style.display = this._count === 0 ? 'none' : '';
+        
+        // Only hide if we have no target AND no programmatic target has ever been set
+        // This allows counters to show "0 words" when programmatically controlled
+        const shouldHide = this._count === 0 && !this._target && !this._programmaticTarget && !this.getAttribute('document');
+        this.style.display = shouldHide ? 'none' : '';
     }
 
     static countWords(text: string): number {

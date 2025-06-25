@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suggestion Textarea Test</title>
+    <style>
+        /* Import dark theme colors from index.css */
+        :root {
+            /* Colors - Fire Theme */
+            --color-primary: #ff6b00;
+            --color-primary-dark: #fd0d0d;
+            --color-primary-light: #ffa726;
+            --color-background: #010101;
+            --color-text: #cfbdaf;
+            --color-text-light: #d6d6d6;
+            --color-border: #ffd8b2;
+            --color-card-bg: #1e1d1d;
+            
+            /* Spacing */
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 1rem;
+            --spacing-md: 1.5rem;
+            --spacing-lg: 2rem;
+            --spacing-xl: 3rem;
+            
+            /* Typography */
+            --font-family: 'Inter', sans-serif;
+            --font-size-base: 1rem;
+            --font-size-sm: 0.875rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.5rem;
+            --font-size-2xl: 2rem;
+            
+            /* Border radius */
+            --border-radius-sm: 0.25rem;
+            --border-radius-md: 0.5rem;
+            --border-radius-lg: 1rem;
+        }
+
+        body {
+            font-family: var(--font-family);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            background: var(--color-card-bg);
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--color-border);
+            box-shadow: 0 4px 8px rgba(255, 107, 0, 0.1);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        h1, h2 {
+            color: var(--color-text-light);
+            margin-bottom: var(--spacing-md);
+        }
+
+        h1 {
+            font-size: var(--font-size-2xl);
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: var(--font-size-xl);
+            color: var(--color-primary);
+            border-bottom: 2px solid var(--color-primary);
+            padding-bottom: var(--spacing-xs);
+        }
+
+        button {
+            padding: var(--spacing-xs) var(--spacing-md);
+            margin: var(--spacing-xs);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius-md);
+            background: var(--color-card-bg);
+            color: var(--color-text);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(255, 107, 0, 0.2);
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        .demo-section {
+            margin: var(--spacing-lg) 0;
+            padding: var(--spacing-md);
+            background: var(--color-background);
+            border-radius: var(--border-radius-md);
+            border: 1px solid rgba(255, 107, 0, 0.2);
+        }
+
+        /* Style for regular textareas that will be enhanced */
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: var(--spacing-md);
+            border: 2px solid var(--color-border);
+            border-radius: var(--border-radius-md);
+            background: var(--color-card-bg);
+            color: var(--color-text);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+        }
+
+        textarea::placeholder {
+            color: var(--color-text);
+            opacity: 0.6;
+        }
+
+        /* Custom properties for suggestion textarea component */
+        suggestion-textarea {
+            /* Ensure the component inherits the styling */
+            width: 100%;
+            
+            /* Diff view customization */
+            --suggestion-diff-bg: var(--color-card-bg);
+            --suggestion-diff-border: var(--color-border);
+            --suggestion-diff-header-bg: var(--color-background);
+            --suggestion-diff-header-color: var(--color-text-light);
+            
+            /* Line numbers */
+            --suggestion-line-number-bg: var(--color-background);
+            --suggestion-line-number-color: var(--color-text);
+            
+            /* Deletion lines (red) */
+            --suggestion-deletion-bg: #3c1e1e;
+            --suggestion-deletion-line-bg: #5a2d2d;
+            --suggestion-deletion-color: #ff8a80;
+            
+            /* Addition lines (green) */
+            --suggestion-addition-bg: #1e3c1e;
+            --suggestion-addition-line-bg: #2d5a2d;
+            --suggestion-addition-color: #69f0ae;
+            
+            /* Buttons */
+            --suggestion-button-bg: var(--color-card-bg);
+            --suggestion-button-color: var(--color-text);
+            --suggestion-button-border: var(--color-border);
+            --suggestion-button-hover-bg: var(--color-primary);
+            --suggestion-button-hover-color: white;
+            
+            /* Accept button */
+            --suggestion-accept-bg: #2e7d32;
+            --suggestion-accept-hover-bg: #388e3c;
+            
+            /* Decline button */
+            --suggestion-decline-bg: #d32f2f;
+            --suggestion-decline-hover-bg: #f44336;
+            
+            /* Tab container */
+            --suggestion-tabs-bg: var(--color-background);
+            --suggestion-tabs-border: var(--color-border);
+            
+            /* Hint text */
+            --suggestion-hint-bg: var(--color-background);
+            --suggestion-hint-color: var(--color-text);
+        }
+
+        #log {
+            background: var(--color-background);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--color-border);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: var(--font-size-sm);
+            max-height: 300px;
+            overflow-y: auto;
+            color: var(--color-text-light);
+            line-height: 1.4;
+        }
+
+        #log::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #log::-webkit-scrollbar-track {
+            background: var(--color-card-bg);
+            border-radius: var(--border-radius-sm);
+        }
+
+        #log::-webkit-scrollbar-thumb {
+            background: var(--color-primary);
+            border-radius: var(--border-radius-sm);
+        }
+
+        #log::-webkit-scrollbar-thumb:hover {
+            background: var(--color-primary-light);
+        }
+
+        /* Button group styling */
+        .demo-section > div[style*="margin-top"] {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+            margin-top: var(--spacing-md) !important;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: var(--spacing-md);
+            }
+            
+            .container {
+                padding: var(--spacing-md);
+            }
+            
+            textarea {
+                min-height: 100px;
+                padding: var(--spacing-sm);
+            }
+            
+            button {
+                padding: var(--spacing-xs) var(--spacing-sm);
+                font-size: var(--font-size-sm);
+            }
+        }
+
+        /* Animation for page load */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .container:nth-child(1) { animation-delay: 0.1s; }
+        .container:nth-child(2) { animation-delay: 0.2s; }
+        .container:nth-child(3) { animation-delay: 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Suggestion Textarea Component Test</h1>
+        
+        <div class="demo-section">
+            <h2>Basic Test</h2>
+            <textarea 
+                id="test-textarea" 
+                placeholder="Enter your text here...">This is a sample character description.</textarea>
+            <suggestion-textarea target="test-textarea"></suggestion-textarea>
+            
+            <div style="margin-top: 10px;">
+                <button onclick="testSuggestion()">Set Suggestion</button>
+                <button onclick="clearSuggestion()">Clear Suggestion</button>
+                <button onclick="getValue()">Get Value</button>
+                <button onclick="setValue()">Set Value</button>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>Event Log</h2>
+            <div id="log"></div>
+            <button onclick="clearLog()">Clear Log</button>
+        </div>
+
+        <div class="demo-section">
+            <h2>Multiple Suggestion Test</h2>
+            <textarea 
+                id="test-textarea-2" 
+                placeholder="Character development..."
+                rows="4"></textarea>
+            <suggestion-textarea target="test-textarea-2"></suggestion-textarea>
+            
+            <div style="margin-top: 10px;">
+                <button onclick="suggestPersonality()">Add Personality</button>
+                <button onclick="suggestBackground()">Add Background</button>
+                <button onclick="suggestAppearance()">Add Appearance</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load the component -->
+    <script src="src_components/suggestion-textarea.ts"></script>
+
+    <script>
+        // Test functions
+        function testSuggestion() {
+            const suggestionComponent = document.querySelector('suggestion-textarea[target="test-textarea"]');
+            suggestionComponent.setSuggestion('This is an enhanced character description with more vivid details about their mysterious nature and compelling backstory.');
+        }
+
+        function clearSuggestion() {
+            const suggestionComponent = document.querySelector('suggestion-textarea[target="test-textarea"]');
+            suggestionComponent.clearSuggestion();
+        }
+
+        function getValue() {
+            const textarea = document.getElementById('test-textarea');
+            log(`Current value: "${textarea.value}"`);
+        }
+
+        function setValue() {
+            const textarea = document.getElementById('test-textarea');
+            textarea.value = 'New value set programmatically at ' + new Date().toLocaleTimeString();
+        }
+
+        function suggestPersonality() {
+            const textarea = document.getElementById('test-textarea-2');
+            const suggestionComponent = document.querySelector('suggestion-textarea[target="test-textarea-2"]');
+            const current = textarea.value || 'A character';
+            suggestionComponent.setSuggestion(`${current} They have a sharp wit and keen intellect, often solving problems others can't even see.`);
+        }
+
+        function suggestBackground() {
+            const textarea = document.getElementById('test-textarea-2');
+            const suggestionComponent = document.querySelector('suggestion-textarea[target="test-textarea-2"]');
+            const current = textarea.value || 'A character';
+            suggestionComponent.setSuggestion(`${current} Born in the northern mountains, they spent their youth learning ancient traditions from village elders.`);
+        }
+
+        function suggestAppearance() {
+            const textarea = document.getElementById('test-textarea-2');
+            const suggestionComponent = document.querySelector('suggestion-textarea[target="test-textarea-2"]');
+            const current = textarea.value || 'A character';
+            suggestionComponent.setSuggestion(`${current} Standing tall with striking silver hair and piercing blue eyes that seem to see into one's soul.`);
+        }
+
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}<br>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const suggestionComponents = document.querySelectorAll('suggestion-textarea');
+
+            // Set up event listeners for logging
+            suggestionComponents.forEach((component, index) => {
+                if (!component) return;
+
+                component.addEventListener('suggestion-set', (e) => {
+                    log(`Component ${index + 1} suggestion set: "${e.detail.suggestion}"`);
+                });
+
+                component.addEventListener('suggestion-accepted', (e) => {
+                    log(`Component ${index + 1} suggestion accepted. Old: "${e.detail.oldValue}", New: "${e.detail.newValue}"`);
+                });
+
+                component.addEventListener('suggestion-declined', (e) => {
+                    log(`Component ${index + 1} suggestion declined: "${e.detail.suggestion}"`);
+                });
+
+                component.addEventListener('suggestion-cleared', (e) => {
+                    log(`Component ${index + 1} suggestion cleared`);
+                });
+            });
+
+            // Set up listeners for regular textarea events
+            const textarea1 = document.getElementById('test-textarea');
+            const textarea2 = document.getElementById('test-textarea-2');
+
+            [textarea1, textarea2].forEach((textarea, index) => {
+                if (!textarea) return;
+
+                textarea.addEventListener('input', (e) => {
+                    log(`Textarea ${index + 1} input: "${e.target.value}"`);
+                });
+
+                textarea.addEventListener('change', (e) => {
+                    log(`Textarea ${index + 1} change: "${e.target.value}"`);
+                });
+            });
+
+            log('Component test page loaded successfully');
+        });
+    </script>
+</body>
+</html> 

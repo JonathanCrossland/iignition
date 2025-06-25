@@ -5,6 +5,7 @@ namespace iignition
      
         public Pipeline: Extension;
         private _Pipeline: Extension[] = [];
+        private _isNavigating: boolean = false;
 
         constructor(ctx:any=null){
             super(ctx);
@@ -93,6 +94,14 @@ namespace iignition
 
             let dataset = {data:{}};
 
+            // Get all data- attributes
+            Array.from(link.attributes as ArrayLike<Attr>)
+                .filter(attr => attr.name.startsWith('data-'))
+                .forEach(attr => {
+                    const key = attr.name.replace('data-', '');
+                    dataset.data[key] = attr.value;
+                });
+
             if (url.includes('?')) {
                 const [baseUrl, queryString] = url.split('?');
                 const params = new URLSearchParams(queryString);
@@ -124,10 +133,19 @@ namespace iignition
             $i.State.add(`view_${url}`, stateObj);
             $i.State.add('last_view', url);
 
+            this._isNavigating = true;
             const newHash = url.startsWith('#!') ? url : `#!${url}`;
-            history.pushState(stateObj, document.title, newHash);
+            if (container == 'main'){
+                history.pushState(stateObj, document.title, newHash);
+            }
 
             this.processRoute(stateObj, 'Route State pushed to history and State');
+            
+            // Reset flag after a short delay to allow popstate to check it
+            setTimeout(() => {
+                this._isNavigating = false;
+            }, 10);
+            
             event.preventDefault();
         }
 
@@ -142,6 +160,12 @@ namespace iignition
         }
 
         popstateHandler(event) {
+            // Skip if this is from our own programmatic navigation
+            if (this._isNavigating) {
+                console.info('PopState: Skipping - programmatic navigation in progress');
+                return;
+            }
+
             console.info('Route PopState Change');
             console.group(`Route State is`);
             console.dir(event.state);

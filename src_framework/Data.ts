@@ -34,6 +34,14 @@ namespace iignition {
 
                 }).then((response) => {
 
+                    if (response.status === 401) {
+                        // Create a specific 401 error object
+                        const unauthorizedError = new Error('Unauthorized');
+                        (unauthorizedError as any).status = 401;
+                        (unauthorizedError as any).url = url;
+                        return reject(unauthorizedError);
+                    }
+                    
                     if (response.status !== 200) return reject();
                     
                     const contentType = response.headers.get("content-type") || "";

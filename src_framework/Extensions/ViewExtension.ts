@@ -52,7 +52,7 @@ namespace iignition {
                    
                    
                     if (container instanceof Element){
-                        Events.raiseEvent('onViewLoadeding', { view: ctx.view })
+                        Events.raiseEvent('onViewLoading', { view: ctx.view })
                         container.innerHTML = html;
                         this.executeScripts(container as HTMLElement);
                         console.log('View Loaded');
@@ -68,8 +68,21 @@ namespace iignition {
                     }
 
                 })
-                .catch((e) => {
-                    reject();
+                .catch((error) => {
+                    // Check if this is a 401 unauthorized error
+                    if (error && (error as any).status === 401) {
+                        console.warn(`View access unauthorized: ${ctx.view}`);
+                        
+                        // Fire the unauthorized event with view data
+                        Events.raiseEvent('onViewUnauthorised', { view: ctx.view });
+                        
+                        // Stop pipeline execution by rejecting
+                        reject(error);
+                        return;
+                    }
+                    
+                    // For other errors, continue with original behavior
+                    reject(error);
                 });
             });
         }

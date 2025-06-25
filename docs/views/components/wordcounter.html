@@ -1,6 +1,6 @@
 <div class="component-content">
     <h2>Word Counter Component</h2>
-    <p class="component-description">A live word counter that attaches to a textarea, input, or other element and displays the current word count. Attach using <code>document="idofelement"</code>.</p>
+    <p class="component-description">A live word counter that attaches to a textarea, input, or other element and displays the current word count. Attach using <code>document="idofelement"</code> or set programmatically.</p>
 
     <accordion-component title="Examples" open="true">
         <div slot="content">
@@ -14,6 +14,40 @@
             <pre><code class="language-html">&lt;textarea id="mytext"&gt;&lt;/textarea&gt;
 &lt;word-counter document="mytext"&gt;&lt;/word-counter&gt;</code></pre>
         </div>
+        
+    </accordion-component>
+
+    <accordion-component title="Programmatic Usage">
+        <div slot="content">
+            <p>For scenarios where elements are added dynamically or need to be changed programmatically:</p>
+            <div class="example-container">
+                <button onclick="createDynamicElement()">Create Dynamic Element</button>
+                <button onclick="switchToInput()">Switch to Input</button>
+                <button onclick="switchToTextarea()">Switch to Textarea</button>
+                <button onclick="clearTarget()">Clear Target</button>
+                <div id="dynamic-container"></div>
+                <word-counter id="footer-counter"></word-counter>
+            </div>
+            <pre><code class="language-html">&lt;!-- Word counter in footer or separate location --&gt;
+&lt;word-counter id="footer-counter"&gt;&lt;/word-counter&gt;
+
+&lt;script&gt;
+// Get reference to the word counter
+const counter = document.getElementById('footer-counter');
+
+// Set target to a specific element
+counter.setTarget(document.getElementById('my-textarea'));
+
+// Set target by ID (useful when element might not exist yet)
+counter.setTargetById('dynamic-element');
+
+// Switch to different element
+counter.setTarget(document.getElementById('different-element'));
+
+// Clear target
+counter.setTarget(null);
+&lt;/script&gt;</code></pre>
+        </div>
     </accordion-component>
 
     <accordion-component title="Usage">
@@ -22,8 +56,9 @@
         </div>
     </accordion-component>
 
-    <accordion-component title="Properties">
+    <accordion-component title="Properties & Methods">
         <div slot="content">
+            <h4>Attributes</h4>
             <table class="props-table">
                 <thead>
                     <tr>
@@ -37,6 +72,29 @@
                         <td>document</td>
                         <td>string</td>
                         <td>ID of the element to attach to (input, textarea, or other)</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4>Methods</h4>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Parameters</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>setTarget(element)</td>
+                        <td>HTMLElement | null</td>
+                        <td>Programmatically set the target element to monitor</td>
+                    </tr>
+                    <tr>
+                        <td>setTargetById(id)</td>
+                        <td>string | null</td>
+                        <td>Set the target element by ID (useful for dynamic elements)</td>
                     </tr>
                 </tbody>
             </table>
@@ -153,6 +211,79 @@
 </style>
 
 <script>
+    let currentElementId = 0;
+    
+    function createDynamicElement() {
+        const container = document.getElementById('dynamic-container');
+        const counter = document.getElementById('footer-counter');
+        
+        // Clear existing content
+        container.innerHTML = '';
+        
+        // Create new textarea
+        currentElementId++;
+        const textarea = document.createElement('textarea');
+        textarea.id = `dynamic-element-${currentElementId}`;
+        textarea.rows = 3;
+        textarea.style.width = '100%';
+        textarea.placeholder = 'Type something here...';
+        textarea.value = 'This is a dynamically created element!';
+        
+        container.appendChild(textarea);
+        
+        // Set the word counter to monitor this new element
+        counter.setTarget(textarea);
+    }
+    
+    function switchToInput() {
+        const container = document.getElementById('dynamic-container');
+        const counter = document.getElementById('footer-counter');
+        
+        // Clear existing content
+        container.innerHTML = '';
+        
+        // Create new input
+        currentElementId++;
+        const input = document.createElement('input');
+        input.id = `dynamic-element-${currentElementId}`;
+        input.type = 'text';
+        input.style.width = '100%';
+        input.placeholder = 'Type in this input...';
+        input.value = 'This is an input field';
+        
+        container.appendChild(input);
+        
+        // Set the word counter to monitor this input
+        counter.setTarget(input);
+    }
+    
+    function switchToTextarea() {
+        const container = document.getElementById('dynamic-container');
+        const counter = document.getElementById('footer-counter');
+        
+        // Clear existing content
+        container.innerHTML = '';
+        
+        // Create new textarea
+        currentElementId++;
+        const textarea = document.createElement('textarea');
+        textarea.id = `dynamic-element-${currentElementId}`;
+        textarea.rows = 4;
+        textarea.style.width = '100%';
+        textarea.placeholder = 'Type in this textarea...';
+        textarea.value = 'This is a textarea with multiple\nlines of content\nfor word counting';
+        
+        container.appendChild(textarea);
+        
+        // Set the word counter to monitor this textarea
+        counter.setTarget(textarea);
+    }
+    
+    function clearTarget() {
+        const counter = document.getElementById('footer-counter');
+        counter.setTarget(null);
+    }
+
     $i.ready(function(){
         $i.SEO.update({
             title: "Word Counter Component",

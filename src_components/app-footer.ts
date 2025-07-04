@@ -9,6 +9,21 @@ class AppFooter extends HTMLElement {
     private rightSection: HTMLElement;
     private styleElement: HTMLStyleElement;
     private itemHandlers: WeakMap<HTMLElement, boolean> = new WeakMap();
+    private isProcessing: boolean = false;
+    private languageItem: HTMLElement | null = null;
+    private availableLanguages = [
+        { code: 'en-us', name: 'English (US)', flag: '🇺🇸' },
+        { code: 'en-gb', name: 'English (UK)', flag: '🇬🇧' },
+        { code: 'es-es', name: 'Español (España)', flag: '🇪🇸' },
+        { code: 'fr-fr', name: 'Français (France)', flag: '🇫🇷' },
+        { code: 'de-de', name: 'Deutsch (Deutschland)', flag: '🇩🇪' },
+        { code: 'it-it', name: 'Italiano (Italia)', flag: '🇮🇹' },
+        { code: 'ja-jp', name: '日本語 (日本)', flag: '🇯🇵' },
+        { code: 'ko-kr', name: '한국어 (대한민국)', flag: '🇰🇷' },
+        { code: 'zh-cn', name: '中文 (简体)', flag: '🇨🇳' },
+        { code: 'pt-br', name: 'Português (Brasil)', flag: '🇧🇷' }
+    ];
+    private currentLanguage = 'en-us';
 
     constructor() {
         super();
@@ -32,6 +47,9 @@ class AppFooter extends HTMLElement {
         this.rightSection = document.createElement('div');
         this.rightSection.className = 'app-footer-section app-footer-right';
         this.container.appendChild(this.rightSection);
+
+        // Initialize language selection
+        this.initializeLanguageSelection();
     }
 
     static get observedAttributes() {
@@ -53,26 +71,90 @@ class AppFooter extends HTMLElement {
             this.classList.add('styled');
         });
         
+        // Restore saved language from localStorage
+        const savedLanguage = localStorage.getItem('app-footer-language');
+        if (savedLanguage && this.availableLanguages.find(lang => lang.code === savedLanguage)) {
+            this.currentLanguage = savedLanguage;
+            // Update the language item if it exists
+            if (this.languageItem) {
+                const lang = this.availableLanguages.find(l => l.code === savedLanguage);
+                if (lang) {
+                    const flag = this.languageItem.querySelector('.language-flag');
+                    const code = this.languageItem.querySelector('.language-code');
+                    if (flag) flag.textContent = lang.flag;
+                    if (code) code.textContent = lang.code.toUpperCase();
+                }
+            }
+        }
+        
         // Process existing footer items
         this.processFooterItems();
         
-        // Add mutation observer to handle dynamically added items
+        // Simple observer for child list changes only
         const observer = new MutationObserver((mutations) => {
-            let needsProcessing = false;
-            
             for (const mutation of mutations) {
                 if (mutation.type === 'childList') {
-                    needsProcessing = true;
+                    this.processFooterItems();
                     break;
                 }
             }
-            
-            if (needsProcessing) {
-                this.processFooterItems();
-            }
         });
         
-        observer.observe(this, { childList: true, subtree: false });
+        observer.observe(this, { 
+            childList: true, 
+            subtree: false
+        });
+        
+        // Observe attribute changes on footer items using event delegation
+        this.addEventListener('DOMAttrModified', this.handleAttributeChange.bind(this));
+        
+        // For modern browsers, use MutationObserver on footer items specifically
+        this.observeFooterItemAttributes();
+    }
+
+    private observeFooterItemAttributes() {
+        const footerItems = this.querySelectorAll('[footer-item], .app-footer-item');
+        
+        footerItems.forEach(item => {
+            if (item instanceof HTMLElement && !item.hasAttribute('data-observed')) {
+                const observer = new MutationObserver((mutations) => {
+                    for (const mutation of mutations) {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'type') {
+                            this.updateFooterItemType(item as HTMLElement);
+                        }
+                    }
+                });
+                
+                observer.observe(item, {
+                    attributes: true,
+                    attributeFilter: ['type']
+                });
+                
+                item.setAttribute('data-observed', 'true');
+            }
+        });
+    }
+
+    private updateFooterItemType(item: HTMLElement) {
+        const newType = item.getAttribute('type') || 'info';
+        
+        // Remove all type classes
+        item.classList.remove('app-footer-info', 'app-footer-button', 'app-footer-warning', 'app-footer-error');
+        
+        // Add the new type class
+        item.classList.add(`app-footer-${newType}`);
+        
+        // Handle button-specific behavior
+        if (newType === 'button' && !this.itemHandlers.has(item)) {
+            this.makeItemInteractive(item);
+        }
+    }
+
+    private handleAttributeChange(event: any) {
+        // Fallback for older browsers
+        if (event.attrName === 'type') {
+            this.updateFooterItemType(event.target);
+        }
     }
 
     /**
@@ -192,22 +274,33 @@ class AppFooter extends HTMLElement {
         }
     }
 
+    /**
+     * Public method to re-process footer items (useful after manual DOM changes)
+     */
+    public refreshItems(): void {
+        this.processFooterItems();
+    }
+
     private processFooterItems() {
-        // Clear sections first
-        this.leftSection.innerHTML = '';
-        this.rightSection.innerHTML = '';
-        
         // Process child elements with app-footer-item class or footer-item attribute
-        const items = Array.from(this.querySelectorAll('[footer-item], .app-footer-item'))
-            .filter(el => el.parentElement === this); // Only direct children
+        // Collect items from both direct children AND items already in sections
+        const directChildren = Array.from(this.querySelectorAll('[footer-item], .app-footer-item'))
+            .filter(el => el.parentElement === this);
         
-        items.forEach(item => {
+        const sectionItems = Array.from(this.querySelectorAll('[footer-item], .app-footer-item'))
+            .filter(el => el.parentElement === this.leftSection || el.parentElement === this.rightSection);
+        
+        // Combine both sets, avoiding duplicates
+        const allItems = [...directChildren, ...sectionItems.filter(item => !directChildren.includes(item))];
+        
+        // Clear sections only if we have items to process
+        if (allItems.length > 0) {
+            this.leftSection.innerHTML = '';
+            this.rightSection.innerHTML = '';
+        }
+        
+        allItems.forEach(item => {
             if (item instanceof HTMLElement) {
-                // Skip if already processed and in the correct container
-                if (item.parentElement === this.leftSection || item.parentElement === this.rightSection) {
-                    return;
-                }
-                
                 // Determine position
                 const position = item.getAttribute('position') || 'left';
                 
@@ -216,12 +309,17 @@ class AppFooter extends HTMLElement {
                     item.classList.add('app-footer-item');
                 }
                 
-                // Determine type
+                // Determine type and only add class if not already present
                 const type = item.getAttribute('type') || 'info';
-                item.classList.add(`app-footer-${type}`);
+                const typeClass = `app-footer-${type}`;
+                if (!item.classList.contains(typeClass)) {
+                    // Remove other type classes first
+                    item.classList.remove('app-footer-info', 'app-footer-button', 'app-footer-warning', 'app-footer-error');
+                    item.classList.add(typeClass);
+                }
                 
-                // Make button items interactive
-                if (type === 'button' || item.getAttribute('role') === 'button') {
+                // Make button items interactive - but only if not already interactive
+                if ((type === 'button' || item.getAttribute('role') === 'button') && !this.itemHandlers.has(item)) {
                     this.makeItemInteractive(item);
                 }
                 
@@ -233,9 +331,17 @@ class AppFooter extends HTMLElement {
                 }
             }
         });
+        
+        // Set up attribute observation for newly processed items
+        this.observeFooterItemAttributes();
     }
     
     private makeItemInteractive(item: HTMLElement) {
+        // Prevent processing the same item multiple times
+        if (this.itemHandlers.has(item)) {
+            return;
+        }
+        
         if (!item.getAttribute('role')) {
             item.setAttribute('role', 'button');
         }
@@ -244,30 +350,28 @@ class AppFooter extends HTMLElement {
             item.setAttribute('tabindex', '0');
         }
         
-        // Add click handler if not already present
-        if (!this.itemHandlers.has(item)) {
-            item.addEventListener('click', (e) => {
-                this.dispatchEvent(new CustomEvent('app-footer-item-click', {
-                    detail: {
-                        text: item.textContent?.trim() || '',
-                        element: item
-                    },
-                    bubbles: true,
-                    composed: true
-                }));
-            });
-            
-            // Add keyboard accessibility
-            item.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    item.click();
-                }
-            });
-            
-            // Mark as having a click handler
-            this.itemHandlers.set(item, true);
-        }
+        // Add click handler
+        item.addEventListener('click', (e) => {
+            this.dispatchEvent(new CustomEvent('app-footer-item-click', {
+                detail: {
+                    text: item.textContent?.trim() || '',
+                    element: item
+                },
+                bubbles: true,
+                composed: true
+            }));
+        });
+        
+        // Add keyboard accessibility
+        item.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                item.click();
+            }
+        });
+        
+        // Mark as having a click handler (this prevents re-processing)
+        this.itemHandlers.set(item, true);
     }
 
     private getStyles(): string {
@@ -392,7 +496,240 @@ class AppFooter extends HTMLElement {
                 background-color: var(--app-footer-error-bg);
                 color: var(--app-footer-error-color);
             }
+            
+            /* Language selector specific styles */
+            app-footer .language-selector {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                min-width: 60px;
+                cursor: pointer;
+                user-select: none;
+            }
+            
+            app-footer .language-selector .language-flag {
+                font-size: 14px;
+                width: auto;
+                height: auto;
+                margin: 0;
+            }
+            
+            app-footer .language-selector .language-code {
+                font-size: 11px;
+                font-weight: 500;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+            }
+            
+            app-footer .language-selector:hover {
+                background-color: var(--app-footer-hover-bg);
+            }
+            
+            /* Dropdown menu language item styles */
+            .dropdown-item .language-flag {
+                margin-right: 8px;
+                font-size: 16px;
+            }
+            
+            /* Active language item in dropdown */
+            .dropdown-item.active {
+                background-color: rgba(0, 150, 255, 0.2);
+                border-left: 3px solid #0096ff;
+                font-weight: 600;
+            }
+            
+            .dropdown-item.active .language-flag {
+                opacity: 1;
+            }
         `;
+    }
+
+    private initializeLanguageSelection() {
+        // Just create the language display item in the footer
+        // The dropdown will be built dynamically when needed
+        this.createLanguageItem();
+    }
+
+    private createLanguageItem() {
+        const currentLang = this.availableLanguages.find(lang => lang.code === this.currentLanguage);
+        if (!currentLang) return;
+
+        this.languageItem = document.createElement('div');
+        this.languageItem.className = 'app-footer-item app-footer-button language-selector';
+        this.languageItem.setAttribute('position', 'right');
+        this.languageItem.setAttribute('type', 'button');
+        this.languageItem.setAttribute('role', 'button');
+        this.languageItem.setAttribute('tabindex', '0');
+        this.languageItem.title = 'Select Language';
+
+        // Add flag and language code
+        const icon = document.createElement('span');
+        icon.className = 'app-footer-icon language-flag';
+        icon.textContent = currentLang.flag;
+        this.languageItem.appendChild(icon);
+
+        const text = document.createElement('span');
+        text.className = 'app-footer-text language-code';
+        text.textContent = currentLang.code.toUpperCase();
+        this.languageItem.appendChild(text);
+
+        // Add click handler to build and open dropdown dynamically
+        this.languageItem.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            this.openLanguageDropdown();
+        });
+
+        // Add keyboard accessibility
+        this.languageItem.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.openLanguageDropdown();
+            }
+        });
+
+        // Add to right section
+        this.rightSection.appendChild(this.languageItem);
+        this.itemHandlers.set(this.languageItem, true);
+    }
+
+    /**
+     * Dynamically creates and opens the language dropdown menu
+     */
+    private openLanguageDropdown() {
+        // Check if dropdown already exists and remove it
+        const existingDropdown = document.querySelector('dropdown-menu[menu-id="language-menu"]');
+        if (existingDropdown) {
+            existingDropdown.remove();
+        }
+
+        // Create the language dropdown menu dynamically
+        const languageDropdown = document.createElement('dropdown-menu');
+        languageDropdown.setAttribute('menu-id', 'language-menu');
+        languageDropdown.setAttribute('position', 'center');
+
+        // Build language options dynamically
+        this.availableLanguages.forEach(lang => {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.setAttribute('data-action', 'select-language');
+            item.setAttribute('data-language', lang.code);
+            
+            // Add active state for current language
+            if (lang.code === this.currentLanguage) {
+                item.classList.add('active');
+            }
+            
+            item.innerHTML = `<span class="language-flag">${lang.flag}</span> ${lang.name}`;
+            languageDropdown.appendChild(item);
+        });
+
+        // Add to page
+        document.body.appendChild(languageDropdown);
+
+        // Listen for language selection (one-time listener)
+        const handleLanguageSelect = (e: any) => {
+            const { item, attributes } = e.detail;
+            if (attributes['data-action'] === 'select-language') {
+                const languageCode = attributes['data-language'];
+                this.setLanguage(languageCode);
+                
+                // Remove the dropdown after selection
+                setTimeout(() => {
+                    if (languageDropdown.parentElement) {
+                        languageDropdown.remove();
+                    }
+                }, 100);
+            }
+            
+            // Remove the event listener
+            languageDropdown.removeEventListener('dropdown-menu-item-click', handleLanguageSelect);
+        };
+
+        languageDropdown.addEventListener('dropdown-menu-item-click', handleLanguageSelect);
+
+        // Open the dropdown
+        setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('open-menu', {
+                detail: { 
+                    id: 'language-menu', 
+                    trigger: this.languageItem 
+                }
+            }));
+        }, 10);
+    }
+
+    /**
+     * Sets the current language and updates the display
+     * @param languageCode The language code to set (e.g., 'en-us', 'fr-fr')
+     */
+    public setLanguage(languageCode: string) {
+        const lang = this.availableLanguages.find(l => l.code === languageCode);
+        if (!lang) return;
+
+        this.currentLanguage = languageCode;
+        
+        // Update the language item display
+        if (this.languageItem) {
+            const flag = this.languageItem.querySelector('.language-flag');
+            const code = this.languageItem.querySelector('.language-code');
+            
+            if (flag) flag.textContent = lang.flag;
+            if (code) code.textContent = lang.code.toUpperCase();
+        }
+
+        // Dispatch language change event
+        this.dispatchEvent(new CustomEvent('language-changed', {
+            detail: {
+                language: languageCode,
+                languageName: lang.name,
+                previousLanguage: this.currentLanguage
+            },
+            bubbles: true,
+            composed: true
+        }));
+
+        // Store in localStorage for persistence
+        localStorage.setItem('app-footer-language', languageCode);
+    }
+
+    /**
+     * Gets the current language code
+     */
+    public getCurrentLanguage(): string {
+        return this.currentLanguage;
+    }
+
+    /**
+     * Gets the current language object
+     */
+    public getCurrentLanguageInfo() {
+        return this.availableLanguages.find(lang => lang.code === this.currentLanguage);
+    }
+
+    /**
+     * Adds a new language option to the available languages
+     */
+    public addLanguage(code: string, name: string, flag: string) {
+        if (!this.availableLanguages.find(lang => lang.code === code)) {
+            this.availableLanguages.push({ code, name, flag });
+            // No need to update dropdown since it's built dynamically
+        }
+    }
+
+    /**
+     * Removes a language option from available languages
+     */
+    public removeLanguage(code: string) {
+        const index = this.availableLanguages.findIndex(lang => lang.code === code);
+        if (index > -1) {
+            this.availableLanguages.splice(index, 1);
+            // If removing current language, default to first available
+            if (this.currentLanguage === code && this.availableLanguages.length > 0) {
+                this.setLanguage(this.availableLanguages[0].code);
+            }
+        }
     }
 }
 

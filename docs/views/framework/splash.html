@@ -55,6 +55,22 @@
             <p>Bind data to specific attributes using the format <code>attribute=property</code>:</p>
             <pre><code class="language-html">&lt;img data-splash="src=imageUrl"&gt;
 &lt;a data-splash="href=profileUrl"&gt;Profile&lt;/a&gt;</code></pre>
+
+            <h4>Select Elements</h4>
+            <p>For select dropdowns, use <code>data-splashtemplate</code> with option elements:</p>
+            <pre><code class="language-html">&lt;select id="userSelect"&gt;
+    &lt;option data-splashtemplate data-splash="value=id,text=name"&gt;&lt;/option&gt;
+&lt;/select&gt;
+
+&lt;script&gt;
+    const selectData = [
+        { id: 1, name: 'John Doe' },
+        { id: 2, name: 'Jane Smith' },
+        { id: 3, name: 'Bob Johnson' }
+    ];
+    
+    $i.splash.map('#userSelect', selectData);
+&lt;/script&gt;</code></pre>
         </div>
     </accordion-component>
 
@@ -81,6 +97,10 @@
                         <td>Sets the value property</td>
                     </tr>
                     <tr>
+                        <td>select option</td>
+                        <td>Sets value attribute and textContent for text binding</td>
+                    </tr>
+                    <tr>
                         <td>Other elements</td>
                         <td>Sets the textContent</td>
                     </tr>
@@ -98,4 +118,26 @@
 });</code></pre>
         </div>
     </accordion-component>
+
+    <accordion-component title="Live Examples">
+        <div slot="content">
+            <h4>Select Dropdown Test</h4>
+            <p>Test the select dropdown functionality:</p>
+            <select id="testSelect" data-splashtemplate>
+                 <option  data-splash="value=id,name"></option>
+             </select>
+             <button id="btnTestSelect" style="margin-left: 10px; padding: 5px 10px;">Load Options</button>
+             
+             <h4>User List Test</h4>
+             <p>Test the template cloning functionality:</p>
+             <div id="testUsers" style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+                 <div data-splashtemplate style="padding: 5px; border-bottom: 1px solid #eee;">
+                     <strong data-splash="name"></strong> - <span data-splash="email"></span>
+                 </div>
+             </div>
+             <button id="btnTestUsers" style="padding: 5px 10px;">Load Users</button>
+        </div>
+    </accordion-component>
 </div>
+
+

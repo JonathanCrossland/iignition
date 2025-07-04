@@ -55,19 +55,51 @@ class FolderGroup extends HTMLElement {
         
         this.menuClickHandler = (e: Event) => {
             e.stopPropagation();
-            console.log('Folder group menu clicked:', this.getAttribute('label'));
+            const originalTarget = e.target as HTMLElement;
+            const currentTarget = e.currentTarget as HTMLElement;
+            
+            console.log('=== FOLDER GROUP MENU CLICK DEBUG ===');
+            console.log('Group label:', this.getAttribute('label'));
+            console.log('Original target:', originalTarget);
+            console.log('Current target:', currentTarget);
+            console.log('Original target tagName:', originalTarget.tagName);
+            console.log('Original target id:', originalTarget.id);
+            console.log('Original target className:', originalTarget.className);
+            console.log('Original target dataset:', originalTarget.dataset);
+            console.log('Original target attributes:', Array.from(originalTarget.attributes).map(a => `${a.name}="${a.value}"`));
+            
+            // Check if we need to walk up to find the actual menu item
+            let actualMenuElement = originalTarget;
+            let walkElement = originalTarget;
+            
+            // Walk up the DOM tree to find an element with data-action or id
+            while (walkElement && walkElement !== currentTarget) {
+                if (walkElement.hasAttribute('data-action') || walkElement.id) {
+                    actualMenuElement = walkElement;
+                    console.log('Found menu element with data-action/id:', actualMenuElement);
+                    break;
+                }
+                walkElement = walkElement.parentElement as HTMLElement;
+            }
+            
+            console.log('Final menu element:', actualMenuElement);
+            console.log('Final element id:', actualMenuElement.id);
+            console.log('Final element dataset:', actualMenuElement.dataset);
+            console.log('Final element data-action:', actualMenuElement.getAttribute('data-action'));
+            console.log('=====================================');
             
             // Dispatch the menu click event
             const event = new CustomEvent('folder-group-menu-click', { 
                 detail: { 
                     label: this.getAttribute('label'),
-                    element: this
+                    element: this,
+                    clickedElement: actualMenuElement
                 }, 
                 bubbles: true, 
                 composed: true 
             });
             
-            console.log('Dispatching folder-group-menu-click event', event);
+            console.log('Dispatching folder-group-menu-click event with detail:', event.detail);
             this.dispatchEvent(event);
         };
     }
@@ -120,6 +152,9 @@ class FolderGroup extends HTMLElement {
                 this.processChildren();
             });
         }
+
+        // Restore collapsed state from saved data
+        this.restoreState();
     }
     
     disconnectedCallback() {
@@ -178,6 +213,9 @@ class FolderGroup extends HTMLElement {
         }
         
         this.updateCollapse();
+
+        // Save the current collapsed state
+        this.saveState();
     }
 
     private updateCollapse() {
@@ -206,6 +244,9 @@ class FolderGroup extends HTMLElement {
         this.collapsed = false;
         this.removeAttribute('collapsed');
         this.updateCollapse();
+
+        // Save the current collapsed state
+        this.saveState();
     }
     
     /**
@@ -216,6 +257,9 @@ class FolderGroup extends HTMLElement {
         this.collapsed = true;
         this.setAttribute('collapsed', '');
         this.updateCollapse();
+
+        // Save the current collapsed state
+        this.saveState();
     }
 
     private getStyles(): string {
@@ -304,6 +348,50 @@ class FolderGroup extends HTMLElement {
                 min-height: 1em;
             }
         `;
+    }
+
+    /**
+     * Get the state key for this folder group
+     */
+    private getStateKey(): string {
+        const label = this.getAttribute('label') || 'unnamed';
+        const dock = this.getAttribute('dock') || 'top';
+        return `folder-group-state-${dock}-${label}`;
+    }
+
+    /**
+     * Save the current collapsed state
+     */
+    private saveState() {
+        const state = {
+            collapsed: this.collapsed,
+            label: this.getAttribute('label'),
+            dock: this.getAttribute('dock')
+        };
+        localStorage.setItem(this.getStateKey(), JSON.stringify(state));
+    }
+
+    /**
+     * Restore collapsed state from saved data
+     */
+    private restoreState() {
+        const saved = localStorage.getItem(this.getStateKey());
+        if (!saved) return;
+        
+        try {
+            const state = JSON.parse(saved);
+            if (typeof state.collapsed === 'boolean') {
+                this.collapsed = state.collapsed;
+                if (this.collapsed) {
+                    this.setAttribute('collapsed', '');
+                } else {
+                    this.removeAttribute('collapsed');
+                }
+                this.updateCollapse();
+            }
+        } catch (e) {
+            console.warn('Failed to parse saved folder-group state:', e);
+        }
     }
 }
 

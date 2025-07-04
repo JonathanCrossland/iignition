@@ -98,9 +98,150 @@
                             alert('Clicked: ' + e.detail.text);
                         });
                     }
+                    
+                    // Test setAttribute functionality
+                    console.log('Setting up setAttribute test...');
+                    
+                    // Test changing the first demo footer item to warning
+                    setTimeout(() => {
+                        const demoFooter = document.getElementById('demo-footer');
+                        const firstItem = demoFooter.querySelector('[footer-item]');
+                        if (firstItem) {
+                            console.log('Testing setAttribute on:', firstItem);
+                            console.log('Original type:', firstItem.getAttribute('type'));
+                            console.log('Original classes:', firstItem.className);
+                            
+                            // Change to warning
+                            firstItem.setAttribute('type', 'warning');
+                            
+                            setTimeout(() => {
+                                console.log('After setAttribute - type:', firstItem.getAttribute('type'));
+                                console.log('After setAttribute - classes:', firstItem.className);
+                            }, 100);
+                        }
+                    }, 1000);
+                });
+                
+                // Add test buttons for manual testing
+                function testSetAttributeWarning() {
+                    const demoFooter = document.getElementById('demo-footer');
+                    const firstItem = demoFooter.querySelector('[footer-item]');
+                    if (firstItem) {
+                        console.log('Manual test: Setting type to warning');
+                        firstItem.setAttribute('type', 'warning');
+                        setTimeout(() => {
+                            console.log('Result - type:', firstItem.getAttribute('type'));
+                            console.log('Result - classes:', firstItem.className);
+                        }, 50);
+                    }
+                }
+                
+                function testSetAttributeError() {
+                    const demoFooter = document.getElementById('demo-footer');
+                    const firstItem = demoFooter.querySelector('[footer-item]');
+                    if (firstItem) {
+                        console.log('Manual test: Setting type to error');
+                        firstItem.setAttribute('type', 'error');
+                        setTimeout(() => {
+                            console.log('Result - type:', firstItem.getAttribute('type'));
+                            console.log('Result - classes:', firstItem.className);
+                        }, 50);
+                    }
+                }
+                
+                function testUpdateItemType() {
+                    const demoFooter = document.getElementById('demo-footer');
+                    const firstItem = demoFooter.querySelector('[footer-item]');
+                    if (firstItem && demoFooter.updateItemType) {
+                        console.log('Manual test: Using updateItemType method');
+                        demoFooter.updateItemType(firstItem, 'warning');
+                        setTimeout(() => {
+                            console.log('Result - type:', firstItem.getAttribute('type'));
+                            console.log('Result - classes:', firstItem.className);
+                        }, 50);
+                    }
+                }
+            </script>
+            
+            <h3>Test setAttribute Functionality</h3>
+            <div style="margin: 10px 0; padding: 10px; background-color: #f5f5f5; border-radius: 5px;">
+                <p>Test the setAttribute functionality on the first footer item above:</p>
+                <button onclick="testSetAttributeWarning()" style="margin: 5px;">Set to Warning (setAttribute)</button>
+                <button onclick="testSetAttributeError()" style="margin: 5px;">Set to Error (setAttribute)</button>
+                <button onclick="testUpdateItemType()" style="margin: 5px;">Set to Warning (updateItemType method)</button>
+                <p><small>Check browser console for detailed logs</small></p>
+            </div>
+            
+            <h3>Language Selection Feature</h3>
+            <p>The app-footer component includes built-in language selection functionality with a dropdown menu:</p>
+            
+            <div class="example-container footer-example">
+                <app-footer id="language-demo"></app-footer>
+            </div>
+            
+            <script>
+                // Language selection demo
+                window.addEventListener('DOMContentLoaded', () => {
+                    const languageFooter = document.getElementById('language-demo');
+                    if (languageFooter) {
+                        // Add some regular items
+                        languageFooter.addItem('Ready', '<span class="circle-icon"></span>', 'left', 'info');
+                        languageFooter.addItem('main', null, 'left', 'button');
+                        
+                        // Listen for language changes
+                        languageFooter.addEventListener('language-changed', (e) => {
+                            console.log('Language changed to:', e.detail.language, e.detail.languageName);
+                            alert(`Language changed to: ${e.detail.languageName} (${e.detail.language})`);
+                        });
+                        
+                        // Example: Set language programmatically
+                        setTimeout(() => {
+                            languageFooter.setLanguage('fr-fr');
+                        }, 2000);
+                    }
                 });
             </script>
             
+            <h4>Language Selection API</h4>
+            <pre><code class="language-javascript">// Get the current language
+const currentLang = footer.getCurrentLanguage(); // Returns: 'en-us'
+
+// Get detailed language info
+const langInfo = footer.getCurrentLanguageInfo(); 
+// Returns: { code: 'en-us', name: 'English (US)', flag: '🇺🇸' }
+
+// Set language programmatically
+footer.setLanguage('fr-fr');
+
+// Add custom language (dropdown is built dynamically when opened)
+footer.addLanguage('nl-nl', 'Nederlands (Nederland)', '🇳🇱');
+
+// Remove a language
+footer.removeLanguage('zh-cn');
+
+// Listen for language changes
+footer.addEventListener('language-changed', (e) => {
+    console.log('Language:', e.detail.language);
+    console.log('Name:', e.detail.languageName);
+    console.log('Previous:', e.detail.previousLanguage);
+});</code></pre>
+
+            <h4>Available Languages</h4>
+            <ul>
+                <li>🇺🇸 English (US) - en-us</li>
+                <li>🇬🇧 English (UK) - en-gb</li>
+                <li>🇪🇸 Español (España) - es-es</li>
+                <li>🇫🇷 Français (France) - fr-fr</li>
+                <li>🇩🇪 Deutsch (Deutschland) - de-de</li>
+                <li>🇮🇹 Italiano (Italia) - it-it</li>
+                <li>🇯🇵 日本語 (日本) - ja-jp</li>
+                <li>🇰🇷 한국어 (대한민국) - ko-kr</li>
+                <li>🇨🇳 中文 (简体) - zh-cn</li>
+                <li>🇧🇷 Português (Brasil) - pt-br</li>
+            </ul>
+            
+            <p><strong>Note:</strong> The language selection is automatically saved to localStorage and restored on page load. The language selector appears automatically in the right section of the footer.</p>
+
             <h3>HTML Structure</h3>
             <pre><code class="language-html">&lt;app-footer&gt;
     &lt;div footer-item position="left" type="info"&gt;

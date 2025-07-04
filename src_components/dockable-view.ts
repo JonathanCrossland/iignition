@@ -24,6 +24,12 @@ class DockableView extends HTMLElement {
     private activeStackedWindow: HTMLElement | null = null;
     private locked: boolean = false;
     private allowStacking: boolean = true;
+    private dropZone: HTMLElement | null = null;
+    private draggedWindow: HTMLElement | null = null;
+    private dropTarget: HTMLElement | null = null;
+    private dropSide: 'left' | 'right' | 'over' | null = null;
+    private dragPreview: HTMLElement | null = null;
+    private isResizing: boolean = false;
 
     constructor() {
         super();
@@ -48,6 +54,10 @@ class DockableView extends HTMLElement {
         // Add resize event listeners
         document.addEventListener('mousemove', this.handleResize.bind(this));
         document.addEventListener('mouseup', this.endResize.bind(this));
+        
+        // Add touch resize event listeners
+        document.addEventListener('touchmove', this.handleResize.bind(this), { passive: false });
+        document.addEventListener('touchend', this.endResize.bind(this));
     }
 
     static get observedAttributes() {
@@ -192,6 +202,8 @@ class DockableView extends HTMLElement {
                                 }
                             }
                         }
+                        // Save state after title changes
+                        this.saveState();
                     }
                 }
             }
@@ -420,7 +432,7 @@ class DockableView extends HTMLElement {
             }
         });
 
-        // Wait for layout to be stable before stacking windows
+        // Wait for layout to be stable before stacking windows and restoring state
         requestAnimationFrame(() => {
             // Process stacked relationships
             children.forEach(child => {
@@ -438,16 +450,27 @@ class DockableView extends HTMLElement {
             if (this.locked) {
                 this.updateLockedState();
             }
+            
+            // Restore state AFTER everything is set up and stable
+            setTimeout(() => {
+                this.restoreState();
+            }, 100);
         });
         
         // Add global event listeners
         document.addEventListener('mousemove', this.handleDrag.bind(this));
         document.addEventListener('mouseup', this.handleDrop.bind(this));
+        
+        // Add touch event listeners
+        document.addEventListener('touchmove', this.handleDrag.bind(this), { passive: false });
+        document.addEventListener('touchend', this.handleDrop.bind(this));
     }
 
     disconnectedCallback() {
         document.removeEventListener('mousemove', this.handleDrag.bind(this));
         document.removeEventListener('mouseup', this.handleDrop.bind(this));
+        document.removeEventListener('touchmove', this.handleDrag.bind(this));
+        document.removeEventListener('touchend', this.handleDrop.bind(this));
     }
 
     private makeDockable(element: HTMLElement) {
@@ -527,6 +550,15 @@ class DockableView extends HTMLElement {
                 if (this.locked) return;
                 this.startDrag(e, element);
             });
+            
+            // Add touch support
+            header.addEventListener('touchstart', (e: TouchEvent) => {
+                // Don't start drag if locked
+                if (this.locked) return;
+                // Prevent default to avoid scrolling
+                e.preventDefault();
+                this.startDrag(e, element);
+            }, { passive: false });
         }
         
         // Add control handlers
@@ -543,7 +575,14 @@ class DockableView extends HTMLElement {
         }
     }
 
-    private startDrag(e: MouseEvent, window: HTMLElement) {
+    private getEventCoordinates(e: MouseEvent | TouchEvent): { clientX: number, clientY: number } {
+        if ('touches' in e && e.touches.length > 0) {
+            return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+        }
+        return { clientX: (e as MouseEvent).clientX, clientY: (e as MouseEvent).clientY };
+    }
+
+    private startDrag(e: MouseEvent | TouchEvent, window: HTMLElement) {
         // Don't start drag if locked
         if (this.locked) return;
         
@@ -562,6 +601,7 @@ class DockableView extends HTMLElement {
         this.draggingWindow = window;
         const containerRect = this.container.getBoundingClientRect();
         const windowRect = window.getBoundingClientRect();
+        const coords = this.getEventCoordinates(e);
         
         // Save the exact state of the window
         this.dragStartState = {
@@ -574,10 +614,10 @@ class DockableView extends HTMLElement {
             flex: window.style.flex
         };
         
-        // Calculate offset from mouse to window edges
+        // Calculate offset from mouse/touch to window edges
         this.dragOffset = {
-            x: e.clientX - windowRect.left,
-            y: e.clientY - windowRect.top
+            x: coords.clientX - windowRect.left,
+            y: coords.clientY - windowRect.top
         };
 
         // Remove any existing transition class before starting drag
@@ -611,16 +651,17 @@ class DockableView extends HTMLElement {
         }
         
         // Set initial ghost position
-        const x = e.clientX - containerRect.left - this.dragOffset.x;
-        const y = e.clientY - containerRect.top - this.dragOffset.y;
+        const x = coords.clientX - containerRect.left - this.dragOffset.x;
+        const y = coords.clientY - containerRect.top - this.dragOffset.y;
         this.dragGhost.style.transform = `translate(${x}px, ${y}px)`;
     }
 
-    private findWindowUnderCursor(e: MouseEvent): HTMLElement | null {
+    private findWindowUnderCursor(e: MouseEvent | TouchEvent): HTMLElement | null {
         // If stacking is not allowed, return null to prevent stacking
         if (!this.allowStacking) return null;
 
-        const elements = document.elementsFromPoint(e.clientX, e.clientY);
+        const coords = this.getEventCoordinates(e);
+        const elements = document.elementsFromPoint(coords.clientX, coords.clientY);
         for (const element of elements) {
             // Check specifically for header elements
             if (element instanceof HTMLElement && 
@@ -1051,14 +1092,15 @@ class DockableView extends HTMLElement {
         });
     }
 
-    private handleDrag(e: MouseEvent) {
+    private handleDrag(e: MouseEvent | TouchEvent) {
         if (!this.draggingWindow || !this.dragGhost) return;
 
         const containerRect = this.container.getBoundingClientRect();
+        const coords = this.getEventCoordinates(e);
         
         // Update ghost position
-        const x = e.clientX - containerRect.left - this.dragOffset.x;
-        const y = e.clientY - containerRect.top - this.dragOffset.y;
+        const x = coords.clientX - containerRect.left - this.dragOffset.x;
+        const y = coords.clientY - containerRect.top - this.dragOffset.y;
         this.dragGhost.style.transform = `translate(${x}px, ${y}px)`;
 
         // Show dock preview if near edges
@@ -1084,14 +1126,15 @@ class DockableView extends HTMLElement {
         }
     }
 
-    private updateDockPreview(e: MouseEvent) {
+    private updateDockPreview(e: MouseEvent | TouchEvent) {
         if (!this.draggingWindow || !this.dockPreview) return;
 
         const containerRect = this.getBoundingClientRect();
+        const coords = this.getEventCoordinates(e);
         
         // Check if near left or right edge
-        const nearLeft = e.clientX < containerRect.left + 50;
-        const nearRight = e.clientX > containerRect.right - 50;
+        const nearLeft = coords.clientX < containerRect.left + 50;
+        const nearRight = coords.clientX > containerRect.right - 50;
         
         // Find if we're near a splitter
         const splitters = Array.from(this.container.children).filter(
@@ -1106,8 +1149,8 @@ class DockableView extends HTMLElement {
         if (!nearLeft && !nearRight) {
             for (const splitter of splitters) {
                 const splitterRect = splitter.getBoundingClientRect();
-                // Check if mouse is within 25px of splitter center
-                if (Math.abs(e.clientX - (splitterRect.left + splitterRect.width / 2)) < 25) {
+                // Check if mouse/touch is within 25px of splitter center
+                if (Math.abs(coords.clientX - (splitterRect.left + splitterRect.width / 2)) < 25) {
                     targetSplitter = splitter;
                     // Get the windows on either side of the splitter
                     let current = splitter.previousElementSibling;
@@ -1176,81 +1219,90 @@ class DockableView extends HTMLElement {
         // Always add resize functionality regardless of locked state
         splitter.addEventListener('mousedown', (e: MouseEvent) => this.startResize(e, splitter));
         
+        // Add touch support for resizing
+        splitter.addEventListener('touchstart', (e: TouchEvent) => {
+            e.preventDefault(); // Prevent scrolling
+            this.startResize(e, splitter);
+        }, { passive: false });
+        
         window.insertAdjacentElement('afterend', splitter);
     }
 
-    private startResize(e: MouseEvent, splitter: HTMLElement) {
-        // No longer checking for locked state here - splitters should work even when locked
-        
+    private startResize(e: MouseEvent | TouchEvent, splitter: HTMLElement) {
         e.preventDefault();
+        
+        this.isResizing = true;
         this.resizingSplitter = splitter;
+        this.resizeStartX = this.getEventCoordinates(e).clientX;
         
-        // Store the exact mouse position at the start of the drag
-        this.resizeStartX = e.clientX;
+        splitter.classList.add('resizing');
+        document.body.style.cursor = 'col-resize';
 
-        // Find the windows immediately before and after the splitter
-        const leftWindow = splitter.previousElementSibling as HTMLElement;
-        const rightWindow = splitter.nextElementSibling as HTMLElement;
-
-        this.adjacentWindows = {
-            left: leftWindow?.classList.contains('dockable-view-window') ? leftWindow : null,
-            right: rightWindow?.classList.contains('dockable-view-window') ? rightWindow : null
-        };
-
-        // Add resizing class to both windows
-        if (this.adjacentWindows.left) {
-            this.adjacentWindows.left.classList.add('resizing');
-        }
-        if (this.adjacentWindows.right) {
-            this.adjacentWindows.right.classList.add('resizing');
-        }
-
-        // Store initial positions and widths in pixels
-        if (this.adjacentWindows.left) {
-            const leftRect = this.adjacentWindows.left.getBoundingClientRect();
-            this.adjacentWindows.left.dataset.initialWidth = leftRect.width.toString();
-            
-            // Store active stacked window information if any
-            const leftStackedWindows = this.stackedWindows.get(this.adjacentWindows.left.id) || [];
-            if (leftStackedWindows.length > 0) {
-                // Find active stacked window if any
-                const activeStackedWindow = leftStackedWindows.find(win => 
-                    win.style.opacity === '1' && win.style.pointerEvents === 'auto'
-                );
-                if (activeStackedWindow) {
-                    this.adjacentWindows.left.dataset.hasActiveStacked = 'true';
-                    this.adjacentWindows.left.dataset.activeStackedId = activeStackedWindow.id;
-                }
+        // Find adjacent windows
+        let leftWindow: HTMLElement | null = null;
+        let rightWindow: HTMLElement | null = null;
+        
+        const allChildren = Array.from(this.container.children);
+        const splitterIndex = allChildren.indexOf(splitter);
+        
+        // Look backwards for the left window
+        for (let i = splitterIndex - 1; i >= 0; i--) {
+            const child = allChildren[i] as HTMLElement;
+            if (child.classList.contains('dockable-view-window') && !child.hasAttribute('stacked')) {
+                leftWindow = child;
+                break;
             }
         }
         
-        if (this.adjacentWindows.right) {
-            const rightRect = this.adjacentWindows.right.getBoundingClientRect();
-            this.adjacentWindows.right.dataset.initialWidth = rightRect.width.toString();
+        // Look forwards for the right window
+        for (let i = splitterIndex + 1; i < allChildren.length; i++) {
+            const child = allChildren[i] as HTMLElement;
+            if (child.classList.contains('dockable-view-window') && !child.hasAttribute('stacked')) {
+                rightWindow = child;
+                break;
+            }
+        }
+        
+        if (leftWindow && rightWindow) {
+            this.adjacentWindows = { left: leftWindow, right: rightWindow };
             
-            // Store active stacked window information if any
-            const rightStackedWindows = this.stackedWindows.get(this.adjacentWindows.right.id) || [];
-            if (rightStackedWindows.length > 0) {
-                // Find active stacked window if any
-                const activeStackedWindow = rightStackedWindows.find(win => 
+            // Store initial dimensions
+            leftWindow.dataset.initialWidth = leftWindow.getBoundingClientRect().width.toString();
+            rightWindow.dataset.initialWidth = rightWindow.getBoundingClientRect().width.toString();
+            
+            // Mark that these windows have active stacked windows (if applicable)
+            const leftStacked = this.stackedWindows.get(leftWindow.id);
+            const rightStacked = this.stackedWindows.get(rightWindow.id);
+            
+            if (leftStacked && leftStacked.length > 0) {
+                leftWindow.dataset.hasActiveStacked = 'true';
+                const activeStacked = leftStacked.find(win => 
                     win.style.opacity === '1' && win.style.pointerEvents === 'auto'
                 );
-                if (activeStackedWindow) {
-                    this.adjacentWindows.right.dataset.hasActiveStacked = 'true';
-                    this.adjacentWindows.right.dataset.activeStackedId = activeStackedWindow.id;
+                if (activeStacked) {
+                    leftWindow.dataset.activeStackedId = activeStacked.id;
+                }
+            }
+            
+            if (rightStacked && rightStacked.length > 0) {
+                rightWindow.dataset.hasActiveStacked = 'true';
+                const activeStacked = rightStacked.find(win => 
+                    win.style.opacity === '1' && win.style.pointerEvents === 'auto'
+                );
+                if (activeStacked) {
+                    rightWindow.dataset.activeStackedId = activeStacked.id;
                 }
             }
         }
-
-        document.body.style.cursor = 'ew-resize';
     }
 
-    private handleResize(e: MouseEvent) {
+    private handleResize(e: MouseEvent | TouchEvent) {
         if (!this.resizingSplitter || !this.adjacentWindows.left || !this.adjacentWindows.right) return;
 
         const containerWidth = this.container.offsetWidth;
         // Use the correct delta calculation
-        const deltaX = e.clientX - this.resizeStartX;
+        const coords = this.getEventCoordinates(e);
+        const deltaX = coords.clientX - this.resizeStartX;
 
         // Get all non-stacked windows in order
         const allWindows = Array.from(this.container.children).filter(
@@ -1374,111 +1426,43 @@ class DockableView extends HTMLElement {
 
     private endResize() {
         if (!this.resizingSplitter) return;
-        
-        // Remove resizing class from both windows
-        if (this.adjacentWindows.left) {
-            this.adjacentWindows.left.classList.remove('resizing');
-        }
-        if (this.adjacentWindows.right) {
-            this.adjacentWindows.right.classList.remove('resizing');
-        }
-        
-        // Re-sync stacked windows after resize to ensure they have the correct dimensions
-        if (this.adjacentWindows.left && this.adjacentWindows.left.dataset.needsSyncAfterResize === 'true') {
-            // Trigger a reflow and force recalculation of sizes
-            const leftRect = this.adjacentWindows.left.getBoundingClientRect();
-            
-            // Handle stacked windows for left window
-            const leftStackedWindows = this.stackedWindows.get(this.adjacentWindows.left.id) || [];
-            if (leftStackedWindows.length > 0) {
-                // Get container coordinates
-                const containerRect = this.container.getBoundingClientRect();
-                
-                // Find active stacked window if any
-                const activeWindow = leftStackedWindows.find(win => 
-                    win.style.opacity === '1' && win.style.pointerEvents === 'auto'
-                ) || null;
-                
-                // If we have an active window, update its position and size first
-                if (activeWindow) {
-                    activeWindow.style.position = 'absolute';
-                    activeWindow.style.left = `${leftRect.left - containerRect.left}px`;
-                    activeWindow.style.top = `${leftRect.top - containerRect.top}px`;
-                    activeWindow.style.width = this.adjacentWindows.left.style.width;
-                    activeWindow.style.height = `${leftRect.height}px`;
-                    activeWindow.style.flex = this.adjacentWindows.left.style.flex;
-                }
-                
-                // Now update all other stacked windows to match
-                leftStackedWindows.forEach(win => {
-                    if (win !== activeWindow) {
-                        win.style.position = 'absolute';
-                        win.style.left = `${leftRect.left - containerRect.left}px`;
-                        win.style.top = `${leftRect.top - containerRect.top}px`;
-                        win.style.width = this.adjacentWindows.left!.style.width;
-                        win.style.height = `${leftRect.height}px`;
-                        win.style.flex = this.adjacentWindows.left!.style.flex;
-                    }
-                });
-            }
-        }
-        
-        if (this.adjacentWindows.right && this.adjacentWindows.right.dataset.needsSyncAfterResize === 'true') {
-            // Trigger a reflow and force recalculation of sizes
-            const rightRect = this.adjacentWindows.right.getBoundingClientRect();
-            
-            // Handle stacked windows for right window
-            const rightStackedWindows = this.stackedWindows.get(this.adjacentWindows.right.id) || [];
-            if (rightStackedWindows.length > 0) {
-                // Get container coordinates
-                const containerRect = this.container.getBoundingClientRect();
-                
-                // Find active stacked window if any
-                const activeWindow = rightStackedWindows.find(win => 
-                    win.style.opacity === '1' && win.style.pointerEvents === 'auto'
-                ) || null;
-                
-                // If we have an active window, update its position and size first
-                if (activeWindow) {
-                    activeWindow.style.position = 'absolute';
-                    activeWindow.style.left = `${rightRect.left - containerRect.left}px`;
-                    activeWindow.style.top = `${rightRect.top - containerRect.top}px`;
-                    activeWindow.style.width = this.adjacentWindows.right.style.width;
-                    activeWindow.style.height = `${rightRect.height}px`;
-                    activeWindow.style.flex = this.adjacentWindows.right.style.flex;
-                }
-                
-                // Now update all other stacked windows to match
-                rightStackedWindows.forEach(win => {
-                    if (win !== activeWindow) {
-                        win.style.position = 'absolute';
-                        win.style.left = `${rightRect.left - containerRect.left}px`;
-                        win.style.top = `${rightRect.top - containerRect.top}px`;
-                        win.style.width = this.adjacentWindows.right!.style.width;
-                        win.style.height = `${rightRect.height}px`;
-                        win.style.flex = this.adjacentWindows.right!.style.flex;
-                    }
-                });
-            }
-        }
-        
-        // Clear stored data
-        if (this.adjacentWindows.left) {
-            delete this.adjacentWindows.left.dataset.initialWidth;
-            delete this.adjacentWindows.left.dataset.hasActiveStacked;
-            delete this.adjacentWindows.left.dataset.activeStackedId;
-            delete this.adjacentWindows.left.dataset.needsSyncAfterResize;
-        }
-        if (this.adjacentWindows.right) {
-            delete this.adjacentWindows.right.dataset.initialWidth;
-            delete this.adjacentWindows.right.dataset.hasActiveStacked;
-            delete this.adjacentWindows.right.dataset.activeStackedId;
-            delete this.adjacentWindows.right.dataset.needsSyncAfterResize;
-        }
-        
+
+        this.resizingSplitter.classList.remove('resizing');
         this.resizingSplitter = null;
         this.adjacentWindows = { left: null, right: null };
+
+        // Remove the resize cursor from the document
         document.body.style.cursor = '';
+
+        // Update stacked window sizes if any windows are stacked
+        const windows = Array.from(this.container.children).filter(
+            child => child instanceof HTMLElement && 
+            child.classList.contains('dockable-view-window')
+        ) as HTMLElement[];
+
+        windows.forEach(window => {
+            this.updateStackedWindowSizes(window);
+        });
+
+        // Remove transitioning class from all windows after animation completes
+        setTimeout(() => {
+            const allWindows = Array.from(this.container.children).filter(
+                child => child instanceof HTMLElement && child.classList.contains('dockable-view-window')
+            ) as HTMLElement[];
+            allWindows.forEach(window => {
+                window.classList.remove('transitioning');
+            });
+        }, 250);
+
+        // DON'T recalculate layout after resize - it overrides the manual resize results
+        // Just ensure splitters are in the right places
+        this.recreateSplitters();
+
+        // Clear the resizing flag before saving state
+        this.isResizing = false;
+
+        // Save state after resizing to preserve splitter positions
+        this.saveState();
     }
 
     private unstackWindow(window: HTMLElement) {
@@ -1545,7 +1529,7 @@ class DockableView extends HTMLElement {
         this.recalculateLayout();
     }
 
-    private handleDrop(e: MouseEvent) {
+    private handleDrop(e: MouseEvent | TouchEvent) {
         if (!this.draggingWindow || !this.dockPreview) return;
 
         // Always restore opacity first
@@ -1567,6 +1551,8 @@ class DockableView extends HTMLElement {
                 }
                 targetWindow.classList.remove('stack-highlight');
                 this.stackWindow(this.draggingWindow, targetWindow);
+                // Save state after stacking
+                this.saveState();
                 return;
             }
         }
@@ -1863,6 +1849,8 @@ class DockableView extends HTMLElement {
                 window.style.left = ''; // Clear left position
                 window.style.position = ''; // Reset position to relative
             });
+            // Save state after drop is complete
+            this.saveState();
         }, durationMs);
 
         // Clean up dragging state
@@ -1875,6 +1863,72 @@ class DockableView extends HTMLElement {
         
         // Recalculate layout to ensure proper spacing and remove unnecessary splitters
         this.recalculateLayout();
+
+        // Handle drop on the drop zone
+        if (this.dropZone && this.draggedWindow && this.dropTarget) {
+            this.dropZone.style.display = 'none';
+            
+            // Get the original position
+            const draggedIndex = Array.from(this.container.children).indexOf(this.draggedWindow);
+            const targetIndex = Array.from(this.container.children).indexOf(this.dropTarget);
+            
+            // Only move if not dropping on itself
+            if (draggedIndex !== targetIndex) {
+                // Check if drop target has stacked windows
+                if (this.dropSide === 'over' && this.allowStacking && this.dropTarget.classList.contains('dockable-view-window')) {
+                    // Stack the dragged window on the drop target
+                    this.stackWindow(this.draggedWindow, this.dropTarget);
+                } else {
+                    // Unstack if needed
+                    if (this.draggedWindow.hasAttribute('stacked')) {
+                        this.unstackWindow(this.draggedWindow);
+                    }
+                    
+                    // Regular repositioning
+                    if (this.dropSide === 'left') {
+                        this.container.insertBefore(this.draggedWindow, this.dropTarget);
+                    } else if (this.dropSide === 'right') {
+                        this.container.insertBefore(this.draggedWindow, this.dropTarget.nextSibling);
+                    }
+                    
+                    // Recreate splitters
+                    this.recreateSplitters();
+                }
+                
+                // Save state after reordering
+                this.saveState();
+            }
+        }
+
+        // Clear the drop zone and preview
+        if (this.dropZone) {
+            this.dropZone.remove();
+            this.dropZone = null;
+        }
+
+        if (this.dragPreview) {
+            this.dragPreview.remove();
+            this.dragPreview = null;
+        }
+
+        this.draggedWindow = null;
+        this.dropTarget = null;
+        this.dropSide = null;
+    }
+
+    updateWindowOrder() {
+        // Get all non-stacked windows and their current order
+        const windows = Array.from(this.container.children).filter(child => 
+            child instanceof HTMLElement && 
+            child.classList.contains('dockable-view-window') &&
+            !child.hasAttribute('stacked')
+        ) as HTMLElement[];
+
+        // Ensure splitters are correct
+        this.recreateSplitters();
+        
+        // Save state to preserve the new order
+        this.saveState();
     }
 
     private setStackMaximizedState(window: HTMLElement, maximized: boolean) {
@@ -2397,6 +2451,288 @@ class DockableView extends HTMLElement {
 
             /* Removing the locked style for splitters since they should always be functional */
         `;
+    }
+
+    /**
+     * Get the state key for this dockable-view instance
+     */
+    private getStateKey(): string {
+        return `dockable-view-state-${this.id || 'default'}`;
+    }
+
+    /**
+     * Save current state to localStorage
+     */
+    private saveState() {
+        const state = this.getState();
+        localStorage.setItem(this.getStateKey(), JSON.stringify(state));
+        console.log('DockableView: State saved', state);
+    }
+
+    /**
+     * Get the current state of all windows
+     */
+    public getState(): any {
+        const windows = Array.from(this.container.children).filter(
+            child => child instanceof HTMLElement && 
+            child.classList.contains('dockable-view-window')
+        ) as HTMLElement[];
+
+        const windowStates = windows.map((window, index) => {
+            // Get the computed width as a percentage for better restoration
+            const computedWidth = window.getBoundingClientRect().width;
+            const containerWidth = this.container.getBoundingClientRect().width;
+            const widthPercent = containerWidth > 0 ? (computedWidth / containerWidth) * 100 : 0;
+            
+            return {
+                id: window.id,
+                title: window.getAttribute('title') || '',
+                width: `${widthPercent}%`, // Store as percentage for responsive restoration
+                minWidth: window.getAttribute('min-width') || '200px',
+                controlbox: window.getAttribute('controlbox'),
+                maximized: window.classList.contains('maximized'),
+                stacked: window.getAttribute('stacked') || null,
+                order: index // Use the actual current DOM order
+            };
+        });
+
+        // Convert Map to plain object, storing element IDs instead of HTMLElements
+        const stackedWindowsObj: any = {};
+        this.stackedWindows.forEach((windowArray, key) => {
+            stackedWindowsObj[key] = windowArray.map(window => window.id);
+        });
+
+        return {
+            windows: windowStates,
+            stackedWindows: stackedWindowsObj,
+            activeStackedWindow: this.activeStackedWindow?.id || null,
+            locked: this.locked,
+            allowStacking: this.allowStacking
+        };
+    }
+
+    /**
+     * Restore state from saved data
+     */
+    public restoreState(state?: any) {
+        // Don't restore state during active resize operations
+        if (this.isResizing) {
+            console.log('DockableView: Skipping state restoration during resize');
+            return;
+        }
+
+        if (!state) {
+            const saved = localStorage.getItem(this.getStateKey());
+            if (!saved) {
+                console.log('DockableView: No saved state found');
+                return;
+            }
+            
+            try {
+                state = JSON.parse(saved);
+                console.log('DockableView: Restoring state', state);
+            } catch (e) {
+                console.warn('Failed to parse saved dockable-view state:', e);
+                return;
+            }
+        }
+
+        if (!state.windows) {
+            console.log('DockableView: No windows in saved state');
+            return;
+        }
+
+        // Restore component-level properties
+        if (typeof state.locked === 'boolean') {
+            this.locked = state.locked;
+            if (state.locked) {
+                this.setAttribute('locked', '');
+            } else {
+                this.removeAttribute('locked');
+            }
+        }
+
+        if (typeof state.allowStacking === 'boolean') {
+            this.allowStacking = state.allowStacking;
+            if (!state.allowStacking) {
+                this.setAttribute('allow-stacking', 'false');
+            } else {
+                this.removeAttribute('allow-stacking');
+            }
+        }
+
+        // Find existing windows and update their attributes
+        const existingWindows = Array.from(this.container.children).filter(
+            child => child instanceof HTMLElement && 
+            child.classList.contains('dockable-view-window')
+        ) as HTMLElement[];
+
+        console.log('DockableView: Found existing windows', existingWindows.map(w => w.id));
+
+        // Create a map of existing windows by ID
+        const windowMap = new Map<string, HTMLElement>();
+        existingWindows.forEach(window => {
+            if (window.id) {
+                windowMap.set(window.id, window);
+            }
+        });
+
+        // Sort state windows by their saved order
+        const sortedStateWindows = state.windows.sort((a: any, b: any) => a.order - b.order);
+        console.log('DockableView: Restoring window order', sortedStateWindows.map((w: any) => ({ id: w.id, order: w.order })));
+
+        // Apply state to existing windows
+        sortedStateWindows.forEach((windowState: any) => {
+            const window = windowMap.get(windowState.id);
+            if (window) {
+                // Update attributes
+                if (windowState.title) {
+                    window.setAttribute('title', windowState.title);
+                }
+                if (windowState.width) {
+                    window.setAttribute('width', windowState.width);
+                    window.style.width = windowState.width;
+                }
+                if (windowState.minWidth) {
+                    window.setAttribute('min-width', windowState.minWidth);
+                }
+                if (windowState.controlbox !== undefined) {
+                    window.setAttribute('controlbox', windowState.controlbox);
+                }
+                if (windowState.stacked) {
+                    window.setAttribute('stacked', windowState.stacked);
+                }
+
+                // Apply maximized state
+                if (windowState.maximized) {
+                    window.classList.add('maximized');
+                    // Update maximize button
+                    const maximizeBtn = window.querySelector('.dockable-view-maximize') as HTMLElement;
+                    if (maximizeBtn) {
+                        maximizeBtn.textContent = '_';
+                    }
+                    // Hide close button when maximized
+                    const closeBtn = window.querySelector('.dockable-view-close') as HTMLElement;
+                    if (closeBtn) {
+                        closeBtn.style.display = 'none';
+                    }
+                } else {
+                    window.classList.remove('maximized');
+                    // Update maximize button
+                    const maximizeBtn = window.querySelector('.dockable-view-maximize') as HTMLElement;
+                    if (maximizeBtn) {
+                        maximizeBtn.textContent = '□';
+                    }
+                    // Show close button when not maximized
+                    const closeBtn = window.querySelector('.dockable-view-close') as HTMLElement;
+                    if (closeBtn) {
+                        closeBtn.style.display = '';
+                    }
+                }
+            }
+        });
+
+        // Restore window order by reordering DOM elements
+        const orderedWindows: HTMLElement[] = [];
+        sortedStateWindows.forEach((windowState: any) => {
+            const window = windowMap.get(windowState.id);
+            if (window && !window.hasAttribute('stacked')) {
+                orderedWindows.push(window);
+            }
+        });
+
+        console.log('DockableView: Reordering windows to', orderedWindows.map(w => w.id));
+
+        // Remove all splitters first
+        Array.from(this.container.children).forEach(child => {
+            if (child instanceof HTMLElement && child.classList.contains('window-splitter')) {
+                child.remove();
+            }
+        });
+
+        // Reorder windows in the container
+        orderedWindows.forEach((window, index) => {
+            this.container.appendChild(window);
+        });
+
+        // Add splitters between windows
+        orderedWindows.forEach((window, index) => {
+            if (index < orderedWindows.length - 1) {
+                this.addSplitter(window);
+            }
+        });
+
+        // Restore stacked windows relationships without using Object.entries
+        if (state.stackedWindows) {
+            this.stackedWindows = new Map();
+            for (const key in state.stackedWindows) {
+                if (state.stackedWindows.hasOwnProperty(key)) {
+                    const windowIds = state.stackedWindows[key];
+                    if (Array.isArray(windowIds)) {
+                        const windowElements = windowIds.map((id: string) => windowMap.get(id)).filter(Boolean) as HTMLElement[];
+                        this.stackedWindows.set(key, windowElements);
+                    }
+                }
+            }
+        }
+
+        // Restore active stacked window
+        if (state.activeStackedWindow) {
+            this.activeStackedWindow = windowMap.get(state.activeStackedWindow) || null;
+        }
+
+        // Restore stacked window relationships by calling stackWindow
+        if (state.stackedWindows) {
+            for (const parentId in state.stackedWindows) {
+                if (state.stackedWindows.hasOwnProperty(parentId)) {
+                    const parentWindow = windowMap.get(parentId);
+                    const stackedWindowIds = state.stackedWindows[parentId];
+                    
+                    if (parentWindow && Array.isArray(stackedWindowIds)) {
+                        stackedWindowIds.forEach((stackedId: string) => {
+                            const stackedWindow = windowMap.get(stackedId);
+                            if (stackedWindow) {
+                                // Re-stack the window to ensure proper setup
+                                this.stackWindow(stackedWindow, parentWindow);
+                            }
+                        });
+                    }
+                }
+            }
+        }
+
+        // Force a re-layout to apply the restored state
+        requestAnimationFrame(() => {
+            this.updateLockedState();
+            this.recalculateLayout();
+            console.log('DockableView: State restoration complete');
+        });
+    }
+
+    /**
+     * Recreate splitters between windows
+     */
+    private recreateSplitters() {
+        // Remove existing splitters
+        Array.from(this.container.children).forEach(child => {
+            if (child instanceof HTMLElement && child.classList.contains('window-splitter')) {
+                child.remove();
+            }
+        });
+
+        // Get non-stacked windows
+        const windows = Array.from(this.container.children).filter(child => 
+            child instanceof HTMLElement && 
+            child.classList.contains('dockable-view-window') &&
+            !child.hasAttribute('stacked')
+        ) as HTMLElement[];
+
+        // Add splitters between windows
+        windows.forEach((window, index) => {
+            if (index < windows.length - 1) {
+                this.addSplitter(window);
+            }
+        });
     }
 }
 

@@ -48,7 +48,12 @@ namespace iignition {
                     
                     let nodeName = dataElement.nodeName.toLowerCase();
                     if (attr) {
-                        dataElement.setAttribute(attr, String(value));
+                        // Special handling for value attribute on input/textarea/select elements
+                        if (attr === 'value' && ['input', 'textarea', 'select'].includes(nodeName)) {
+                            (dataElement as HTMLInputElement).value = String(value);
+                        } else {
+                            dataElement.setAttribute(attr, String(value));
+                        }
                     } else {
                         let valueNodes = ['input', 'textarea'];
                         if (valueNodes.includes(nodeName)) {

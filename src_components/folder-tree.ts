@@ -87,6 +87,11 @@ class FolderTree extends HTMLElement {
         // Initial visibility setup
         this.updateVisibility();
         
+        // Restore state after everything is set up
+        setTimeout(() => {
+            this.restoreChildStates();
+        }, 100);
+        
         // Dispatch connected event
         this.dispatchEvent(new CustomEvent('folder-tree-connected', { 
             bubbles: true, 
@@ -326,6 +331,62 @@ class FolderTree extends HTMLElement {
                 display: contents;
             }
         `;
+    }
+
+    /**
+     * Get the state key for this folder tree
+     */
+    private getStateKey(): string {
+        return `folder-tree-state-${this.id || 'default'}`;
+    }
+
+    /**
+     * Save the current tree state
+     */
+    private saveState() {
+        const groups = Array.from(this.querySelectorAll('folder-group'));
+        const state = {
+            hidden: this.hasAttribute('hidden'),
+            groups: groups.map(group => ({
+                label: group.getAttribute('label'),
+                dock: group.getAttribute('dock'),
+                collapsed: group.hasAttribute('collapsed')
+            }))
+        };
+        localStorage.setItem(this.getStateKey(), JSON.stringify(state));
+    }
+
+    /**
+     * Restore states of child folder groups
+     */
+    private restoreChildStates() {
+        // Let each folder-group restore its own state
+        const groups = Array.from(this.querySelectorAll('folder-group'));
+        groups.forEach(group => {
+            // Trigger restoration by temporarily removing and re-adding the element
+            // This ensures the connectedCallback runs again with state restoration
+            if (group instanceof HTMLElement && 'restoreState' in group) {
+                // If the group has a restoreState method, call it
+                (group as any).restoreState();
+            }
+        });
+    }
+
+    /**
+     * Clear all saved states for this tree and its groups
+     */
+    public clearSavedStates() {
+        // Clear tree state
+        localStorage.removeItem(this.getStateKey());
+        
+        // Clear all folder group states
+        const groups = Array.from(this.querySelectorAll('folder-group'));
+        groups.forEach(group => {
+            const label = group.getAttribute('label') || 'unnamed';
+            const dock = group.getAttribute('dock') || 'top';
+            const groupKey = `folder-group-state-${dock}-${label}`;
+            localStorage.removeItem(groupKey);
+        });
     }
 }
 

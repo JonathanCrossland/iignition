@@ -13,6 +13,7 @@
 class FolderItem extends HTMLElement {
     private clickHandler: (e: Event) => void;
     private actionClickHandler: (e: Event) => void;
+    private selected: boolean = false;
     
     constructor() {
         super();
@@ -71,6 +72,9 @@ class FolderItem extends HTMLElement {
             bubbles: true,
             composed: true
         }));
+
+        // Restore item state from saved data
+        this.restoreState();
     }
     
     disconnectedCallback() {
@@ -197,6 +201,15 @@ class FolderItem extends HTMLElement {
                 outline-offset: -2px;
             }
 
+            :host(.selected) {
+                background: var(--folder-item-selected-bg, #007fd4);
+                color: var(--folder-item-selected-color, #ffffff);
+            }
+
+            :host(.selected):hover {
+                background: var(--folder-item-selected-hover-bg, #005fa3);
+            }
+
             /* Style slotted action elements */
             ::slotted([slot="action"]) {
                 cursor: pointer;
@@ -208,6 +221,65 @@ class FolderItem extends HTMLElement {
                 opacity: 1;
             }
         `;
+    }
+
+    /**
+     * Get the state key for this folder item
+     */
+    private getStateKey(): string {
+        const text = this.textContent?.trim() || 'unnamed';
+        const parent = this.closest('folder-group');
+        const parentLabel = parent?.getAttribute('label') || 'unknown';
+        return `folder-item-state-${parentLabel}-${text}`;
+    }
+
+    /**
+     * Save the current item state
+     */
+    private saveState() {
+        const state = {
+            selected: this.selected,
+            text: this.textContent?.trim()
+        };
+        localStorage.setItem(this.getStateKey(), JSON.stringify(state));
+    }
+
+    /**
+     * Restore item state from saved data
+     */
+    private restoreState() {
+        const saved = localStorage.getItem(this.getStateKey());
+        if (!saved) return;
+        
+        try {
+            const state = JSON.parse(saved);
+            if (typeof state.selected === 'boolean') {
+                this.selected = state.selected;
+                this.updateSelectedState();
+            }
+        } catch (e) {
+            console.warn('Failed to parse saved folder-item state:', e);
+        }
+    }
+
+    /**
+     * Update the visual selected state
+     */
+    private updateSelectedState() {
+        if (this.selected) {
+            this.classList.add('selected');
+        } else {
+            this.classList.remove('selected');
+        }
+    }
+
+    /**
+     * Set the selected state
+     */
+    public setSelected(selected: boolean) {
+        this.selected = selected;
+        this.updateSelectedState();
+        this.saveState();
     }
 }
 

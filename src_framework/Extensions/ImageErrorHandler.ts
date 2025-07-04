@@ -60,16 +60,34 @@ module iignition {
                 const imgUrl = new URL(originalSrc);
                 const domainRootUrl = new URL($i.Options.domainRoot);
 
-                // Check if the image URL doesn't already contain the domain root path
-                if (!imgUrl.pathname.startsWith(domainRootUrl.pathname)) {
+                let newPath = imgUrl.pathname;
+                let shouldRetry = false;
+
+                // Check if there's a ~ in the path - replace it with domainRootUrl.pathname
+                if (imgUrl.pathname.includes('~')) {
+                    // Replace ~ with the domain root path, ensuring no double slashes
+                    const domainPath = domainRootUrl.pathname.endsWith('/') ? domainRootUrl.pathname.slice(0, -1) : domainRootUrl.pathname;
+                    newPath = imgUrl.pathname.replace('~', domainPath);
+                    shouldRetry = true;
+                } else if (!newPath.startsWith(domainRootUrl.pathname)) {
+                    // Check if the path doesn't already contain the domain root path
                     // Remove the leading slash if present
-                    const cleanPath = imgUrl.pathname.startsWith('/') ? imgUrl.pathname.slice(1) : imgUrl.pathname;
+                    const cleanPath = newPath.startsWith('/') ? newPath.slice(1) : newPath;
                     
-                    // Construct new URL with domain root
-                    const newSrc = new URL(cleanPath, $i.Options.domainRoot).toString();
+                    // Construct path with domain root, ensuring no double slashes
+                    const domainPath = domainRootUrl.pathname.endsWith('/') ? domainRootUrl.pathname : domainRootUrl.pathname + '/';
+                    newPath = domainPath + cleanPath;
+                    shouldRetry = true;
+                }
+
+                // If we have a new path to try
+                if (shouldRetry) {
+                    // Construct new URL with the corrected path
+                    const newUrl = new URL(imgUrl);
+                    newUrl.pathname = newPath;
                     
                     // Try loading with the new path
-                    img.src = newSrc;
+                    img.src = newUrl.toString();
                     return; // Exit early to give the new URL a chance to load
                 }
             }

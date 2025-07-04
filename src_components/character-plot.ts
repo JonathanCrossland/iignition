@@ -27,15 +27,21 @@ class CharacterPlot extends HTMLElement {
     private panX = 0;
     private panY = 0;
     private innerStart = { x: 0, y: 0 };
+    private zoom = 1;
     private MIN_KINGPIN_RELATIONS = 3;
+    private resizeObserver: ResizeObserver | null = null;
 
     constructor() {
         super();
-        // Main container
+        // Main container - behave like a normal div that expands to fill container
         this.style.position = 'relative';
         this.style.display = 'block';
         this.style.overflow = 'hidden';
         this.style.background = 'var(--character-plot-bg, #f8f8f8)';
+        this.style.width = 'var(--character-plot-width, 100%)';
+        this.style.height = 'var(--character-plot-height, 100%)';
+        this.style.minHeight = 'var(--character-plot-min-height, 300px)';
+        this.style.boxSizing = 'border-box';
 
         // Toolbar
         this.toolbar = document.createElement('div');
@@ -48,7 +54,7 @@ class CharacterPlot extends HTMLElement {
         this.toolbar.style.gap = '8px';
         this.appendChild(this.toolbar);
 
-        // Canvas for circles
+        // Canvas for circles - fills the entire component
         this.canvas = document.createElement('div');
         this.canvas.className = 'character-plot-canvas';
         this.canvas.style.position = 'absolute';
@@ -58,15 +64,15 @@ class CharacterPlot extends HTMLElement {
         this.canvas.style.height = '100%';
         this.canvas.style.overflow = 'visible';
         this.canvas.style.zIndex = '1';
+        this.canvas.style.boxSizing = 'border-box';
         this.appendChild(this.canvas);
 
-        // Inner scalable container
+        // Inner scalable container - large drawing area
         this.inner = document.createElement('div');
         this.inner.className = 'character-plot-inner';
         this.inner.style.position = 'absolute';
-        this.inner.style.top = '0';
-        this.inner.style.left = '0';
         this.inner.style.transition = 'width 0.2s, height 0.2s';
+        this.inner.style.transformOrigin = '0 0';
         this.canvas.appendChild(this.inner);
 
         // SVG for lines
@@ -75,8 +81,6 @@ class CharacterPlot extends HTMLElement {
         this.svg.style.position = 'absolute';
         this.svg.style.top = '0';
         this.svg.style.left = '0';
-        this.svg.style.width = '100%';
-        this.svg.style.height = '100%';
         this.svg.style.zIndex = '0';
         this.inner.appendChild(this.svg);
 
@@ -111,8 +115,33 @@ class CharacterPlot extends HTMLElement {
         window.addEventListener('keydown', (e) => {
             if (e.ctrlKey && e.key.toLowerCase() === 'l') {
                 e.preventDefault();
+                console.log('Ctrl+L pressed, triggering auto-layout');
                 this.autoLayout();
             }
+        });
+
+        // Mouse wheel zoom
+        this.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const rect = this.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // Calculate zoom factor
+            const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+            const newZoom = Math.max(0.1, Math.min(5, this.zoom * zoomFactor));
+            
+            // Calculate pan adjustment to zoom towards mouse position
+            // Find the point in world coordinates under the mouse before zoom
+            const worldX = (mouseX - this.panX) / this.zoom;
+            const worldY = (mouseY - this.panY) / this.zoom;
+            
+            // After zoom, adjust pan so the same world point is under the mouse
+            this.panX = mouseX - worldX * newZoom;
+            this.panY = mouseY - worldY * newZoom;
+            
+            this.zoom = newZoom;
+            this.updateTransform();
         });
     }
 
@@ -124,13 +153,46 @@ class CharacterPlot extends HTMLElement {
                 this.load(data);
             } catch {}
         }
+        
+        // Set up ResizeObserver to update dimensions when container changes
+        this.resizeObserver = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                this.updateDimensions();
+            }
+        });
+        this.resizeObserver.observe(this);
+        
+        // Initial dimension update
+        this.updateDimensions();
         this.render();
+    }
+
+    disconnectedCallback() {
+        // Clean up ResizeObserver
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+            this.resizeObserver = null;
+        }
     }
 
     // Public API
     public load(data: { characters: any[], relationships: any[] }) {
         this.characters = data.characters || [];
         this.relationships = data.relationships || [];
+        
+        // Check if characters have positions, if not apply auto-layout
+        const hasPositions = this.characters.some(c => c.x !== undefined && c.y !== undefined);
+        console.log('Character positions check:', { 
+            hasPositions, 
+            charactersCount: this.characters.length, 
+            relationshipsCount: this.relationships.length,
+            charactersWithPositions: this.characters.filter(c => c.x !== undefined && c.y !== undefined).length
+        });
+        if (!hasPositions && this.characters.length > 0) {
+            console.log('Applying auto-layout...');
+            this.autoLayout();
+        }
+        
         this.render();
     }
     public getData() {
@@ -138,9 +200,21 @@ class CharacterPlot extends HTMLElement {
     }
     public addCharacter(name = '') {
         const id = Math.random().toString(36).slice(2, 10);
-        const x = 100 + Math.random() * (this.offsetWidth - 200);
-        const y = 100 + Math.random() * (this.offsetHeight - 200);
-        this.characters.push({ id, name, x, y });
+        
+        // Check if existing characters have positions
+        const hasPositions = this.characters.some(c => c.x !== undefined && c.y !== undefined);
+        
+        if (hasPositions) {
+            // Place randomly if others have positions
+            const x = 100 + Math.random() * (this.offsetWidth - 200);
+            const y = 100 + Math.random() * (this.offsetHeight - 200);
+            this.characters.push({ id, name, x, y });
+        } else {
+            // Add without position and let auto-layout handle it
+            this.characters.push({ id, name });
+            this.autoLayout();
+        }
+        
         this.fireChange();
         this.render();
     }
@@ -169,6 +243,51 @@ class CharacterPlot extends HTMLElement {
             bubbles: true,
             composed: true
         }));
+    }
+
+    private updateDimensions() {
+        // Get actual container size
+        const rect = this.getBoundingClientRect();
+        const width = rect.width;
+        const height = rect.height;
+        
+        console.log('UpdateDimensions:', { width, height });
+        
+        // Ensure canvas matches the component size
+        this.canvas.style.width = '100%';
+        this.canvas.style.height = '100%';
+        
+        // Create a large inner drawing area (400% of viewport)
+        const innerWidth = width * 4;
+        const innerHeight = height * 4;
+        
+        // Center the inner container so we can move in all directions
+        const offsetX = -innerWidth / 2 + width / 2;
+        const offsetY = -innerHeight / 2 + height / 2;
+        
+        this.inner.style.width = `${innerWidth}px`;
+        this.inner.style.height = `${innerHeight}px`;
+        this.inner.style.left = `${offsetX}px`;
+        this.inner.style.top = `${offsetY}px`;
+        
+        // SVG should match the inner container, not the viewport
+        this.svg.style.width = `${innerWidth}px`;
+        this.svg.style.height = `${innerHeight}px`;
+        this.svg.setAttribute('width', innerWidth.toString());
+        this.svg.setAttribute('height', innerHeight.toString());
+        
+        console.log('Inner container setup:', { 
+            innerWidth, 
+            innerHeight, 
+            offsetX, 
+            offsetY,
+            viewportWidth: width,
+            viewportHeight: height
+        });
+    }
+
+    private updateTransform() {
+        this.inner.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.zoom})`;
     }
 
     private renderToolbar() {
@@ -260,7 +379,7 @@ class CharacterPlot extends HTMLElement {
         // Always anchor inner at top-left
         this.inner.style.left = '0px';
         this.inner.style.top = '0px';
-        this.inner.style.transform = `translate(${this.panX}px, ${this.panY}px)`;
+        this.updateTransform();
         // Clear SVG and inner
         this.svg.innerHTML = '';
         this.inner.querySelectorAll('.character-plot-circle, .character-toolbar').forEach(el => el.remove());
@@ -497,36 +616,36 @@ class CharacterPlot extends HTMLElement {
                 if (e.target && (e.target as HTMLElement).classList.contains('relationship-handle')) return;
                 this.dragId = char.id;
                 this.isCharacterDragging = true;
+                
+                // Calculate drag offset in inner container coordinates
+                const rect = this.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                // Convert mouse position to inner container coordinates
+                const innerMouseX = (mouseX - this.panX) / this.zoom;
+                const innerMouseY = (mouseY - this.panY) / this.zoom;
+                
                 this.dragOffset = {
-                    x: e.clientX - char.x,
-                    y: e.clientY - char.y
+                    x: innerMouseX - char.x,
+                    y: innerMouseY - char.y
                 };
                 document.onmousemove = (ev) => {
                     if (!this.dragId) return;
                     const c = this.characters.find(c => c.id === this.dragId);
                     if (!c) return;
-                    let newX = ev.clientX - this.dragOffset.x;
-                    let newY = ev.clientY - this.dragOffset.y;
-                    let shiftX = 0, shiftY = 0;
-                    if (newX < 0) shiftX = -newX;
-                    if (newY < 0) shiftY = -newY;
-                    if (shiftX > 0 || shiftY > 0) {
-                        // Shift all nodes and pan offset
-                        for (const node of this.characters) {
-                            node.x += shiftX;
-                            node.y += shiftY;
-                        }
-                        this.panX -= shiftX;
-                        this.panY -= shiftY;
-                        // Clamp panX/panY to 0 (never positive)
-                        this.panX = Math.min(this.panX, 0);
-                        this.panY = Math.min(this.panY, 0);
-                        newX += shiftX;
-                        newY += shiftY;
-                    }
-                    c.x = newX;
-                    c.y = newY;
-                    this.inner.style.transform = `translate(${this.panX}px, ${this.panY}px)`;
+                    
+                    // Convert mouse position to inner container coordinates
+                    const rect = this.getBoundingClientRect();
+                    const mouseX = ev.clientX - rect.left;
+                    const mouseY = ev.clientY - rect.top;
+                    
+                    // Account for current pan and zoom
+                    const innerX = (mouseX - this.panX) / this.zoom - this.dragOffset.x;
+                    const innerY = (mouseY - this.panY) / this.zoom - this.dragOffset.y;
+                    
+                    c.x = innerX;
+                    c.y = innerY;
                     this.render();
                 };
                 document.onmouseup = () => {
@@ -813,10 +932,61 @@ class CharacterPlot extends HTMLElement {
                 const dy = e.clientY - this.panStart.y;
                 this.panX = this.innerStart.x + dx;
                 this.panY = this.innerStart.y + dy;
-                // Clamp so inner never moves right or down past the viewport
-                this.panX = Math.min(this.panX, 0);
-                this.panY = Math.min(this.panY, 0);
-                this.inner.style.transform = `translate(${this.panX}px, ${this.panY}px)`;
+                
+                // Get current viewport and inner dimensions for proper clamping
+                const rect = this.getBoundingClientRect();
+                const viewportWidth = rect.width;
+                const viewportHeight = rect.height;
+                const innerWidth = viewportWidth * 4;
+                const innerHeight = viewportHeight * 4;
+                
+                // Calculate limits accounting for zoom level
+                // The visible area of the inner container at current zoom
+                const scaledInnerWidth = innerWidth * this.zoom;
+                const scaledInnerHeight = innerHeight * this.zoom;
+                
+                let maxPanX, minPanX, maxPanY, minPanY;
+                
+                // If the scaled inner container is smaller than viewport, allow free panning
+                if (scaledInnerWidth <= viewportWidth) {
+                    maxPanX = Infinity;
+                    minPanX = -Infinity;
+                } else {
+                    // Normal pan limits when content is larger than viewport
+                    maxPanX = (scaledInnerWidth - viewportWidth) / 2;
+                    minPanX = -(scaledInnerWidth - viewportWidth) / 2;
+                }
+                
+                if (scaledInnerHeight <= viewportHeight) {
+                    maxPanY = Infinity;
+                    minPanY = -Infinity;
+                } else {
+                    // Normal pan limits when content is larger than viewport
+                    maxPanY = (scaledInnerHeight - viewportHeight) / 2;
+                    minPanY = -(scaledInnerHeight - viewportHeight) / 2;
+                }
+                
+                // Debug pan limits
+                console.log('Pan limits at zoom', this.zoom.toFixed(2), ':', {
+                    panX: this.panX.toFixed(1),
+                    panY: this.panY.toFixed(1),
+                    minPanX: isFinite(minPanX) ? minPanX.toFixed(1) : 'unlimited',
+                    maxPanX: isFinite(maxPanX) ? maxPanX.toFixed(1) : 'unlimited',
+                    minPanY: isFinite(minPanY) ? minPanY.toFixed(1) : 'unlimited',
+                    maxPanY: isFinite(maxPanY) ? maxPanY.toFixed(1) : 'unlimited',
+                    scaledWidth: scaledInnerWidth.toFixed(1),
+                    scaledHeight: scaledInnerHeight.toFixed(1)
+                });
+                
+                // Apply pan limits (only if they're not infinite)
+                if (isFinite(minPanX) && isFinite(maxPanX)) {
+                    this.panX = Math.max(minPanX, Math.min(maxPanX, this.panX));
+                }
+                if (isFinite(minPanY) && isFinite(maxPanY)) {
+                    this.panY = Math.max(minPanY, Math.min(maxPanY, this.panY));
+                }
+                
+                this.updateTransform();
             } else if (this.isPanning) {
                 // If either mouse or ctrl is not down, stop panning
                 this.isPanning = false;
@@ -839,8 +1009,17 @@ class CharacterPlot extends HTMLElement {
 
     // --- AUTO LAYOUT ---
     private autoLayout() {
+        console.log('=== AUTO LAYOUT START ===');
+        console.log('Characters:', this.characters.length);
+        console.log('Relationships:', this.relationships.length);
+        
         // --- Layout constants for spacing ---
-        const centerX = 1000, centerY = 1000; // Center of the canvas
+        // Center should be middle of the large inner container
+        const rect = this.getBoundingClientRect();
+        const innerWidth = rect.width * 4;
+        const innerHeight = rect.height * 4;
+        const centerX = innerWidth / 2;
+        const centerY = innerHeight / 2;
         const nodeRadius = 90; // Minimum distance between nodes (increased)
         const kingpinBaseRadius = 600; // Distance from center to other kingpins (increased)
         const leafBaseRadius = nodeRadius * 3.2; // Base radius for leaves (increased)
@@ -857,7 +1036,29 @@ class CharacterPlot extends HTMLElement {
         const kingpins = this.characters
             .filter(c => relCount[c.id] >= this.MIN_KINGPIN_RELATIONS)
             .sort((a, b) => relCount[b.id] - relCount[a.id]);
-        if (kingpins.length === 0) return;
+        
+        // If no kingpins, do a simple circular layout
+        if (kingpins.length === 0) {
+            console.log('No kingpins found, using simple circular layout');
+            const radius = Math.max(200, Math.min(400, this.characters.length * 30));
+            const angleStep = (2 * Math.PI) / Math.max(this.characters.length, 1);
+            
+            for (let i = 0; i < this.characters.length; i++) {
+                const angle = i * angleStep;
+                this.characters[i].x = centerX + radius * Math.cos(angle);
+                this.characters[i].y = centerY + radius * Math.sin(angle);
+            }
+            
+            console.log('Applied circular layout to', this.characters.length, 'characters');
+            
+            // Center the view on the layout
+            this.panX = 0;
+            this.panY = 0;
+            this.zoom = 1;
+            this.updateTransform();
+            this.render();
+            return;
+        }
         // 3. Place kingpins radially (largest at center, others around)
         const kingpinPos: Record<string, {x: number, y: number}> = {};
         if (kingpins.length === 1) {
@@ -875,10 +1076,10 @@ class CharacterPlot extends HTMLElement {
         // 4. Place leaves and recursively place their children
         const placed: Record<string, {x: number, y: number}> = {...kingpinPos};
         const visited = new Set<string>();
-        function placeChildren(parentId: string, parentX: number, parentY: number, parentAngle: number, level: number) {
+        const placeChildren = (parentId: string, parentX: number, parentY: number, parentAngle: number, level: number) => {
             // Find unplaced children (not kingpins, not already placed, not parent)
             const children = [] as string[];
-            for (const r of (this as any).relationships) {
+            for (const r of this.relationships) {
                 if (r.from === parentId && !kingpins.some(kp => kp.id === r.to) && !placed[r.to] && r.to !== parentId) children.push(r.to);
                 if (r.to === parentId && !kingpins.some(kp => kp.id === r.from) && !placed[r.from] && r.from !== parentId) children.push(r.from);
             }
@@ -892,9 +1093,9 @@ class CharacterPlot extends HTMLElement {
                 const y = parentY + wheelRadius * Math.sin(angle);
                 placed[children[i]] = {x, y};
                 // Recursively place this child's children
-                placeChildren.call(this, children[i], x, y, angle, level + 1);
+                placeChildren(children[i], x, y, angle, level + 1);
             }
-        }
+        };
         for (const kingpin of kingpins) {
             // Leaves: directly connected, not a kingpin, not already placed
             const leaves = this.relationships
@@ -933,16 +1134,33 @@ class CharacterPlot extends HTMLElement {
                 placed[c.id] = {x, y};
             }
         }
-        // 6. Apply positions
+        // 6. Place any remaining unplaced characters in a small circle
+        const unplacedChars = this.characters.filter(c => !placed[c.id]);
+        if (unplacedChars.length > 0) {
+            console.log('Placing', unplacedChars.length, 'unplaced characters');
+            const smallRadius = 150;
+            const smallAngleStep = (2 * Math.PI) / Math.max(unplacedChars.length, 1);
+            for (let i = 0; i < unplacedChars.length; i++) {
+                const angle = i * smallAngleStep;
+                placed[unplacedChars[i].id] = {
+                    x: centerX + smallRadius * Math.cos(angle),
+                    y: centerY + smallRadius * Math.sin(angle)
+                };
+            }
+        }
+        
+        // 7. Apply positions
         for (const c of this.characters) {
             if (placed[c.id]) {
                 c.x = placed[c.id].x;
                 c.y = placed[c.id].y;
             }
         }
-        // 7. Reset pan to center the layout
+        // 8. Reset pan and zoom to center the layout
         this.panX = 0;
         this.panY = 0;
+        this.zoom = 1;
+        this.updateTransform();
         this.render();
     }
 }

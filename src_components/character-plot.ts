@@ -2,9 +2,42 @@
 // CharacterPlot Web Component
 // Designer for character relationship graphs (no shadow DOM, custom properties, loads from JSON)
 
+interface Character {
+    id: string | number;
+    name: string;
+    x?: number | null;
+    y?: number | null;
+    bgColor?: string;
+    [key: string]: any; // Allow additional fields for duck typing
+}
+
+interface Relationship {
+    from: string | number;
+    to: string | number;
+    type: string;
+    [key: string]: any; // Allow additional fields for duck typing
+}
+
+// Internal normalized types (always strings for consistency)
+interface NormalizedCharacter {
+    id: string;
+    name: string;
+    x?: number;
+    y?: number;
+    bgColor?: string;
+    [key: string]: any;
+}
+
+interface NormalizedRelationship {
+    from: string;
+    to: string;
+    type: string;
+    [key: string]: any;
+}
+
 class CharacterPlot extends HTMLElement {
-    private characters: any[] = [];
-    private relationships: any[] = [];
+    private characters: NormalizedCharacter[] = [];
+    private relationships: NormalizedRelationship[] = [];
     private selectedCharId: string | null = null;
     private relationshipMode: boolean = false;
     private relationshipStartId: string | null = null;
@@ -30,6 +63,8 @@ class CharacterPlot extends HTMLElement {
     private zoom = 1;
     private MIN_KINGPIN_RELATIONS = 3;
     private resizeObserver: ResizeObserver | null = null;
+    private _lastViewSettings = { panX: 0, panY: 0, zoom: 1 };
+    private _settingsChangedQueued = false;
 
     constructor() {
         super();
@@ -141,7 +176,131 @@ class CharacterPlot extends HTMLElement {
             this.panY = mouseY - worldY * newZoom;
             
             this.zoom = newZoom;
-            this.updateTransform();
+            this.updateTransform({ fireSettingsChanged: true });
+        });
+
+        // Panning event handlers
+        this.addEventListener('mousedown', (e) => {
+            if (e.button === 0) {
+                this.isMouseDown = true;
+            }
+            // Only start panning if Ctrl is held and not on an input/textarea
+            if (e.button === 0 && this.isCtrlDown && !(e.target instanceof HTMLInputElement) && !(e.target instanceof HTMLTextAreaElement)) {
+                this.isPanning = true;
+                this.panStart = { x: e.clientX, y: e.clientY };
+                this.innerStart = { x: this.panX, y: this.panY };
+                this.style.cursor = 'grabbing';
+                e.preventDefault();
+            }
+        });
+
+        this.addEventListener('mouseup', (e) => {
+            if (e.button === 0) {
+                this.isMouseDown = false;
+                this.isPanning = false;
+                this.style.cursor = '';
+            }
+        });
+
+        // Also listen for mouseup on window to catch releases outside the container
+        window.addEventListener('mouseup', (e) => {
+            if (e.button === 0 && this.isPanning) {
+                this.isMouseDown = false;
+                this.isPanning = false;
+                this.style.cursor = '';
+            }
+        });
+
+        this.addEventListener('mouseleave', () => {
+            // Don't stop panning on mouseleave - user might be dragging outside container
+            // Only reset mouse state if not actively panning
+            if (!this.isPanning) {
+                this.isMouseDown = false;
+                this.style.cursor = '';
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (this.isPanning && this.isMouseDown && this.isCtrlDown) {
+                const dx = e.clientX - this.panStart.x;
+                const dy = e.clientY - this.panStart.y;
+                
+                // Debug first move
+                if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
+                    console.log('First pan move:', {
+                        dx, dy,
+                        panStart: this.panStart,
+                        innerStart: this.innerStart,
+                        currentPan: { x: this.panX, y: this.panY },
+                        mouse: { x: e.clientX, y: e.clientY }
+                    });
+                }
+                
+                this.panX = this.innerStart.x + dx;
+                this.panY = this.innerStart.y + dy;
+                
+                // Get current viewport and inner dimensions for proper clamping
+                const rect = this.getBoundingClientRect();
+                const viewportWidth = rect.width;
+                const viewportHeight = rect.height;
+                const innerWidth = viewportWidth * 8;
+                const innerHeight = viewportHeight * 8;
+                
+                // Calculate limits accounting for zoom level
+                // The visible area of the inner container at current zoom
+                const scaledInnerWidth = innerWidth * this.zoom;
+                const scaledInnerHeight = innerHeight * this.zoom;
+                
+                let maxPanX, minPanX, maxPanY, minPanY;
+                
+                // If the scaled inner container is smaller than viewport, allow free panning
+                if (scaledInnerWidth <= viewportWidth) {
+                    maxPanX = Infinity;
+                    minPanX = -Infinity;
+                } else {
+                    // Normal pan limits when content is larger than viewport
+                    maxPanX = (scaledInnerWidth - viewportWidth) / 2;
+                    minPanX = -(scaledInnerWidth - viewportWidth) / 2;
+                }
+                
+                if (scaledInnerHeight <= viewportHeight) {
+                    maxPanY = Infinity;
+                    minPanY = -Infinity;
+                } else {
+                    // Normal pan limits when content is larger than viewport
+                    maxPanY = (scaledInnerHeight - viewportHeight) / 2;
+                    minPanY = -(scaledInnerHeight - viewportHeight) / 2;
+                }
+                
+                // Temporarily disable pan limits to debug jumping
+                // Apply pan limits (only if they're not infinite)
+                // if (isFinite(minPanX) && isFinite(maxPanX)) {
+                //     this.panX = Math.max(minPanX, Math.min(maxPanX, this.panX));
+                // }
+                // if (isFinite(minPanY) && isFinite(maxPanY)) {
+                //     this.panY = Math.max(minPanY, Math.min(maxPanY, this.panY));
+                // }
+                
+                this.updateTransform({ fireSettingsChanged: true });
+            } else if (this.isPanning) {
+                // If either mouse or ctrl is not down, stop panning
+                this.isPanning = false;
+                this.style.cursor = '';
+            }
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Control') {
+                this.isCtrlDown = true;
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'Control') {
+                this.isCtrlDown = false;
+                this.isPanning = false;
+                this.style.cursor = '';
+            }
         });
     }
 
@@ -176,64 +335,172 @@ class CharacterPlot extends HTMLElement {
     }
 
     // Public API
-    public load(data: { characters: any[], relationships: any[] }) {
-        this.characters = data.characters || [];
-        this.relationships = data.relationships || [];
-        
-        // Check if characters have positions, if not apply auto-layout
-        const hasPositions = this.characters.some(c => c.x !== undefined && c.y !== undefined);
-        console.log('Character positions check:', { 
-            hasPositions, 
-            charactersCount: this.characters.length, 
-            relationshipsCount: this.relationships.length,
-            charactersWithPositions: this.characters.filter(c => c.x !== undefined && c.y !== undefined).length
-        });
-        if (!hasPositions && this.characters.length > 0) {
-            console.log('Applying auto-layout...');
-            this.autoLayout();
+    public load(data: { characters: Character[], relationships: Relationship[] }) {
+        try {
+            // Validate input data
+            if (!data) {
+                throw new Error('CharacterPlot: No data provided to load()');
+            }
+            
+            if (!Array.isArray(data.characters)) {
+                throw new Error('CharacterPlot: data.characters must be an array');
+            }
+            
+            if (!Array.isArray(data.relationships)) {
+                throw new Error('CharacterPlot: data.relationships must be an array');
+            }
+            
+            // Validate and normalize characters
+            this.characters = data.characters.map((char, index) => {
+                if (!char || typeof char !== 'object') {
+                    throw new Error(`CharacterPlot: Character at index ${index} is not a valid object`);
+                }
+                
+                if (char.id === undefined || char.id === null) {
+                    throw new Error(`CharacterPlot: Character at index ${index} missing required 'id' field`);
+                }
+                
+                if (!char.name && char.name !== '') {
+                    throw new Error(`CharacterPlot: Character at index ${index} missing required 'name' field`);
+                }
+                
+                return {
+                    ...char, // Keep all fields for duck typing
+                    id: String(char.id), // Normalize ID to string internally
+                    name: String(char.name),
+                    x: typeof char.x === 'number' ? char.x : undefined,
+                    y: typeof char.y === 'number' ? char.y : undefined
+                };
+            });
+            
+            // Validate and normalize relationships
+            this.relationships = data.relationships.map((rel, index) => {
+                if (!rel || typeof rel !== 'object') {
+                    throw new Error(`CharacterPlot: Relationship at index ${index} is not a valid object`);
+                }
+                
+                if (rel.from === undefined || rel.from === null) {
+                    throw new Error(`CharacterPlot: Relationship at index ${index} missing required 'from' field`);
+                }
+                
+                if (rel.to === undefined || rel.to === null) {
+                    throw new Error(`CharacterPlot: Relationship at index ${index} missing required 'to' field`);
+                }
+                
+                const fromId = String(rel.from);
+                const toId = String(rel.to);
+                
+                // Check if referenced characters exist
+                if (!this.characters.find(c => c.id === fromId)) {
+                    throw new Error(`CharacterPlot: Relationship at index ${index} references non-existent character ID '${fromId}'`);
+                }
+                
+                if (!this.characters.find(c => c.id === toId)) {
+                    throw new Error(`CharacterPlot: Relationship at index ${index} references non-existent character ID '${toId}'`);
+                }
+                
+                return {
+                    ...rel, // Keep all fields for duck typing
+                    from: fromId, // Normalize to string internally
+                    to: toId, // Normalize to string internally
+                    type: rel.type || 'relation'
+                };
+            });
+            
+            this.updateDimensions();
+            
+            // Check if ALL characters have positions, if not apply auto-layout
+            const charactersWithPositions = this.characters.filter(c => 
+                c.x !== undefined && c.x !== null && typeof c.x === 'number' &&
+                c.y !== undefined && c.y !== null && typeof c.y === 'number'
+            ).length;
+            const allHavePositions = charactersWithPositions === this.characters.length;
+            
+            console.log('CharacterPlot loaded successfully:', { 
+                allHavePositions, 
+                charactersCount: this.characters.length, 
+                relationshipsCount: this.relationships.length,
+                charactersWithPositions
+            });
+            
+            if (!allHavePositions && this.characters.length > 0) {
+                console.log('Some characters missing positions, applying selective layout...');
+                this.positionNewCharacters();
+            }
+            
+            this.render();
+            
+        } catch (error) {
+            console.error('CharacterPlot load error:', error);
+            
+            // Dispatch error event for handling by parent
+            this.dispatchEvent(new CustomEvent('error', {
+                detail: {
+                    message: error.message,
+                    originalData: data
+                },
+                bubbles: true,
+                composed: true
+            }));
+            
+            // Re-throw to allow caller to handle
+            throw error;
         }
-        
-        this.render();
     }
     public getData() {
         return { characters: this.characters, relationships: this.relationships };
     }
     public addCharacter(name = '') {
         const id = Math.random().toString(36).slice(2, 10);
-        
-        // Check if existing characters have positions
-        const hasPositions = this.characters.some(c => c.x !== undefined && c.y !== undefined);
-        
-        if (hasPositions) {
-            // Place randomly if others have positions
-            const x = 100 + Math.random() * (this.offsetWidth - 200);
-            const y = 100 + Math.random() * (this.offsetHeight - 200);
-            this.characters.push({ id, name, x, y });
-        } else {
-            // Add without position and let auto-layout handle it
-            this.characters.push({ id, name });
-            this.autoLayout();
-        }
-        
-        this.fireChange();
+        const rect = this.getBoundingClientRect();
+        // Place at center of inner container
+        const innerWidth = rect.width * 8;
+        const innerHeight = rect.height * 8;
+        const x = innerWidth / 2;
+        const y = innerHeight / 2;
+        const newChar: NormalizedCharacter = { id, name, x, y };
+        this.characters.push(newChar);
+        this.fireCharacterAdded(newChar);
         this.render();
     }
     public addRelationship(from: string, to: string, type = 'relation') {
         if (from === to) return;
         if (this.relationships.find(r => r.from === from && r.to === to)) return;
         this.relationships.push({ from, to, type });
-        this.fireChange();
+        this.fireRelationshipAdded({ from, to, type });
         this.render();
     }
     public removeCharacter(id: string) {
+        const characterToRemove = this.characters.find(c => c.id === id);
+        // Fire beforedelete event
+        const beforeDeleteEvent = new CustomEvent('beforedelete', {
+            detail: { type: 'character', data: characterToRemove, allow: false },
+            bubbles: true,
+            cancelable: true
+        });
+        this.dispatchEvent(beforeDeleteEvent);
+        // Only proceed if allow is set to true by a handler
+        if (!beforeDeleteEvent.detail.allow) return;
         this.characters = this.characters.filter(c => c.id !== id);
         this.relationships = this.relationships.filter(r => r.from !== id && r.to !== id);
-        this.fireChange();
+        this.fireCharacterRemoved(id, characterToRemove?.name || '');
         this.render();
     }
     public removeRelationship(from: string, to: string) {
+        const relationshipToRemove = this.relationships.find(r => r.from === from && r.to === to);
+        // Fire beforedelete event
+        const beforeDeleteEvent = new CustomEvent('beforedelete', {
+            detail: { type: 'relationship', data: relationshipToRemove, allow: false },
+            bubbles: true,
+            cancelable: true
+        });
+        this.dispatchEvent(beforeDeleteEvent);
+        // Only proceed if allow is set to true by a handler
+        if (!beforeDeleteEvent.detail.allow) return;
         this.relationships = this.relationships.filter(r => !(r.from === from && r.to === to));
-        this.fireChange();
+        if (relationshipToRemove) {
+            this.fireRelationshipRemoved(relationshipToRemove);
+        }
         this.render();
     }
 
@@ -245,49 +512,173 @@ class CharacterPlot extends HTMLElement {
         }));
     }
 
+    private fireCharacterAdded(character: Character) {
+        this.dispatchEvent(new CustomEvent('change', {
+            detail: {
+                type: 'character_added',
+                character: { ...character }
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    private fireCharacterRemoved(characterId: string, characterName: string) {
+        this.dispatchEvent(new CustomEvent('change', {
+            detail: {
+                type: 'character_removed',
+                character: { id: characterId, name: characterName }
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    private fireCharacterNameChanged(character: Character) {
+        this.dispatchEvent(new CustomEvent('change', {
+            detail: {
+                type: 'character_name_changed',
+                character: { ...character }
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    private fireCharacterColorChanged(character: Character) {
+        this.dispatchEvent(new CustomEvent('change', {
+            detail: {
+                type: 'character_color_changed',
+                character: { ...character }
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    private fireCharacterPositionChanged(character: Character) {
+        this.dispatchEvent(new CustomEvent('change', {
+            detail: {
+                type: 'character_position_changed',
+                character: { ...character }
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    private fireRelationshipAdded(relationship: Relationship) {
+        this.dispatchEvent(new CustomEvent('change', {
+            detail: {
+                type: 'relationship_added',
+                relationship: { ...relationship }
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    private fireRelationshipRemoved(relationship: Relationship) {
+        this.dispatchEvent(new CustomEvent('change', {
+            detail: {
+                type: 'relationship_removed',
+                relationship: { ...relationship }
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    private fireRelationshipTypeChanged(relationship: Relationship) {
+        this.dispatchEvent(new CustomEvent('change', {
+            detail: {
+                type: 'relationship_type_changed',
+                relationship: { ...relationship }
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
     private updateDimensions() {
-        // Get actual container size
         const rect = this.getBoundingClientRect();
         const width = rect.width;
         const height = rect.height;
-        
         console.log('UpdateDimensions:', { width, height });
+        if (width === 0 || height === 0) {
+            // Defer until container is laid out
+            requestAnimationFrame(() => this.updateDimensions());
+            return;
+        }
         
         // Ensure canvas matches the component size
         this.canvas.style.width = '100%';
         this.canvas.style.height = '100%';
         
-        // Create a large inner drawing area (400% of viewport)
-        const innerWidth = width * 4;
-        const innerHeight = height * 4;
+        // Create a much larger inner drawing area (800% of viewport)
+        const innerWidth = width * 8;
+        const innerHeight = height * 8;
         
-        // Center the inner container so we can move in all directions
-        const offsetX = -innerWidth / 2 + width / 2;
-        const offsetY = -innerHeight / 2 + height / 2;
-        
+        // Position inner container at top-left, use transform for positioning
         this.inner.style.width = `${innerWidth}px`;
         this.inner.style.height = `${innerHeight}px`;
-        this.inner.style.left = `${offsetX}px`;
-        this.inner.style.top = `${offsetY}px`;
+        this.inner.style.left = '0px';
+        this.inner.style.top = '0px';
         
-        // SVG should match the inner container, not the viewport
+        // SVG should match the inner container
         this.svg.style.width = `${innerWidth}px`;
         this.svg.style.height = `${innerHeight}px`;
         this.svg.setAttribute('width', innerWidth.toString());
         this.svg.setAttribute('height', innerHeight.toString());
         
+        // Reset pan to center if not already panning
+        if (!this.isPanning) {
+            // Center the inner container in the viewport
+            this.panX = (width - innerWidth) / 2;
+            this.panY = (height - innerHeight) / 2;
+            this.updateTransform({ fireSettingsChanged: true });
+        }
+        
         console.log('Inner container setup:', { 
             innerWidth, 
             innerHeight, 
-            offsetX, 
-            offsetY,
+            panX: this.panX,
+            panY: this.panY,
             viewportWidth: width,
             viewportHeight: height
         });
     }
 
-    private updateTransform() {
+    private updateTransform(opts?: { fireSettingsChanged?: boolean }) {
         this.inner.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.zoom})`;
+        if (opts && opts.fireSettingsChanged) {
+            if (
+                this._lastViewSettings.panX !== this.panX ||
+                this._lastViewSettings.panY !== this.panY ||
+                this._lastViewSettings.zoom !== this.zoom
+            ) {
+                this._lastViewSettings = { panX: this.panX, panY: this.panY, zoom: this.zoom };
+                if (!this._settingsChangedQueued) {
+                    this._settingsChangedQueued = true;
+                    requestAnimationFrame(() => {
+                        this.dispatchEvent(new CustomEvent('settings_changed', {
+                            detail: { panX: this.panX, panY: this.panY, zoom: this.zoom },
+                            bubbles: true,
+                            composed: true
+                        }));
+                        this._settingsChangedQueued = false;
+                    });
+                }
+            }
+        }
+    }
+
+    // Public method to set pan/zoom from controller
+    public setViewSettings(view: { panX?: number, panY?: number, zoom?: number }) {
+        if (typeof view.panX === 'number') this.panX = view.panX;
+        if (typeof view.panY === 'number') this.panY = view.panY;
+        if (typeof view.zoom === 'number') this.zoom = view.zoom;
+        this.updateTransform({ fireSettingsChanged: true });
     }
 
     private renderToolbar() {
@@ -298,36 +689,63 @@ class CharacterPlot extends HTMLElement {
 
     private setupCanvasDblClick() {
         this.canvas.ondblclick = (e: MouseEvent) => {
-            // Only add if not clicking on a character
-            if ((e.target as HTMLElement).classList.contains('character-plot-circle')) return;
+            // Only add if not clicking on a character, label, or input
+            const target = e.target as HTMLElement;
+            if (
+                target.classList.contains('character-plot-circle') ||
+                target.classList.contains('relationship-label') ||
+                target.tagName.toLowerCase() === 'input'
+            ) return;
             const rect = this.canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            this.addCharacterAt(x, y);
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            const innerX = (mouseX - this.panX) / this.zoom;
+            const innerY = (mouseY - this.panY) / this.zoom;
+            this.addCharacterAt(innerX, innerY);
         };
     }
 
     private addCharacterAt(x: number, y: number, name = '') {
         const id = Math.random().toString(36).slice(2, 10);
         this.characters.push({ id, name, x, y });
-        this.fireChange();
+        this.fireCharacterAdded({ id, name, x, y });
         this.render();
     }
 
     private handleMouseMove(e: MouseEvent) {
-        
-        if (this.isPanning) {
-            return;
-        }
-        // Only stop propagation if not dragging - allows document mousemove to work during drags
-        if (!this.isCharacterDragging) {
-            e.stopPropagation();
-        }
+        if (this.isPanning) return;
+        if (!this.isCharacterDragging) e.stopPropagation();
         
         if (this.relationshipDrag) {
             const rect = this.getBoundingClientRect();
-            this.tempLineEnd = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-            this.render();
+            // Convert mouse to inner container coordinates
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            const innerX = (mouseX - this.panX) / this.zoom;
+            const innerY = (mouseY - this.panY) / this.zoom;
+            this.tempLineEnd = { x: innerX, y: innerY };
+
+            // Efficiently update only the temp relationship line
+            let tempLine = this.svg.querySelector('#temp-relationship-line') as SVGLineElement;
+            if (!tempLine) {
+                tempLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                tempLine.setAttribute('id', 'temp-relationship-line');
+                const styles = getComputedStyle(this);
+                const tempLineColor = styles.getPropertyValue('--character-plot-temp-line').trim() || '#ff9800';
+                tempLine.setAttribute('stroke', tempLineColor);
+                tempLine.setAttribute('stroke-width', '2');
+                tempLine.setAttribute('stroke-dasharray', '4,4');
+                this.svg.appendChild(tempLine);
+            }
+            const fromId = this.relationshipDrag?.fromId;
+            const from = this.characters.find(c => c.id === fromId);
+            if (from) {
+                tempLine.setAttribute('x1', String(from.x));
+                tempLine.setAttribute('y1', String(from.y));
+                tempLine.setAttribute('x2', String(innerX));
+                tempLine.setAttribute('y2', String(innerY));
+            }
+            // Do NOT call this.render() here!
         }
     }
     private handleMouseLeave() {
@@ -342,10 +760,13 @@ class CharacterPlot extends HTMLElement {
         const rect = this.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
+        // Convert to inner container coordinates
+        const innerX = (mouseX - this.panX) / this.zoom;
+        const innerY = (mouseY - this.panY) / this.zoom;
         // Find character under mouse
         const toChar = this.characters.find(c => {
-            const dx = c.x - mouseX;
-            const dy = c.y - mouseY;
+            const dx = c.x - innerX;
+            const dy = c.y - innerY;
             const r = parseInt(getComputedStyle(this).getPropertyValue('--character-plot-circle-radius').trim() || '40', 10);
             return dx * dx + dy * dy <= r * r;
         });
@@ -354,36 +775,44 @@ class CharacterPlot extends HTMLElement {
         }
         this.relationshipDrag = null;
         this.tempLineEnd = null;
+        // Remove the temp line and call render()
+        const tempLine = this.svg.querySelector('#temp-relationship-line');
+        if (tempLine) tempLine.remove();
         this.render();
     }
 
     private render() {
-        // Calculate bounding box for all characters
+        // Calculate bounding box for all characters with valid positions
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
         const padding = 300;
         for (const char of this.characters) {
-            minX = Math.min(minX, char.x);
-            minY = Math.min(minY, char.y);
-            maxX = Math.max(maxX, char.x);
-            maxY = Math.max(maxY, char.y);
+            // Only include characters with valid positions in bounding box calculation
+            if (typeof char.x === 'number' && typeof char.y === 'number') {
+                minX = Math.min(minX, char.x);
+                minY = Math.min(minY, char.y);
+                maxX = Math.max(maxX, char.x);
+                maxY = Math.max(maxY, char.y);
+            }
         }
         if (!isFinite(minX)) minX = 0;
         if (!isFinite(minY)) minY = 0;
         if (!isFinite(maxX)) maxX = 1000;
         if (!isFinite(maxY)) maxY = 1000;
+        
         // Set inner container size to fit all nodes
         const innerWidth = Math.max(2000, maxX + padding, padding - minX);
         const innerHeight = Math.max(2000, maxY + padding, padding - minY);
         this.inner.style.width = `${innerWidth}px`;
         this.inner.style.height = `${innerHeight}px`;
-        // Always anchor inner at top-left
-        this.inner.style.left = '0px';
-        this.inner.style.top = '0px';
-        this.updateTransform();
+        
+        // Don't override positioning - let updateDimensions() handle it
+        this.updateTransform({ fireSettingsChanged: false });
+        
         // Clear SVG and inner
         this.svg.innerHTML = '';
         this.inner.querySelectorAll('.character-plot-circle, .character-toolbar').forEach(el => el.remove());
         this.inner.querySelectorAll('.relationship-label').forEach(el => el.remove());
+        
         // Get computed styles for custom properties
         const styles = getComputedStyle(this);
         const lineColor = styles.getPropertyValue('--character-plot-line').trim() || '#444';
@@ -399,11 +828,17 @@ class CharacterPlot extends HTMLElement {
         const relationshipStartBorder = styles.getPropertyValue('--character-plot-relationship-start-border').trim() || '3px dashed #ff9800';
         const relationshipStartBg = styles.getPropertyValue('--character-plot-relationship-start-bg').trim() || '';
         const selectedRelationshipLine = styles.getPropertyValue('--character-plot-selected-relationship-line').trim() || '#00e0ff';
+        const labelColor = styles.getPropertyValue('--character-plot-label-color').trim() || '#333';
+        
         // Draw relationships (lines)
         for (const rel of this.relationships) {
             const from = this.characters.find(c => c.id === rel.from);
             const to = this.characters.find(c => c.id === rel.to);
             if (!from || !to) continue;
+            // Skip relationships where characters don't have valid positions
+            if (typeof from.x !== 'number' || typeof from.y !== 'number' || 
+                typeof to.x !== 'number' || typeof to.y !== 'number') continue;
+            
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             line.setAttribute('x1', String(from.x));
             line.setAttribute('y1', String(from.y));
@@ -417,6 +852,8 @@ class CharacterPlot extends HTMLElement {
             } else {
                 line.removeAttribute('stroke-dasharray');
             }
+            const relKey = `${from.id}-${to.id}`;
+            line.setAttribute('data-rel', relKey);
             this.svg.appendChild(line);
 
             // --- Relationship label ---
@@ -433,41 +870,73 @@ class CharacterPlot extends HTMLElement {
             let angleDeg = angleRad * 180 / Math.PI;
             // Keep text upright
             if (angleDeg > 90 || angleDeg < -90) angleDeg += 180;
+            
             const labelDiv = document.createElement('div');
             labelDiv.className = 'relationship-label';
             labelDiv.textContent = rel.type;
             labelDiv.style.position = 'absolute';
             labelDiv.style.left = `${mx + perpX}px`;
             labelDiv.style.top = `${my + perpY}px`;
+            if (!labelDiv.querySelector('input')) {
             labelDiv.style.transform = `translate(-50%, -50%) rotate(${angleDeg}deg)`;
+            } else {
+                labelDiv.style.transform = 'translate(-50%, -50%)';
+            }
             labelDiv.style.fontSize = '0.85em';
             labelDiv.style.fontFamily = fontFamily;
-            labelDiv.style.pointerEvents = 'none';
+            labelDiv.style.pointerEvents = 'auto';
             labelDiv.style.userSelect = 'none';
             labelDiv.style.whiteSpace = 'nowrap';
             labelDiv.style.fontWeight = 'bold';
-            labelDiv.style.color = '#333';
+            labelDiv.style.color = labelColor;
+            labelDiv.setAttribute('data-rel', relKey);
+            // --- Delete button (×), only on hover ---
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = '×';
+            deleteBtn.style.display = 'none';
+            deleteBtn.style.position = 'absolute';
+            deleteBtn.style.right = '-18px';
+            deleteBtn.style.top = '50%';
+            deleteBtn.style.transform = 'translateY(-50%)';
+            deleteBtn.style.width = '18px';
+            deleteBtn.style.height = '18px';
+            deleteBtn.style.border = 'none';
+            deleteBtn.style.background = 'transparent';
+            deleteBtn.style.color = '#e74c3c';
+            deleteBtn.style.fontSize = '1.1em';
+            deleteBtn.style.cursor = 'pointer';
+            deleteBtn.style.padding = '0';
+            deleteBtn.style.zIndex = '10';
+            deleteBtn.title = 'Delete relationship';
+            deleteBtn.onmousedown = (e) => {
+                e.stopPropagation();
+                this.removeRelationship(rel.from, rel.to);
+            };
+            labelDiv.appendChild(deleteBtn);
+            labelDiv.onmouseenter = () => {
+                deleteBtn.style.display = 'block';
+            };
+            labelDiv.onmouseleave = () => {
+                deleteBtn.style.display = 'none';
+            };
             this.inner.appendChild(labelDiv);
-        }
-        // Draw temporary relationship line
-        if (this.relationshipDrag && this.tempLineEnd) {
-            const fromId = this.relationshipDrag?.fromId;
-            if (!fromId) return;
-            const from = this.characters.find(c => c.id === fromId);
-            if (from) {
-                const tempLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                tempLine.setAttribute('x1', String(from.x));
-                tempLine.setAttribute('y1', String(from.y));
-                tempLine.setAttribute('x2', String(this.tempLineEnd.x));
-                tempLine.setAttribute('y2', String(this.tempLineEnd.y));
-                tempLine.setAttribute('stroke', styles.getPropertyValue('--character-plot-temp-line').trim() || '#ff9800');
-                tempLine.setAttribute('stroke-width', lineWidth.replace('px',''));
-                tempLine.setAttribute('stroke-dasharray', '4,4');
-                this.svg.appendChild(tempLine);
-            }
+
+            labelDiv.ondblclick = (e) => {
+                // Only stop propagation if actually entering edit mode
+                if (!labelDiv.querySelector('input')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.editRelationshipLabel(rel, labelDiv);
+                }
+            };
         }
         // Draw characters (circles)
         for (const char of this.characters) {
+            // Skip characters without valid positions
+            if (typeof char.x !== 'number' || typeof char.y !== 'number') {
+                console.warn('Character missing valid position:', char);
+                continue;
+            }
             const charDiv = document.createElement('div');
             charDiv.className = 'character-plot-circle';
             charDiv.style.position = 'absolute';
@@ -580,7 +1049,7 @@ class CharacterPlot extends HTMLElement {
                 // Handle events to save the new name
                 const saveNewName = () => {
                     char.name = input.value;
-                    this.fireChange();
+                    this.fireCharacterNameChanged(char);
                     charDiv.innerHTML = '';
                     charDiv.textContent = char.name || 'Character';
                     this.isEditingName = false;
@@ -621,38 +1090,81 @@ class CharacterPlot extends HTMLElement {
                 const rect = this.getBoundingClientRect();
                 const mouseX = e.clientX - rect.left;
                 const mouseY = e.clientY - rect.top;
-                
-                // Convert mouse position to inner container coordinates
                 const innerMouseX = (mouseX - this.panX) / this.zoom;
                 const innerMouseY = (mouseY - this.panY) / this.zoom;
-                
                 this.dragOffset = {
                     x: innerMouseX - char.x,
                     y: innerMouseY - char.y
                 };
+                // Store reference to this charDiv for direct DOM updates
+                const thisCharDiv = charDiv;
                 document.onmousemove = (ev) => {
                     if (!this.dragId) return;
-                    const c = this.characters.find(c => c.id === this.dragId);
-                    if (!c) return;
-                    
-                    // Convert mouse position to inner container coordinates
+                    // Calculate new position in inner container coordinates
                     const rect = this.getBoundingClientRect();
                     const mouseX = ev.clientX - rect.left;
                     const mouseY = ev.clientY - rect.top;
-                    
-                    // Account for current pan and zoom
-                    const innerX = (mouseX - this.panX) / this.zoom - this.dragOffset.x;
-                    const innerY = (mouseY - this.panY) / this.zoom - this.dragOffset.y;
-                    
-                    c.x = innerX;
-                    c.y = innerY;
-                    this.render();
+                    const newInnerX = (mouseX - this.panX) / this.zoom - this.dragOffset.x;
+                    const newInnerY = (mouseY - this.panY) / this.zoom - this.dragOffset.y;
+                    // Update DOM position directly for smooth drag
+                    thisCharDiv.style.left = `${newInnerX - rectWidth / 2}px`;
+                    thisCharDiv.style.top = `${newInnerY - rectHeight / 2}px`;
+                    // Efficiently update only the lines/labels connected to this character
+                    for (const rel of this.relationships) {
+                        if (rel.from === char.id || rel.to === char.id) {
+                            const other = rel.from === char.id
+                                ? this.characters.find(c => c.id === rel.to)
+                                : this.characters.find(c => c.id === rel.from);
+                            if (!other || typeof other.x !== 'number' || typeof other.y !== 'number') continue;
+                            const fromX = rel.from === char.id ? newInnerX : other.x;
+                            const fromY = rel.from === char.id ? newInnerY : other.y;
+                            const toX = rel.to === char.id ? newInnerX : other.x;
+                            const toY = rel.to === char.id ? newInnerY : other.y;
+                            const relKey = `${rel.from}-${rel.to}`;
+                            const line = this.svg.querySelector(`line[data-rel='${relKey}']`);
+                            if (line) {
+                                line.setAttribute('x1', String(fromX));
+                                line.setAttribute('y1', String(fromY));
+                                line.setAttribute('x2', String(toX));
+                                line.setAttribute('y2', String(toY));
+                            }
+                            const label = this.inner.querySelector(`.relationship-label[data-rel='${relKey}']`) as HTMLElement;
+                            if (label) {
+                                // Update label position as in render()
+                                const mx = (fromX + toX) / 2;
+                                const my = (fromY + toY) / 2;
+                                const dx = toX - fromX;
+                                const dy = toY - fromY;
+                                const len = Math.sqrt(dx*dx + dy*dy);
+                                const offset = 18;
+                                const perpX = -dy / len * offset;
+                                const perpY = dx / len * offset;
+                                const angleRad = Math.atan2(dy, dx);
+                                let angleDeg = angleRad * 180 / Math.PI;
+                                if (angleDeg > 90 || angleDeg < -90) angleDeg += 180;
+                                label.style.left = `${mx + perpX}px`;
+                                label.style.top = `${my + perpY}px`;
+                                label.style.transform = `translate(-50%, -50%) rotate(${angleDeg}deg)`;
+                            }
+                        }
+                    }
                 };
-                document.onmouseup = () => {
-                    if (this.dragId) this.fireChange();
-                    this.dragId = null;
+                document.onmouseup = (ev) => {
+                    if (!this.dragId) return;
+                    // Calculate final position in inner container coordinates
+                    const rect = this.getBoundingClientRect();
+                    const mouseX = ev.clientX - rect.left;
+                    const mouseY = ev.clientY - rect.top;
+                    const finalInnerX = (mouseX - this.panX) / this.zoom - this.dragOffset.x;
+                    const finalInnerY = (mouseY - this.panY) / this.zoom - this.dragOffset.y;
+                    // Update the data model
+                    char.x = finalInnerX;
+                    char.y = finalInnerY;
                     this.isCharacterDragging = false;
-                    // After drag ends, re-render to restore correct border
+                    this.dragId = null;
+                    // Fire change event for user dragging action
+                    this.fireCharacterPositionChanged(char);
+                    // Now call render() once to update lines and everything else
                     this.render();
                     document.onmousemove = null;
                     document.onmouseup = null;
@@ -668,8 +1180,10 @@ class CharacterPlot extends HTMLElement {
             handle.style.border = '2px solid #fff';
             handle.style.cursor = 'crosshair';
             handle.style.display = 'none';
-            handle.style.zIndex = '10';
-            handle.style.transform = 'rotate(45deg)';
+            handle.style.zIndex = '100';
+            handle.style.top = `${rectHeight - 9}px`; // Half on, half outside the bottom of the rect (18px handle)
+            handle.style.left = `calc(50% - 9px)`; // Centered horizontally (18px handle)
+            handle.style.transform = 'rotate(45deg)'; // Keep diamond shape
             handle.onpointerdown = (e) => {
                 if (this.isPanning) {
                     e.stopPropagation();
@@ -710,7 +1224,6 @@ class CharacterPlot extends HTMLElement {
 
             // Color palette popup
             let palettePopup: HTMLDivElement | null = null;
-            let hoverOnToolbarOrPalette = false;
             const closePalette = () => {
                 this.paletteOpen = false;
                 if (palettePopup) {
@@ -722,25 +1235,28 @@ class CharacterPlot extends HTMLElement {
                 }
             };
             function handleOutsideClick(e: MouseEvent) {
-                const popup = palettePopup;
-                if (popup && !popup.contains(e.target as Node) && e.target !== colorBtn) {
+                if (!charDiv.contains(e.target as Node)) {
                     closePalette();
                 }
             }
 
             // Color icon (palette icon, click to expand colors)
             const colorBtn = document.createElement('button');
-            colorBtn.title = 'Change color';
-            colorBtn.style.width = '22px';
-            colorBtn.style.height = '22px';
-            colorBtn.style.border = 'none';
-            colorBtn.style.background = 'none';
+            colorBtn.style.width = '32px';
+            colorBtn.style.height = '20px';
+            colorBtn.style.borderRadius = '8px';
+            colorBtn.style.border = '1.5px solid #e0e0e0';
+            colorBtn.style.background = char.bgColor || palette[0];
             colorBtn.style.cursor = 'pointer';
             colorBtn.style.padding = '0';
-            colorBtn.style.display = 'flex';
-            colorBtn.style.alignItems = 'center';
-            colorBtn.style.justifyContent = 'center';
-            colorBtn.innerHTML = `<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='#888' stroke-width='2'><circle cx='12' cy='12' r='10' fill='#eee'/><circle cx='8' cy='10' r='1.5' fill='#b2e3ff'/><circle cx='16' cy='10' r='1.5' fill='#ffd6a5'/><circle cx='9' cy='15' r='1.5' fill='#fdffb6'/><circle cx='15' cy='15' r='1.5' fill='#caffbf'/></svg>`;
+            colorBtn.style.display = 'block';
+            colorBtn.style.transition = 'box-shadow 0.12s cubic-bezier(.4,0,.2,1)';
+            colorBtn.onmouseenter = () => {
+                colorBtn.style.boxShadow = '0 2px 8px rgba(25, 118, 210, 0.10)';
+            };
+            colorBtn.onmouseleave = () => {
+                colorBtn.style.boxShadow = 'none';
+            };
             colorBtn.onclick = (e) => {
                 if (this.isPanning) {
                     e.stopPropagation();
@@ -755,66 +1271,49 @@ class CharacterPlot extends HTMLElement {
                 this.paletteOpen = true;
                 palettePopup = document.createElement('div');
                 palettePopup.style.position = 'absolute';
-                // Center the palette horizontally over the character div
+                // Position below the icon
+                const iconRect = colorBtn.getBoundingClientRect();
                 const charRect = charDiv.getBoundingClientRect();
-                const toolbarRect = toolbar.getBoundingClientRect();
-                // Estimate palette width (minWidth is 140px, but could be wider)
-                const paletteWidth = 160; // px, adjust if needed
-                palettePopup.style.top = `${charRect.bottom - toolbarRect.top + 4}px`;
-                palettePopup.style.left = `${charRect.left - toolbarRect.left + (charRect.width / 2) - (paletteWidth / 2)}px`;
-                palettePopup.style.display = 'flex';
-                palettePopup.style.flexWrap = 'wrap';
-                palettePopup.style.gap = '6px';
-                palettePopup.style.background = 'rgba(255,255,255,0.98)';
-                palettePopup.style.border = '1.5px solid #ddd';
-                palettePopup.style.borderRadius = '8px';
-                palettePopup.style.padding = '8px 10px';
-                palettePopup.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
-                palettePopup.style.zIndex = '100';
-                palettePopup.style.minWidth = '140px';
-                palettePopup.style.width = `${paletteWidth}px`;
-                palettePopup.style.justifyContent = 'center';
+                palettePopup.style.left = `${iconRect.left - charRect.left}px`;
+                palettePopup.style.top = `${iconRect.bottom - charRect.top + 8}px`;
+                palettePopup.style.background = '#fff';
+                palettePopup.style.boxShadow = '0 4px 16px rgba(0,0,0,0.13)';
+                palettePopup.style.borderRadius = '10px';
+                palettePopup.style.padding = '16px';
+                palettePopup.style.display = 'grid';
+                palettePopup.style.gridTemplateColumns = 'repeat(4, 32px)';
+                palettePopup.style.gap = '12px';
+                palettePopup.style.zIndex = '200';
                 const popup = palettePopup;
                 palette.forEach(color => {
                     const colorOption = document.createElement('button');
-                    colorOption.style.width = '22px';
-                    colorOption.style.height = '22px';
-                    colorOption.style.borderRadius = '50%';
-                    colorOption.style.border = color === (char.bgColor || palette[0]) ? '2.5px solid #444' : '1.5px solid #bbb';
+                    colorOption.style.width = '32px';
+                    colorOption.style.height = '20px';
+                    colorOption.style.borderRadius = '8px';
+                    colorOption.style.border = color === (char.bgColor || palette[0]) ? '2px solid #1976d2' : '1.5px solid #e0e0e0';
                     colorOption.style.background = color;
                     colorOption.style.cursor = 'pointer';
                     colorOption.style.margin = '0';
                     colorOption.style.padding = '0';
-                    colorOption.title = color;
+                    colorOption.style.transition = 'transform 0.12s cubic-bezier(.4,0,.2,1), box-shadow 0.12s cubic-bezier(.4,0,.2,1)';
+                    colorOption.onmouseenter = () => {
+                        colorOption.style.transform = 'scale(1.12)';
+                        colorOption.style.boxShadow = '0 2px 8px rgba(25, 118, 210, 0.10)';
+                    };
+                    colorOption.onmouseleave = () => {
+                        colorOption.style.transform = 'scale(1)';
+                        colorOption.style.boxShadow = 'none';
+                    };
                     colorOption.onmousedown = (ev) => {
                         ev.stopPropagation();
                         char.bgColor = color;
-                        this.fireChange();
+                        this.fireCharacterColorChanged(char);
                         this.render();
                         closePalette();
                     };
                     if (popup) popup.appendChild(colorOption);
                 });
-                // Palette hover logic: only close if mouse leaves both toolbar and palette
-                let paletteOrToolbarHovered = true;
-                palettePopup.onmouseenter = () => { paletteOrToolbarHovered = true; };
-                palettePopup.onmouseleave = () => {
-                    paletteOrToolbarHovered = false;
-                    setTimeout(() => {
-                        if (!paletteOrToolbarHovered) closePalette();
-                    }, 120);
-                };
-                toolbar.onmouseenter = () => { paletteOrToolbarHovered = true; showToolbar(); };
-                toolbar.onmouseleave = () => {
-                    paletteOrToolbarHovered = false;
-                    setTimeout(() => {
-                        if (!paletteOrToolbarHovered) {
-                            hideToolbar();
-                            closePalette();
-                        }
-                    }, 120);
-                };
-                toolbar.appendChild(palettePopup);
+                charDiv.appendChild(palettePopup);
                 setTimeout(() => {
                     document.addEventListener('mousedown', handleOutsideClick);
                 }, 0);
@@ -833,7 +1332,7 @@ class CharacterPlot extends HTMLElement {
             deleteBtn.style.display = 'flex';
             deleteBtn.style.alignItems = 'center';
             deleteBtn.style.justifyContent = 'center';
-            deleteBtn.innerHTML = `<svg width='16' height='16' viewBox='0 0 20 20' fill='none' stroke='#e74c3c' stroke-width='2'><rect x='6' y='8' width='8' height='7' rx='2' fill='#e74c3c' opacity='0.15'/><path d='M8 8v5m4-5v5M3 6h14M8 3h4a1 1 0 0 1 1 1v2H7V4a1 1 0 0 1 1-1z'/></svg>`;
+            deleteBtn.innerHTML = `<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#e74c3c' stroke-width='2'><path d='M6 6L18 18M6 18L18 6' stroke='#e74c3c' stroke-width='2' stroke-linecap='round'/></svg>`;
             deleteBtn.onmousedown = (e) => {
                 if (this.isPanning) {
                     e.stopPropagation();
@@ -856,20 +1355,45 @@ class CharacterPlot extends HTMLElement {
             const hideToolbar = () => {
                 toolbar.style.display = 'none';
             };
-            charDiv.onpointerenter = () => {
+
+            const showHandle = () => {
                 handle.style.display = 'block';
+            };
+            const hideHandle = () => {
+                handle.style.display = 'none';
+            };
+
+            charDiv.onpointerenter = () => {
+                showHandle();
                 showToolbar();
                 this.isToolbarOrPaletteActive = true;
             };
             charDiv.onpointerleave = () => {
-                if (handle) handle.style.display = 'none';
-                this.isToolbarOrPaletteActive = false;
                 setTimeout(() => {
-                    if (!this.isToolbarOrPaletteActive && !this.isEditingName && !this.paletteOpen && !this.isCharacterDragging) {
+                    if (!this.isEditingName && !this.paletteOpen && !this.isCharacterDragging && !this.relationshipDrag) {
+                        hideHandle();
                         hideToolbar();
                         closePalette();
                     }
-                }, 120);
+                }, 200); // Increased delay
+                this.isToolbarOrPaletteActive = false;
+            };
+            // Keep handle visible when hovering over character or handle
+            handle.onpointerenter = () => {
+                showHandle();
+                this.isToolbarOrPaletteActive = true;
+            };
+            // Don't hide handle when leaving handle - let character's onpointerleave handle it
+            handle.onpointerleave = () => {
+                // Only hide if we're not still hovering over the character
+                setTimeout(() => {
+                    if (!this.isEditingName && !this.paletteOpen && !this.isCharacterDragging && !this.relationshipDrag && !charDiv.matches(':hover')) {
+                        hideHandle();
+                        hideToolbar();
+                        closePalette();
+                    }
+                }, 200);
+                this.isToolbarOrPaletteActive = false;
             };
             toolbar.onpointerenter = () => {
                 this.isToolbarOrPaletteActive = true;
@@ -898,270 +1422,231 @@ class CharacterPlot extends HTMLElement {
             this.renderToolbar();
         };
         this.setupCanvasDblClick();
+    }
 
-    
-        // Listen on the whole character-plot container
-        this.addEventListener('mousedown', (e) => {
-            if (e.button === 0) {
-                this.isMouseDown = true;
-            }
-            // Only start panning if Ctrl is held and not on an input/textarea
-            if (e.button === 0 && this.isCtrlDown && !(e.target instanceof HTMLInputElement) && !(e.target instanceof HTMLTextAreaElement)) {
-                this.isPanning = true;
-                this.panStart = { x: e.clientX, y: e.clientY };
-                this.innerStart = { x: this.panX, y: this.panY };
-                this.style.cursor = 'grabbing';
-                e.preventDefault();
-            }
+    // --- SELECTIVE POSITIONING ---
+    private positionNewCharacters() {
+        const charactersWithoutPositions = this.characters.filter(c => 
+            typeof c.x !== 'number' || typeof c.y !== 'number'
+        );
+        
+        if (charactersWithoutPositions.length === 0) return;
+        
+        // Get viewport dimensions
+        const rect = this.getBoundingClientRect();
+        const viewportWidth = rect.width;
+        const viewportHeight = rect.height;
+        
+        // Calculate center of inner container coordinates  
+        const innerWidth = viewportWidth * 8;
+        const innerHeight = viewportHeight * 8;
+        const centerX = innerWidth / 2;
+        const centerY = innerHeight / 2;
+        
+        // Find existing characters' bounding box to avoid overlap
+        const existingChars = this.characters.filter(c => 
+            typeof c.x === 'number' && typeof c.y === 'number'
+        );
+        
+        let minX = centerX, maxX = centerX, minY = centerY, maxY = centerY;
+        if (existingChars.length > 0) {
+            minX = Math.min(...existingChars.map(c => c.x!));
+            maxX = Math.max(...existingChars.map(c => c.x!));
+            minY = Math.min(...existingChars.map(c => c.y!));
+            maxY = Math.max(...existingChars.map(c => c.y!));
+        }
+        
+        // Position new characters in a spiral around the existing characters
+        const spiralRadius = Math.max(200, Math.max(maxX - minX, maxY - minY) / 2 + 150);
+        let angle = 0;
+        const angleStep = (2 * Math.PI) / Math.max(8, charactersWithoutPositions.length);
+        
+        charactersWithoutPositions.forEach((char, index) => {
+            // Use spiral positioning to avoid overlaps
+            const currentRadius = spiralRadius + (Math.floor(index / 8) * 100);
+            char.x = centerX + currentRadius * Math.cos(angle);
+            char.y = centerY + currentRadius * Math.sin(angle);
+            angle += angleStep;
+            
+            // Fire position change event for new characters
+            this.fireCharacterPositionChanged(char);
         });
-        this.addEventListener('mouseup', (e) => {
-            if (e.button === 0) {
-                this.isMouseDown = false;
-                this.isPanning = false;
-                this.style.cursor = '';
-            }
-        });
-        this.addEventListener('mouseleave', () => {
-            this.isMouseDown = false;
-            this.isPanning = false;
-            this.style.cursor = '';
-        });
-        window.addEventListener('mousemove', (e) => {
-            if (this.isPanning && this.isMouseDown && this.isCtrlDown) {
-                const dx = e.clientX - this.panStart.x;
-                const dy = e.clientY - this.panStart.y;
-                this.panX = this.innerStart.x + dx;
-                this.panY = this.innerStart.y + dy;
-                
-                // Get current viewport and inner dimensions for proper clamping
-                const rect = this.getBoundingClientRect();
-                const viewportWidth = rect.width;
-                const viewportHeight = rect.height;
-                const innerWidth = viewportWidth * 4;
-                const innerHeight = viewportHeight * 4;
-                
-                // Calculate limits accounting for zoom level
-                // The visible area of the inner container at current zoom
-                const scaledInnerWidth = innerWidth * this.zoom;
-                const scaledInnerHeight = innerHeight * this.zoom;
-                
-                let maxPanX, minPanX, maxPanY, minPanY;
-                
-                // If the scaled inner container is smaller than viewport, allow free panning
-                if (scaledInnerWidth <= viewportWidth) {
-                    maxPanX = Infinity;
-                    minPanX = -Infinity;
-                } else {
-                    // Normal pan limits when content is larger than viewport
-                    maxPanX = (scaledInnerWidth - viewportWidth) / 2;
-                    minPanX = -(scaledInnerWidth - viewportWidth) / 2;
-                }
-                
-                if (scaledInnerHeight <= viewportHeight) {
-                    maxPanY = Infinity;
-                    minPanY = -Infinity;
-                } else {
-                    // Normal pan limits when content is larger than viewport
-                    maxPanY = (scaledInnerHeight - viewportHeight) / 2;
-                    minPanY = -(scaledInnerHeight - viewportHeight) / 2;
-                }
-                
-                // Debug pan limits
-                console.log('Pan limits at zoom', this.zoom.toFixed(2), ':', {
-                    panX: this.panX.toFixed(1),
-                    panY: this.panY.toFixed(1),
-                    minPanX: isFinite(minPanX) ? minPanX.toFixed(1) : 'unlimited',
-                    maxPanX: isFinite(maxPanX) ? maxPanX.toFixed(1) : 'unlimited',
-                    minPanY: isFinite(minPanY) ? minPanY.toFixed(1) : 'unlimited',
-                    maxPanY: isFinite(maxPanY) ? maxPanY.toFixed(1) : 'unlimited',
-                    scaledWidth: scaledInnerWidth.toFixed(1),
-                    scaledHeight: scaledInnerHeight.toFixed(1)
-                });
-                
-                // Apply pan limits (only if they're not infinite)
-                if (isFinite(minPanX) && isFinite(maxPanX)) {
-                    this.panX = Math.max(minPanX, Math.min(maxPanX, this.panX));
-                }
-                if (isFinite(minPanY) && isFinite(maxPanY)) {
-                    this.panY = Math.max(minPanY, Math.min(maxPanY, this.panY));
-                }
-                
-                this.updateTransform();
-            } else if (this.isPanning) {
-                // If either mouse or ctrl is not down, stop panning
-                this.isPanning = false;
-                this.style.cursor = '';
-            }
-        });
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'Control') {
-                this.isCtrlDown = true;
-            }
-        });
-        window.addEventListener('keyup', (e) => {
-            if (e.key === 'Control') {
-                this.isCtrlDown = false;
-                this.isPanning = false;
-                this.style.cursor = '';
-            }
-        });
+        
+        console.log(`Positioned ${charactersWithoutPositions.length} new characters while preserving ${existingChars.length} existing positions`);
+        
+        this.render();
     }
 
     // --- AUTO LAYOUT ---
     private autoLayout() {
-        console.log('=== AUTO LAYOUT START ===');
-        console.log('Characters:', this.characters.length);
-        console.log('Relationships:', this.relationships.length);
+        if (this.characters.length === 0) return;
         
-        // --- Layout constants for spacing ---
-        // Center should be middle of the large inner container
+        // Get viewport dimensions
         const rect = this.getBoundingClientRect();
-        const innerWidth = rect.width * 4;
-        const innerHeight = rect.height * 4;
+        const viewportWidth = rect.width;
+        const viewportHeight = rect.height;
+        
+        // Calculate center of inner container coordinates  
+        const innerWidth = viewportWidth * 8;
+        const innerHeight = viewportHeight * 8;
         const centerX = innerWidth / 2;
         const centerY = innerHeight / 2;
-        const nodeRadius = 90; // Minimum distance between nodes (increased)
-        const kingpinBaseRadius = 600; // Distance from center to other kingpins (increased)
-        const leafBaseRadius = nodeRadius * 3.2; // Base radius for leaves (increased)
-        const leafRadiusPerLeaf = nodeRadius * 0.25; // Extra radius per leaf
-        const ringStep = nodeRadius * 2.5; // Distance between each ring level
-        // 1. Count relationships for each character
-        const relCount: Record<string, number> = {};
-        for (const c of this.characters) relCount[c.id] = 0;
-        for (const r of this.relationships) {
-            relCount[r.from] = (relCount[r.from] || 0) + 1;
-            relCount[r.to] = (relCount[r.to] || 0) + 1;
-        }
-        // 2. Find kingpins
-        const kingpins = this.characters
-            .filter(c => relCount[c.id] >= this.MIN_KINGPIN_RELATIONS)
-            .sort((a, b) => relCount[b.id] - relCount[a.id]);
         
-        // If no kingpins, do a simple circular layout
-        if (kingpins.length === 0) {
-            console.log('No kingpins found, using simple circular layout');
-            const radius = Math.max(200, Math.min(400, this.characters.length * 30));
-            const angleStep = (2 * Math.PI) / Math.max(this.characters.length, 1);
-            
-            for (let i = 0; i < this.characters.length; i++) {
-                const angle = i * angleStep;
-                this.characters[i].x = centerX + radius * Math.cos(angle);
-                this.characters[i].y = centerY + radius * Math.sin(angle);
-            }
-            
-            console.log('Applied circular layout to', this.characters.length, 'characters');
-            
-            // Center the view on the layout
-            this.panX = 0;
-            this.panY = 0;
-            this.zoom = 1;
-            this.updateTransform();
-            this.render();
-            return;
+        // Find characters with most relationships (kingpins)
+        const relationCounts = new Map();
+        for (const rel of this.relationships) {
+            relationCounts.set(rel.from, (relationCounts.get(rel.from) || 0) + 1);
+            relationCounts.set(rel.to, (relationCounts.get(rel.to) || 0) + 1);
         }
-        // 3. Place kingpins radially (largest at center, others around)
-        const kingpinPos: Record<string, {x: number, y: number}> = {};
-        if (kingpins.length === 1) {
-            kingpinPos[kingpins[0].id] = {x: centerX, y: centerY};
-        } else {
-            kingpinPos[kingpins[0].id] = {x: centerX, y: centerY};
-            for (let i = 1; i < kingpins.length; ++i) {
-                const angle = (2 * Math.PI * (i-1)) / (kingpins.length-1);
-                kingpinPos[kingpins[i].id] = {
-                    x: centerX + kingpinBaseRadius * Math.cos(angle),
-                    y: centerY + kingpinBaseRadius * Math.sin(angle)
-                };
-            }
-        }
-        // 4. Place leaves and recursively place their children
-        const placed: Record<string, {x: number, y: number}> = {...kingpinPos};
-        const visited = new Set<string>();
-        const placeChildren = (parentId: string, parentX: number, parentY: number, parentAngle: number, level: number) => {
-            // Find unplaced children (not kingpins, not already placed, not parent)
-            const children = [] as string[];
-            for (const r of this.relationships) {
-                if (r.from === parentId && !kingpins.some(kp => kp.id === r.to) && !placed[r.to] && r.to !== parentId) children.push(r.to);
-                if (r.to === parentId && !kingpins.some(kp => kp.id === r.from) && !placed[r.from] && r.from !== parentId) children.push(r.from);
-            }
-            if (children.length === 0) return;
-            const wheelRadius = leafBaseRadius + ringStep * (level - 1) + leafRadiusPerLeaf * Math.max(0, children.length - 1);
-            const angleStep = (2 * Math.PI) / Math.max(children.length, 1);
-            for (let i = 0; i < children.length; ++i) {
-                // Center the child on the parent's angle
-                const angle = parentAngle + (i - (children.length - 1) / 2) * angleStep;
-                const x = parentX + wheelRadius * Math.cos(angle);
-                const y = parentY + wheelRadius * Math.sin(angle);
-                placed[children[i]] = {x, y};
-                // Recursively place this child's children
-                placeChildren(children[i], x, y, angle, level + 1);
-            }
-        };
-        for (const kingpin of kingpins) {
-            // Leaves: directly connected, not a kingpin, not already placed
-            const leaves = this.relationships
-                .filter(r => r.from === kingpin.id || r.to === kingpin.id)
-                .map(r => r.from === kingpin.id ? r.to : r.from)
-                .filter(id => !kingpins.some(kp => kp.id === id) && !placed[id]);
-            // Increase wheel radius if there are many leaves
-            const wheelRadius = leafBaseRadius + leafRadiusPerLeaf * Math.max(0, leaves.length - 1);
-            const angleStep = (2 * Math.PI) / Math.max(leaves.length, 1);
-            const kp = kingpinPos[kingpin.id];
-            for (let i = 0; i < leaves.length; ++i) {
-                const angle = i * angleStep;
-                const x = kp.x + wheelRadius * Math.cos(angle);
-                const y = kp.y + wheelRadius * Math.sin(angle);
-                placed[leaves[i]] = {x, y};
-                // Recursively place children of this leaf
-                placeChildren.call(this, leaves[i], x, y, angle, 2);
-            }
-        }
-        // 5. Place shared characters (connected to multiple kingpins)
-        for (const c of this.characters) {
-            if (placed[c.id]) continue;
-            // Find all kingpins this character is connected to
-            const connectedKingpins = kingpins.filter(kp =>
-                this.relationships.some(r => (r.from === c.id && r.to === kp.id) || (r.to === c.id && r.from === kp.id))
-            );
-            if (connectedKingpins.length >= 2) {
-                // Place between kingpins (average their positions)
-                let x = 0, y = 0;
-                for (const kp of connectedKingpins) {
-                    x += kingpinPos[kp.id].x;
-                    y += kingpinPos[kp.id].y;
+        
+        // Sort characters by relationship count
+        const sortedChars = [...this.characters].sort((a, b) => 
+            (relationCounts.get(b.id) || 0) - (relationCounts.get(a.id) || 0)
+        );
+        
+        // Place kingpins in a circle around center
+        const kingpins = sortedChars.filter(c => (relationCounts.get(c.id) || 0) >= this.MIN_KINGPIN_RELATIONS);
+        const radius = Math.min(viewportWidth, viewportHeight) * 0.3; // Reduced radius to keep within viewport
+        
+        if (kingpins.length > 0) {
+            // Place kingpins in a circle
+            kingpins.forEach((char, i) => {
+                const angle = (i * 2 * Math.PI) / kingpins.length;
+                char.x = centerX + radius * Math.cos(angle);
+                char.y = centerY + radius * Math.sin(angle);
+            });
+            
+            // Place remaining characters around their most connected kingpin
+            const remainingChars = sortedChars.filter(c => !kingpins.includes(c));
+            for (const char of remainingChars) {
+                // Find most connected kingpin
+                let bestKingpin: Character | undefined = undefined;
+                let maxConnections = 0;
+                for (const kingpin of kingpins) {
+                    const connections = this.relationships.filter(r => 
+                        (r.from === char.id && r.to === kingpin.id) ||
+                        (r.to === char.id && r.from === kingpin.id)
+                    ).length;
+                    if (connections > maxConnections) {
+                        maxConnections = connections;
+                        bestKingpin = kingpin;
+                    }
                 }
-                x /= connectedKingpins.length;
-                y /= connectedKingpins.length;
-                placed[c.id] = {x, y};
+                
+                if (bestKingpin) {
+                    // Place around kingpin
+                    const angle = Math.random() * 2 * Math.PI;
+                    const r = radius * 0.5; // Closer to kingpin
+                    char.x = bestKingpin.x + r * Math.cos(angle);
+                    char.y = bestKingpin.y + r * Math.sin(angle);
+                } else {
+                    // Place randomly around center
+                    const angle = Math.random() * 2 * Math.PI;
+                    const r = radius * 0.7;
+                    char.x = centerX + r * Math.cos(angle);
+                    char.y = centerY + r * Math.sin(angle);
+                }
             }
-        }
-        // 6. Place any remaining unplaced characters in a small circle
-        const unplacedChars = this.characters.filter(c => !placed[c.id]);
-        if (unplacedChars.length > 0) {
-            console.log('Placing', unplacedChars.length, 'unplaced characters');
-            const smallRadius = 150;
-            const smallAngleStep = (2 * Math.PI) / Math.max(unplacedChars.length, 1);
-            for (let i = 0; i < unplacedChars.length; i++) {
-                const angle = i * smallAngleStep;
-                placed[unplacedChars[i].id] = {
-                    x: centerX + smallRadius * Math.cos(angle),
-                    y: centerY + smallRadius * Math.sin(angle)
-                };
-            }
+        } else {
+            // No kingpins, arrange all in a circle
+            this.characters.forEach((char, i) => {
+                const angle = (i * 2 * Math.PI) / this.characters.length;
+                char.x = centerX + radius * Math.cos(angle);
+                char.y = centerY + radius * Math.sin(angle);
+            });
         }
         
-        // 7. Apply positions
-        for (const c of this.characters) {
-            if (placed[c.id]) {
-                c.x = placed[c.id].x;
-                c.y = placed[c.id].y;
+        // Prevent overlaps with simple force-directed adjustment
+        const iterations = 50;
+        const minDistance = 100; // Minimum distance between characters
+        
+        for (let iter = 0; iter < iterations; iter++) {
+            let moved = false;
+            for (let i = 0; i < this.characters.length; i++) {
+                for (let j = i + 1; j < this.characters.length; j++) {
+                    const char1 = this.characters[i];
+                    const char2 = this.characters[j];
+                    const dx = char2.x - char1.x;
+                    const dy = char2.y - char1.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < minDistance) {
+                        moved = true;
+                        const force = (minDistance - distance) / distance;
+                        const moveX = dx * force * 0.5;
+                        const moveY = dy * force * 0.5;
+                        
+                        char1.x -= moveX;
+                        char1.y -= moveY;
+                        char2.x += moveX;
+                        char2.y += moveY;
+                    }
+                }
             }
+            if (!moved) break;
         }
-        // 8. Reset pan and zoom to center the layout
-        this.panX = 0;
-        this.panY = 0;
-        this.zoom = 1;
-        this.updateTransform();
+        
+        // Center the group of characters in the viewport
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        for (const char of this.characters) {
+            minX = Math.min(minX, char.x);
+            minY = Math.min(minY, char.y);
+            maxX = Math.max(maxX, char.x);
+            maxY = Math.max(maxY, char.y);
+        }
+        const groupCenterX = (minX + maxX) / 2;
+        const groupCenterY = (minY + maxY) / 2;
+        
+        // Calculate pan needed to center the group in the viewport
+        // The inner container starts at (0,0) and we use transform to position it
+        const targetViewportCenterX = viewportWidth / 2;
+        const targetViewportCenterY = viewportHeight / 2;
+        
+        // Pan so group center appears at viewport center
+        this.panX = targetViewportCenterX - (groupCenterX * this.zoom);
+        this.panY = targetViewportCenterY - (groupCenterY * this.zoom);
+        this.updateTransform({ fireSettingsChanged: true });
+        
+        // Don't fire change events for auto-layout - this is not a user action
         this.render();
+    }
+
+    private editRelationshipLabel(rel: any, labelDiv: HTMLElement) {
+        // Remove rotation for editing
+        labelDiv.style.transform = 'translate(-50%, -50%)';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = rel.type || '';
+        input.style.position = 'absolute';
+        input.style.left = '50%';
+        input.style.top = '50%';
+        input.style.transform = 'translate(-50%, -50%)'; // Always horizontal
+        input.style.fontSize = labelDiv.style.fontSize;
+        input.style.fontFamily = labelDiv.style.fontFamily;
+        input.style.textAlign = 'center';
+        input.style.zIndex = '1000';
+        input.style.minWidth = '60px';
+        input.style.background = '#fffbe6';
+        input.style.border = '1px solid #ccc';
+        input.style.borderRadius = '4px';
+        input.style.padding = '2px 6px';
+        input.style.width = '100%';
+        input.style.boxSizing = 'border-box';
+        labelDiv.innerHTML = '';
+        labelDiv.appendChild(input);
+        input.focus();
+        input.select();
+        const save = () => {
+            rel.type = input.value;
+        this.fireRelationshipTypeChanged(rel);
+        this.render();
+        };
+        input.addEventListener('blur', save);
+        input.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Enter') {
+                save();
+            }
+        });
     }
 }
 

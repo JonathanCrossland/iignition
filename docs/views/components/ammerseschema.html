@@ -1,0 +1,358 @@
+<div class="component-content">
+    <h2>AMMERSE Schema Component</h2>
+    <p class="component-description">An interactive table component for creating and managing multiple AMMERSE weight sets organized in groups, with real-time editing capabilities and data export functionality.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <div class="example-container">
+                <h4>Basic AMMERSE Schema</h4>
+                <ammerse-schema id="basic-schema" data='{
+                    "groups": [
+                        {
+                            "name": "Frontend",
+                            "columns": [
+                                {
+                                    "title": "React App",
+                                    "values": [0.8, 0.6, 0.9, 0.7, 0.5, 0.8, 0.3]
+                                },
+                                {
+                                    "title": "Vue App",
+                                    "values": [0.7, 0.8, 0.6, 0.9, 0.4, 0.7, 0.5]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Backend",
+                            "columns": [
+                                {
+                                    "title": "API Service",
+                                    "values": [0.6, 0.7, 0.8, 0.9, 0.6, 0.8, 0.4]
+                                }
+                            ]
+                        }
+                    ],
+                    "rows": ["Agile", "Minimal", "Maintainable", "Environmental", "Reachable", "Solvable", "Extensible"]
+                }'></ammerse-schema>
+                
+                <h4>Empty Schema (Default)</h4>
+                <ammerse-schema id="empty-schema"></ammerse-schema>
+            </div>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <pre><code class="language-html">&lt;!-- Basic usage with data --&gt;
+&lt;ammerse-schema data='{
+    "groups": [
+        {
+            "name": "Group Name",
+            "columns": [
+                {
+                    "title": "Set Name",
+                    "values": [0.5, 1, 1, 1, 1, 1, 0]
+                }
+            ]
+        }
+    ],
+    "rows": ["Agile", "Minimal", "Maintainable", "Environmental", "Reachable", "Solvable", "Extensible"]
+}'&gt;&lt;/ammerse-schema&gt;
+
+&lt;!-- Empty schema (uses default data) --&gt;
+&lt;ammerse-schema&gt;&lt;/ammerse-schema&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>data</td>
+                        <td>string (JSON)</td>
+                        <td>Default schema</td>
+                        <td>JSON string containing groups, columns, and values for the AMMERSE schema</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Data Structure">
+        <div slot="content">
+            <pre><code class="language-json">{
+    "groups": [
+        {
+            "name": "Group Name",
+            "columns": [
+                {
+                    "title": "Set Name",
+                    "values": [0.5, 1, 1, 1, 1, 1, 0]
+                }
+            ]
+        }
+    ],
+    "rows": ["Agile", "Minimal", "Maintainable", "Environmental", "Reachable", "Solvable", "Extensible"]
+}</code></pre>
+            
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>groups</td>
+                        <td>array</td>
+                        <td>Array of group objects containing columns</td>
+                    </tr>
+                    <tr>
+                        <td>groups[].name</td>
+                        <td>string</td>
+                        <td>Name of the group (editable)</td>
+                    </tr>
+                    <tr>
+                        <td>groups[].columns</td>
+                        <td>array</td>
+                        <td>Array of column objects containing AMMERSE sets</td>
+                    </tr>
+                    <tr>
+                        <td>groups[].columns[].title</td>
+                        <td>string</td>
+                        <td>Title of the AMMERSE set (editable)</td>
+                    </tr>
+                    <tr>
+                        <td>groups[].columns[].values</td>
+                        <td>array</td>
+                        <td>Array of 7 numbers representing A, Mi, M, E, R, S, Ex weights (range: -1 to 1)</td>
+                    </tr>
+                    <tr>
+                        <td>rows</td>
+                        <td>array</td>
+                        <td>Array of row labels (default: AMMERSE names)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Events">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Detail</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>setChanged</td>
+                        <td>string (comma-separated values)</td>
+                        <td>Fired when a value in any AMMERSE set is modified</td>
+                    </tr>
+                    <tr>
+                        <td>setFocus</td>
+                        <td>string (comma-separated values)</td>
+                        <td>Fired when focus enters or leaves a set (empty string when leaving)</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4>Event Usage Example:</h4>
+            <pre><code class="language-javascript">const schema = document.querySelector('ammerse-schema');
+
+schema.addEventListener('setChanged', (event) => {
+    console.log('Set values changed:', event.detail);
+});
+
+schema.addEventListener('setFocus', (event) => {
+    console.log('Set focused:', event.detail);
+});</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Interactive Features">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Inline Editing</td>
+                        <td>Click on group names, set titles, or values to edit them directly</td>
+                    </tr>
+                    <tr>
+                        <td>Add Groups</td>
+                        <td>Click the "+" button next to group names to add new groups</td>
+                    </tr>
+                    <tr>
+                        <td>Delete Groups</td>
+                        <td>Click the "-" button next to group names to delete groups</td>
+                    </tr>
+                    <tr>
+                        <td>Add Sets</td>
+                        <td>Click the "+" button next to set titles to add new sets to a group</td>
+                    </tr>
+                    <tr>
+                        <td>Delete Sets</td>
+                        <td>Click the "-" button next to set titles to delete sets</td>
+                    </tr>
+                    <tr>
+                        <td>Value Constraints</td>
+                        <td>Values are automatically constrained to the range -1 to 1</td>
+                    </tr>
+                    <tr>
+                        <td>Export Data</td>
+                        <td>Click "Export to Console" to output the current schema as JSON</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--box-background-color</td>
+                        <td>#121212</td>
+                        <td>Background color of value input boxes</td>
+                    </tr>
+                    <tr>
+                        <td>--box-border-color</td>
+                        <td>#444</td>
+                        <td>Border color for boxes and buttons</td>
+                    </tr>
+                    <tr>
+                        <td>--box-color</td>
+                        <td>#bbb</td>
+                        <td>Text color for general content</td>
+                    </tr>
+                    <tr>
+                        <td>--editable-color</td>
+                        <td>#aaa</td>
+                        <td>Text color for editable input fields</td>
+                    </tr>
+                    <tr>
+                        <td>--highlight-color</td>
+                        <td>#aaa</td>
+                        <td>Background color for hover states</td>
+                    </tr>
+                    <tr>
+                        <td>--add-delete-color</td>
+                        <td>blue</td>
+                        <td>Color for add/delete buttons</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+</div>
+
+<style>
+    .component-content {
+        background-color: var(--color-card-bg);
+        border-radius: var(--border-radius-md);
+        padding: var(--spacing-lg);
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+
+    .component-description {
+        color: var(--color-text-light);
+        margin-bottom: var(--spacing-lg);
+        max-width: 100%;
+    }
+
+    .example-container {
+        background-color: var(--color-background);
+        padding: var(--spacing-lg);
+        border-radius: var(--border-radius-md);
+        margin-top: var(--spacing-md);
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: auto;
+    }
+
+    .example-container h4 {
+        margin-top: var(--spacing-md);
+        margin-bottom: var(--spacing-sm);
+        color: var(--color-text);
+    }
+
+    .example-container h4:first-child {
+        margin-top: 0;
+    }
+
+    pre {
+        background: var(--color-background);
+        padding: var(--spacing-md);
+        border-radius: var(--border-radius-sm);
+        overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    code {
+        color: var(--color-text);
+        font-family: monospace;
+        overflow-wrap: break-word;
+    }
+
+    .props-table {
+        width: 100%;
+        border-collapse: collapse;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .props-table th,
+    .props-table td {
+        padding: var(--spacing-sm) var(--spacing-md);
+        text-align: left;
+        border-bottom: 1px solid var(--color-border);
+        word-break: break-word;
+    }
+
+    .props-table th {
+        color: var(--color-primary);
+    }
+</style>
+
+<script>
+    $i.ready(function(){
+        $i.SEO.update({
+            title: "AMMERSE Schema Component",
+            description: "An interactive table component for creating and managing multiple AMMERSE weight sets organized in groups",
+            keywords: "ammerse, schema, table, weights, groups, sets, interactive, editing"
+        });
+    });
+</script> 

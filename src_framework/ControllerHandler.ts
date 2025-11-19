@@ -31,13 +31,17 @@ namespace iignition
             }
             
             if (routing && ctx.container) {
-                routing.container = `[data-viewcontainer="${ctx.container}"]`;
+                if (typeof ctx.container === 'string' && ctx.container.startsWith('[data-viewcontainer')) {
+                    routing.container = ctx.container;
+                } else {
+                    routing.container = `[data-viewcontainer="${ctx.container}"]`;
+                }
             } else if (routing) {
                 routing.container = `[data-viewcontainer=""]`;
             }
 
-            if (!ctx.data){
-                ctx.data = history.state;
+            if (!ctx.data || (typeof ctx.data === 'object' && Object.keys(ctx.data).length === 0)) {
+                ctx.data = routing.data || history.state;
             }
 
             routing.data = ctx.data;

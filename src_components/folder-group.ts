@@ -12,6 +12,8 @@
  * @fires folder-group-connected - When the component is connected to the DOM
  * @slot menu - Optional slot for custom menu content. If not provided, no menu will be shown.
  */
+
+
 class FolderGroup extends HTMLElement {
     private header: HTMLElement;
     private content: HTMLElement;
@@ -153,8 +155,28 @@ class FolderGroup extends HTMLElement {
             });
         }
 
-        // Restore collapsed state from saved data
-        this.restoreState();
+        // Minimal drag-and-drop handlers
+        this.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+        this.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const dragged = FolderItem.draggedItem;
+            if (!dragged) return;
+            let target = e.target as HTMLElement;
+            const item = target.closest('folder-item');
+            if (item && item !== dragged) {
+                this.insertBefore(dragged, item);
+            } else {
+                this.appendChild(dragged);
+            }
+            // Dispatch reorder event with only the group node in detail
+            this.dispatchEvent(new CustomEvent('folder-group-items-reordered', {
+                detail: { group: this },
+                bubbles: true,
+                composed: true
+            }));
+        });
     }
     
     disconnectedCallback() {
@@ -191,16 +213,23 @@ class FolderGroup extends HTMLElement {
     }
     
     private processChildren() {
-        // Process direct children
-        Array.from(this.children).forEach(child => {
-            if (child instanceof HTMLElement) {
-                // Ensure folder-items are properly initialized
-                if (child.tagName.toLowerCase() === 'folder-item') {
-                    // No need to set slot as we're using default slot
-                    console.log('Folder group contains item:', child.textContent?.trim());
-                }
+        // Ensure all items have unique, sequential order attributes
+        const items = Array.from(this.querySelectorAll('folder-item'));
+        const FolderItemCtor = customElements.get('folder-item');
+        items.forEach((item, idx) => {
+            if (FolderItemCtor && item instanceof FolderItemCtor && typeof (item as any).setOrder === 'function' && !item.hasAttribute('order')) {
+                (item as any).setOrder(idx);
             }
         });
+        // Sort children by order attribute if present
+        if (items.length > 1 && items[0].hasAttribute('order')) {
+            items.sort((a, b) => {
+                const ao = (FolderItemCtor && a instanceof FolderItemCtor && typeof (a as any).getOrder === 'function') ? (a as any).getOrder() : 0;
+                const bo = (FolderItemCtor && b instanceof FolderItemCtor && typeof (b as any).getOrder === 'function') ? (b as any).getOrder() : 0;
+                return ao - bo;
+            });
+            items.forEach(item => this.appendChild(item));
+        }
     }
 
     private toggleCollapse() {
@@ -213,9 +242,6 @@ class FolderGroup extends HTMLElement {
         }
         
         this.updateCollapse();
-
-        // Save the current collapsed state
-        this.saveState();
     }
 
     private updateCollapse() {
@@ -244,9 +270,6 @@ class FolderGroup extends HTMLElement {
         this.collapsed = false;
         this.removeAttribute('collapsed');
         this.updateCollapse();
-
-        // Save the current collapsed state
-        this.saveState();
     }
     
     /**
@@ -257,9 +280,6 @@ class FolderGroup extends HTMLElement {
         this.collapsed = true;
         this.setAttribute('collapsed', '');
         this.updateCollapse();
-
-        // Save the current collapsed state
-        this.saveState();
     }
 
     private getStyles(): string {
@@ -348,50 +368,6 @@ class FolderGroup extends HTMLElement {
                 min-height: 1em;
             }
         `;
-    }
-
-    /**
-     * Get the state key for this folder group
-     */
-    private getStateKey(): string {
-        const label = this.getAttribute('label') || 'unnamed';
-        const dock = this.getAttribute('dock') || 'top';
-        return `folder-group-state-${dock}-${label}`;
-    }
-
-    /**
-     * Save the current collapsed state
-     */
-    private saveState() {
-        const state = {
-            collapsed: this.collapsed,
-            label: this.getAttribute('label'),
-            dock: this.getAttribute('dock')
-        };
-        localStorage.setItem(this.getStateKey(), JSON.stringify(state));
-    }
-
-    /**
-     * Restore collapsed state from saved data
-     */
-    private restoreState() {
-        const saved = localStorage.getItem(this.getStateKey());
-        if (!saved) return;
-        
-        try {
-            const state = JSON.parse(saved);
-            if (typeof state.collapsed === 'boolean') {
-                this.collapsed = state.collapsed;
-                if (this.collapsed) {
-                    this.setAttribute('collapsed', '');
-                } else {
-                    this.removeAttribute('collapsed');
-                }
-                this.updateCollapse();
-            }
-        } catch (e) {
-            console.warn('Failed to parse saved folder-group state:', e);
-        }
     }
 }
 

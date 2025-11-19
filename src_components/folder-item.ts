@@ -14,6 +14,7 @@ class FolderItem extends HTMLElement {
     private clickHandler: (e: Event) => void;
     private actionClickHandler: (e: Event) => void;
     private selected: boolean = false;
+    static draggedItem: FolderItem | null = null;
     
     constructor() {
         super();
@@ -42,6 +43,39 @@ class FolderItem extends HTMLElement {
             e.stopPropagation(); // Prevent triggering the main item click
             this.handleActionClick(e);
         };
+
+        // Drag-and-drop handlers
+        this.addEventListener('dragstart', (e) => {
+            FolderItem.draggedItem = this;
+            this.classList.add('dragging');
+            e.dataTransfer!.effectAllowed = 'move';
+        });
+        this.addEventListener('dragend', (e) => {
+            FolderItem.draggedItem = null;
+            this.classList.remove('dragging');
+        });
+        this.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer!.dropEffect = 'move';
+            this.classList.add('drag-over');
+        });
+        this.addEventListener('dragleave', (e) => {
+            this.classList.remove('drag-over');
+        });
+        this.addEventListener('drop', (e) => {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            const fromOrder = e.dataTransfer!.getData('application/folder-item-index');
+            this.dispatchEvent(new CustomEvent('folder-item-drop', {
+                detail: {
+                    fromOrder: parseInt(fromOrder, 10),
+                    toOrder: parseInt(this.getAttribute('order') || '0', 10),
+                    target: this
+                },
+                bubbles: true,
+                composed: true
+            }));
+        });
     }
     
     connectedCallback() {
@@ -75,6 +109,8 @@ class FolderItem extends HTMLElement {
 
         // Restore item state from saved data
         this.restoreState();
+
+        this.setAttribute('draggable', 'true');
     }
     
     disconnectedCallback() {

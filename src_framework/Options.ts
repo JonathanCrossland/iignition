@@ -13,6 +13,8 @@ namespace iignition{
 		public controllerPath:string = "viewControllers";
 		public controllerjs: string = ""; // hard coded from client
 		public view: string = "";
+		//change the dynamic client side url?
+		public staticUrl: boolean = false;
 
 		apply(){
 			if (this.debug === true || (typeof this.debug === 'number' && this.debug > LogLevel.Off)){

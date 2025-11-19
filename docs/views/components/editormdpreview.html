@@ -1,0 +1,1189 @@
+<style>
+    /* Base styling for the component */
+    editor-md-preview {
+        --preview-bg: var(--color-card-bg, #f8f9fa);
+        --preview-text: #111;
+        --preview-border: var(--color-border, #e0e0e0);
+        --preview-shadow: none; /* Removed shadow */
+        --preview-page-bg: #ffffff;
+        --preview-margin-color: #f0f0f0;
+        --preview-font-family: 'Times New Roman', serif;
+        --preview-font-size: 12pt;
+        --preview-line-height: 24pt;
+        
+        width: 100%;
+        height: 100%;
+    }
+    
+    /* Manuscript format styling rules - higher specificity */
+    .component-content editor-md-preview h1,
+    editor-md-preview h1 {
+        font-size: 42px !important;
+        font-weight: 700 !important;
+        color: #d60d0d !important;
+        text-align: center !important;
+        margin: 0 0 0.5in 0 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+    }
+    
+    /* h2 styling moved to external CSS below */
+    
+    /* Manuscript paragraph rules */
+    editor-md-preview p {
+        margin: 0;
+    }
+    
+    /* First paragraph in document - no indentation */
+    editor-md-preview .content p:first-child {
+        text-indent: 0;
+    }
+    
+    /* All other paragraphs - half inch indentation */
+    editor-md-preview .content p:not(:first-child) {
+        text-indent: 0.5in;
+    }
+    
+    /* Alternative: Target by position in content */
+    editor-md-preview p:nth-of-type(1) {
+        text-indent: 0;
+    }
+    
+    editor-md-preview p:nth-of-type(n+2) {
+        text-indent: 0.5in;
+    }
+    
+    /* Lists in manuscript format */
+    editor-md-preview ul, editor-md-preview ol {
+        margin: 0 0 0.5in 0.5in;
+        text-indent: 0;
+    }
+    
+    /* Blockquotes in manuscript format */
+    editor-md-preview blockquote {
+        margin: 0 0 0.5in 0.5in;
+        text-indent: 0;
+        border-left: 3px solid #000;
+        padding-left: 0.25in;
+    }
+</style>
+
+<div class="component-content">
+    <h2>Editor MD Preview Component</h2>
+    <p class="component-description">A precise page preview component with publishing industry standard page sizes, automatic page breaks, and markdown rendering. Perfect for creating print-ready document previews with accurate DPI measurements. Supports direct CSS styling without Shadow DOM encapsulation.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <div class="example-container">
+                <h4>Basic A4 Preview</h4>
+                <editor-md-preview id="basic-preview" size="a4" margin="manuscript" style="height:100vh">
+                    # Agra-Black
+                    
+The paving slabs in front of the grand estate home, were a little uneven. Workers laid it during the mansions' construction back in 1740, in what was known in the trade as a basket weave pattern. It was pleasant to look at, but not remarkable. What *was* remarkable is that it meant *'Insert Rug Here'* in Caspiodatisk, the language spoken by the two driving the van. The very van which jolted under heavy braking and now halted on those uneven slabs. 
+                    The van had a Damask pattern woven on the rear sides and on the back doors. The name 'Agra-Black' in a calligraphy script, with block letters; *Silk Rug Company* ran on its side, a little larger than one would expect a signage professional with a keen eye would recommend. The doors opened. A man, smaller than average, hopped out into the light rain. He wore a New York printed cap and a black rain poncho. There was something odd about him. His nose, large and slightly hooked, dominated his face. His ears looked like it was clipped on and if you looked closely, indeed it was. A metal band ran around the back of his head like a spring, clamping two plastic ears in place. He let out what sounded like a medieval jingle, with a throaty and nasal overtone whistle. He wore a leg brace, the kind where one leg is slightly shorter, and he limped to the back of the van, opening the double doors.
+                    The second man appeared from the other side of the van. He was the same height as the first, had the same plastic ears and if you knew anything about the Caspiodates, you would know that they looked much the same and only they could tell each other apart. The second man whistled a short and stunted tune, prompting the first man to climb into the van before both emerging, carrying a silk rug. The rug, despite being rolled up, was clearly splendid, with dark maroons and reds and the trademarked fine gold fringe. 
+                    
+                    Agra-Black made the world's finest silk rugs, everyone knew it. It was revered by the master makers in Persia and beyond, quality rugs that even the great Maya Devar Al-Aziz could not explain. The master craftsmen of these wondrous rugs, remained mysterious, despite tabloids, journalists, even social media stars, working hard to uncover their secrets. Scores of journalists tried following the delivery vans, only to be evaded and foiled every time. Agra-Black operated in secrecy, their carpets and methods unpatented, for fear of others knowing how to make them. Of course, the real scandal was that earthlings had no idea about who the Caspiodates were, or why they were here selling silk rugs. 
+                    
+                    The two men carried the silk rug and clanged the door knocker on the tall and heavy wooden carved doors. One side creaked open, revealing a footman in his black trousers, and mustard waistcoat. He was a lot taller than the Caspiodates.
+                    
+                    "Gentleman," lowering his head, "Kindly use the back entrance for deliveries."
+                    
+                    The footman stepped back and closed the door. Thud.
+                    
+                    The Caspiodates carrying the rug, present a particular challenge when trying to differentiate. Even their names present a challenge, as there is no proper way to write whistles, with any precision. The first Caspiodate will be known as York, after the cap he wears. The other Caspiodate's name sounds similar to "whww-wh-hiiii?", the question mark, an attempt at adding the raised ending. We will also have to translate their communication whistles into English, else it would be rather confusing.
+                    
+                    Whiiii says, "Right, Folla me." 
+                    
+                    You will notice that he also has a strong Equivian accent, as he was brought up in foster care.
+                    
+                    Whiiii and York, walked around the entire house, as unfortunately, they went to the right, and the side door was only fifty feet away if they went to the left. 
+                    Their journey around the entirety of the house, unfortunately led them to some pesky children, playing on the grass. Whiiii and York traipsed carefully, hoping to go unnoticed, but children always noticed. Children knew they were odd.
+                    
+                    "Hey, Jane," called out one boy, "Look at the aliens."
+                    
+                    The girl laughed and pointed. The nanny, told them to not be so rude and apologised pulling the boy and the girl further back onto the grass.
+                    
+                    York gave a little wave and an awkward nod. Whiiii scowled, picking up speed which came as a surprise to York, who almost fell.
+                    
+                    The footman greeted them at the back entrance, "This way."
+                    
+                    They followed the footman through a kitchen, a long hallway and then up some tight stairs. They walked along what was a servants' passage and exited into a grand room, out of a bookshelf's secret door.
+                    
+                    "Over here, gentleman." The footman entered the room and waved his arm to gesture they enter, which they did, clumsily. Whiiii jabbed a whistle and they set the rug down, in the open cleared area, rolling it out. The room had a gold chandelier, oil paintings of horses, with amazing wooden floors and a grand dining table with 18 chairs, moved to the side.
+                    
+                    As the rug settled into place, immediately four house staff, picked up the large dining table and set it on the rug, another ensuring it was exactly central to the chandelier.
+                    
+                    One of the rug's corners got kicked and turned over by one of the staff, to which York flung himself to the corner, setting it straight.
+                    
+                    "Thank you, Gentleman," said the footman, "If you would escort me now to the kitchen, I will ensure a biscuit and tea if you so desire."
+                    
+                    The footman turned and left through the bookcase, but York and Whiiii seemed reluctant to leave the rug.
+                    
+                    "This way gentleman," called the footman.
+                    
+                    Whiiii said, "Whee-twee-wii-woo-?-whoo?"
+                    
+                    York replied and then went on his hands and knees, extracting a fringe comb from his pocket and proceeded to straighten the fringe around the carpet.
+                    Whiiii walked around inspecting the rug and on noticing a slight crossing of the fringe on the left side, also collapsed to hands and knees, combing it out.
+                    The footman, returned and now standing in the bookshelf's doorway, coughed, "Gentleman, if you would kindly follow me."
+                    Whiiii jumped up awkwardly, extracted a card from his inside jacket pocket and handed it to the footman. 
+                    
+                    Important was written in bold on the one side and turning it over, it read.
+                    
+                    *Do not clean.*
+                    *Maintain the fringe with a comb, always extended, never bent.*
+                    
+                    The footman read the instruction, to which Whiiii held out the fringe comb, beckoning him to take it.
+                    He mimed the combing of the fringe and urged the footman once more.
+                    
+                    "Yes, yes," laughed the footman, "We have a dozen housekeepers here who are well versed in this sort of thing."
+                    
+                    Whiiii turned to look at the staff, and limped over. He removed a dozen or so cards from his pockets, handing one to each member of staff.
+                    
+                    He mimed the combing of the fringe, again and again.
+                    
+                    Everyone was amused and nodded to the pantomime.
+                    
+                    The footman commanded, "Gentleman, I must insist." 
+                    
+                    They followed the footman down the passage and the stairs. Whiiii continued to hand out a card to a member of staff they passed in the passage. 
+                    
+                    They mimed the combing of the fringe as they walked past two other members of bemused staff.
+                    
+                    "Yes," said footman, "I see you are extremely passionate about your rugs."
+                    
+                    They responded with a quirky smile and followed him to the kitchen, where one of the kitchen staff had two cups of tea and biscuits on a plate.
+                    
+                    "I shall leave you. Thank you gentleman." 
+                    
+                    The footman was gone.
+                    
+                    Whiiii and York drank the tea in two large gulps, devoured a biscuit and then left the house, still handing out cards.
+                    
+                    They made it past the distasteful children and into their van. They took off at great speed, as with all things Caspiodate, a little exaggerated. Brakes were not pressed, but slammed, accelerator not depressed gently, but treated as an on-off switch.
+                    
+                    The gates closed behind them and then screeched off down the road.
+                    
+                    ***
+                    
+                    The paranoid white van drove down East India Dock road, made a quick turn onto the A1026. It drove around the roundabout at least ten times, monitoring the rear mirrors for any one following. They took the turn and accelerated on the A1261, only to be stopped dead by traffic, leaving them in a vulnerable position of being tracked. When the traffic gave way, they were turning right back onto the dock road, and back to the roundabout. They tried again. They circled the roundabout a few times more and then successfully, disappeared. As it happens, a reporter from the local newspaper had been following them, but lost them at the roundabout. 
+                    
+                    ***
+                    
+                    The white van entered through triple sized roller doors into a vacuous building and parked, alongside four other vans of the same kind. Another van, followed them in and parked alongside. Whiiii and York, were almost indistinguishable from a dozen or so other Caspiodates getting out of the vehicles and who were converging to rows of unfolded seats, arranged in front of a stage. Almost indistinguishable if it wasn't for them both being a metre taller than the others.
+                    More vans came in until there were thirty eight of them seated. 
+                    They all stood up and clapped as another Caspiodate, wearing a red fascinator on the side of his head took the stage. He raised his arms and asked them to settle down.
+                    
+                    "wheee-whoo-tree-riii-aiii," he whistled. Everyone applauded.
+                    
+                    The Caspiodate removed his jacket and hung it over the chair. He reached into a box and pulled something out, which he obscured in his palms.
+                    
+                    "Our instructions are now," he said, stirring anticipation, "Red." 
+                    
+                    "Much, much better," said a voice.
+                    
+                    "Hooray," said another.
+                    
+                    York turned to Whiiii with a large grin, "Much better. It can't miss."
+                    
+                    A tear came to the right eye of Whiiii, who wiped it away. Only his right eye shed a tear, as Caspiodates had directional tears. So embarrassed by crying, their species had evolved to only tear up in whichever eye faced away from other people.
+                    
+                    "A red back, represents danger. We feel they will respond better to this colour."
+                    
+                    "But also," he continued, "The instructions are now," he turned the card over, "in bold."
+                    
+                    This took the crowd over the edge with a standing ovation, and great cheering. It was so chaotic that it took a while before they all settled back into their chairs.
+                    The event concluded and they all went off in different directions, some packed rugs into their vans, others were laughing and chatting, others doing paperwork.
+                    York and Whiiii still feeling good about the meeting, gave each other a hug and then wandered off to an offshoot meeting.
+                    The Caspiodate who was on stage, was now talking to a few others around a whiteboard. He was clearly in charge, and he pointed to a chart showing deliveries over the last month. Whiiii and York added themselves to the conversation.
+                    
+                    "And we can possibly open the gateway on the 4th October," one Caspiodate said.
+                    
+                    "Even earlier, if we can get these final sixty deliveries out," said another.
+                    
+                    Whiiii added, "We have five deliveries tomorrow."
+                    
+                    "Whiiii, nice of you to join us," said the boss, "Our star delivery team. Hello York, join us."
+                    
+                    They all shuffled properly making a gap in their circular huddle.
+                    
+                    "These guys have delivered the most rugs in the shortest time," the boss said, "And the most promotions."
+                    
+                    "We only want a successful invasion," said Whiiii.
+                    
+                    York nodded, "All we do is for that glorious day."
+                    
+                    "The fringe problem is still a problem and I am pleased to see the new cards," said Whiiii.
+                    
+                    "I designed it," said one of the gathered.
+                    
+                    Whiiii congratulated him with a pat on the back and said, "We have to get the message through. It is difficult to convince humans to maintain the fringe."
+                    "So untidy." 
+                    
+                    "Such neglect."
+                    
+                    "It's as if they just don't care."
+                    
+                    Whiiii assured them, "This new card, is the way to go." He smiled again at the designer.
+                    
+                    They all whistled and whistled, and it sounded like a Celtic celebration of the harvest. A remarkable coincidence and no melodic cross over or contamination whatsoever.
+                    
+                    ***
+                    
+                    A couple in a suburban street, welcome their neighbours in for a cup of tea.
+                    
+                    "Please do come in," says John.
+                    
+                    "Thank you, nice to see you," says Judith, "and you Agnes. How are you dear?"
+                    
+                    They hug.
+                    
+                    "Alan," says John, nodding with polite reservation.
+                    
+                    "John, how are you?" Alan held out his hand, with a large smile which John took firmly.
+                    
+                    "Fine, come in." 
+                    
+                    They entered the sitting room, where a beautiful rug anchored the room. A small coffee table stood on it.
+                    
+                    "When did you get that?" asks Judith, "So beautiful. Oh I love it."
+                    
+                    "Amazing. Is it an Agra-Black?" asked Alan, kneeling down. He stroked the rug, feeling its smooth delicate texture. He straightened a turned up fringe, out of politeness, not for any shared values of the Caspiodates.
+                    
+                    "Amazing," he said, getting himself up with a moan and moving to a chair, "What amazing rugs."
+                    
+                    John moved behind him and scuffed the fringe back, out of place, with his foot. "How was your holiday?"
+                    
+                    "Fine. Fine."
+                    
+                    John sat down in his chair and Judith offered them tea.
+                    
+                    "Speaking of rugs, pleasant day for a spot of cricket, wouldn't you say, John?" asked Alan.
+                    
+                    "The wife won't stand for it," whispered John, shielding his mouth from their wives.
+                    
+                    ***
+                    
+                    "And there it is." 
+                    
+                    The boss pointed at Whiiii and York, "Another promotion. Congratulations to you both."
+                    
+                    Whiiii and York shuddered, their bodies shaking as they physically grew another centimetre.
+                    
+                    Whiiii looked at the boss and they both noticed. They stood up straight, the boss on tip toes, prompting Whiiii to also stretch up.
+                    "Ok," said the boss, taking off a British flag pin from his pocket and plopping it into Whiiii's open hand. The pin was insignificant, as it was like any other you would purchase at any tourist hotspot around London. The significance of handing it over, however, was great.
+                    
+                    "Boss," said the demoted boss, "How do you do it?"
+                    
+                    He, the old boss, let's call him Dave, started an applause as Whiiii took the pin and pinned it to his pocket. 
+                    Whiiii gestured for them to swap positions in the circle, not really necessary, but as a first act of power. Dave responded with servitude.
+                    
+                    You see, every time a rug was complimented, the Caspiodates who delivered it, were rewarded with a promotional height increase. The Caspiodates, were of course not the only race in the galaxy to be governed purely by heightocracy, starting out very tiny.
+                    
+                    "Fantastic," said one of the others.
+                    
+                    "Now, back to business." 
+                    
+                    Whiiii, the new boss took a step forward assuming his position in the circle.
+                    
+                    "Remember, we are to flick the switch, activating all the portals at 7pm that evening. We think it will be the 4th of next month."
+                    
+                    "But it could be sooner," said Dave.
+                    
+                    "Yes. Now we will flick the activation switch, and send the signal, to which the invasion force from Caspionate will enter Earth through our portals."
+                    
+                    "I can't wait," giggled another.
+                    
+                    "But we are a lot taller now that we are on Earth, getting promotions," declared Whiiii.
+                    
+                    ***
+                    
+                    It was another large house, but this time, in a little town outside Bath. It was, by all accounts, in the middle of nowhere, and in reality, it was in Wiltshire, in the middle of nowhere. The walls around the estate were around eight feet high, the gate impenetrable by any vehicle. It was a fortress of an estate.
+                    
+                    The white Agra-Black van pulled up to the large majestic gates of the home and York pressed the intercom. Moments later, the gates swung open and they drove up the estate's driveway.
+                    
+                    They were greeted by an elderly but tall Scottish man. "I am only house-sitting, you know."
+                    
+                    They nodded and smiled while they reached in and retrieved the largest rug yet. It was long and they mimed to the man, to help carry. The tall man took the rear of the carpet and York took the middle.
+                    
+                    "To your left," said the man. They followed the instruction down a pathway with a couple of steps.
+                    
+                    "To your right," said the man, as they came up on a fork in the path. A large majestic tree shielded the path from the sun, and the rug looked almost black. The rug glistened again as they entered the sunlight out of the shadow of the tree.
+                    
+                    "Up to those doors, there."
+                    
+                    They entered the doors and the room was empty.
+                    
+                    "The owners were waiting for this rug and will decorate the room around it ... when they return from holiday, next year."
+                    
+                    Whiiii and York unrolled the rug and shifted it dead centre of the room and promptly began combing the fringe until it was perfect.
+                    
+                    "You are perfectionists. I like that," said the man.
+                    
+                    Whiiii and York both gave the man a new red card, with the instructions and left down the path, leaving the man to lock up behind.
+                    
+                    They got in their van and waited. It was not long and the man came up the garden path, got into his car and the two vehicles left the property.
+                    
+                    Whiiii whistled. York whistled. They laughed and the van took off back to London.
+                    
+                    ***
+                    
+                    Hand poised on the switch of a large console with beeping lights, we could not possibly understand, Whiiii, now the boss of all Caspiodates grinned, "In 5, 4, 3, 2 ..."
+                    
+                    He flicked the switch. Nothing happened.
+                    
+                    "Nothing happened," said York.
+                    
+                    "It will, the portals are now open, and the signal is being sent to the battleships," declared Whiiii.
+                    
+                    A purring, then a squawk. A message.
+                    
+                    "Open the portals." 
+                    
+                    "They are open," declared Whiiii, "Attack."
+                    
+                    "We are blocked, the portal won't open," said a voice.
+                    
+                    "No, we are blocked," said another.
+                    
+                    "Damn humans," said Whiiii, "They can't follow rules."
+                    
+                    "The portals will not open unless the fringes are straight," said York.
+                    
+                    "We can't get in," said another message.
+                    
+                    "Ok, ok," said Whiiii, "Report. Has any team managed to get into the portal?"
+                    
+                    "Yes sir," came a voice, "But you are not going to like this."
+                    
+                    ***
+                    
+                    It was the large estate, the only one where a rug was left unmarred by human activity, where the fringes were perfect as Whiiii left them. The estate was quiet and locked.
+                    
+                    An army of at least fifty Caspiodates, with spears and battle axes, appeared through the rug portal. This was to be their very first invasion for their species. 
+                    Their will was strong and they cheered in their whistle tongue. Their armour and equipment were undeveloped, but unfortunately for them, so was their size, around a foot high or less.
+                    
+                    "We can't get out what appears to be a large room," declared the lead soldier.
+                </editor-md-preview>
+            </div>
+            <div class="example-container">
+                <h4>US Letter with Large Margins</h4>
+                <editor-md-preview id="letter-preview" size="letter" margin="manuscript" show-page-numbers="true">
+# US Letter Document
+
+This document uses US Letter size with large margins to demonstrate the different page formats available.
+
+## Content Section
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+
+### Subsection
+
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+#### Features
+
+- **Professional Layout**: Clean, print-ready formatting
+- **Accurate Sizing**: Precise DPI measurements for print
+- **Multiple Formats**: Support for various page sizes
+- **Responsive Design**: Adapts to different screen sizes
+
+## Additional Content
+
+This section demonstrates how content flows across multiple pages when it exceeds the available space on a single page. The component automatically calculates page breaks based on content length and page dimensions.
+
+### Technical Specifications
+
+The component uses 72 DPI (dots per inch) for accurate print measurements, ensuring that what you see on screen closely matches what will be printed.
+
+> **Note**: This is a blockquote example showing how quoted content appears in the preview.
+
+```css
+/* Example CSS for styling */
+.editor-md-preview {
+    --preview-font-size: 12pt;
+    --preview-line-height: 1.5;
+}
+```
+
+## Conclusion
+
+This demonstrates the full capabilities of the EditorMDPreview component with proper page layout, margins, and content flow.
+                </editor-md-preview>
+            </div>
+            <div class="example-container">
+                <h4>Custom Styled Preview</h4>
+                <editor-md-preview id="styled-preview" class="custom-preview" size="a5" margin="narrow">
+# Custom Styled Document
+
+This preview demonstrates **direct element styling** - you can style any element using standard CSS selectors.
+
+## Typography Control
+
+The component exposes all HTML elements for direct CSS styling. No complex CSS variables needed!
+
+### Styling Features
+
+- **Direct CSS**: Style elements with standard selectors
+- **Full Control**: Any CSS property (font-family, text-align, border, etc.)
+- **Unlimited Flexibility**: Add any styling you need
+- **Professional Layout**: Print-ready formatting
+
+## Content Examples
+
+This section shows how different content types appear with custom styling:
+
+- **Bold text** for emphasis
+- *Italic text* for subtle styling
+- `Inline code` for technical terms
+- [External links](https://example.com) for references
+
+> This blockquote demonstrates how quoted content appears with custom styling.
+
+```javascript
+// Code blocks also respect custom styling
+function customFunction() {
+    return "Custom styled code";
+}
+```
+
+## Conclusion
+
+The component provides unlimited styling control while maintaining professional document formatting.
+                </editor-md-preview>
+            </div>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <pre><code class="language-html">&lt;!-- Basic A4 Preview with Markdown Content --&gt;
+&lt;editor-md-preview size="a4" margin="manuscript"&gt;
+# My Document
+
+This is a paragraph with **bold text** and *italic text*.
+
+## Section 1
+
+- List item 1
+- List item 2
+- List item 3
+
+### Subsection
+
+More content here with proper markdown formatting.
+&lt;/editor-md-preview&gt;
+
+&lt;!-- US Letter with Custom Styling --&gt;
+&lt;editor-md-preview 
+    id="my-preview"
+    size="letter" 
+    margin="large"&gt;
+# Custom Styled Document
+
+## Typography Examples
+
+This document demonstrates **bold text**, *italic text*, and `inline code`.
+
+### Features
+
+- **Professional Layout**: Clean, print-ready formatting
+- **Accurate Sizing**: Precise DPI measurements for print
+- **Multiple Formats**: Support for various page sizes
+&lt;/editor-md-preview&gt;
+
+&lt;style&gt;
+/* Style elements directly - no Shadow DOM blocking */
+#my-preview h1 {
+    font-size: 32px;
+    color: #2c3e50;
+    text-align: center;
+    font-family: 'Georgia', serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#my-preview h2 {
+    font-size: 24px;
+    color: #3498db;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 0.5em;
+}
+
+#my-preview p {
+    line-height: 1.6;
+    text-align: justify;
+    margin: 0 0 1em 0;
+}
+
+#my-preview ul, #my-preview ol {
+    margin: 0 0 1em 2em;
+}
+&lt;/style&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>size</td>
+                        <td>string</td>
+                        <td>a4</td>
+                        <td>Page size: a4, a5, letter, legal, tabloid</td>
+                    </tr>
+                    <tr>
+                        <td>margin</td>
+                        <td>string</td>
+                        <td>manuscript</td>
+                        <td>Margin size: small, medium, large, manuscript, narrow, wide</td>
+                    </tr>
+                    <tr>
+                        <td>show-page-numbers</td>
+                        <td>boolean</td>
+                        <td>true</td>
+                        <td>Show page numbers on each page</td>
+                    </tr>
+                    <tr>
+                        <td>show-page-breaks</td>
+                        <td>boolean</td>
+                        <td>true</td>
+                        <td>Show visual page breaks</td>
+                    </tr>
+                    <tr>
+                        <td>font-family</td>
+                        <td>string</td>
+                        <td>Times New Roman, serif</td>
+                        <td>Font family for preview text</td>
+                    </tr>
+                    <tr>
+                        <td>font-size</td>
+                        <td>string</td>
+                        <td>12pt</td>
+                        <td>Font size for preview text</td>
+                    </tr>
+                    <tr>
+                        <td>line-height</td>
+                        <td>string</td>
+                        <td>1.5</td>
+                        <td>Line height for preview text</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Methods">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Parameters</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>setContent</td>
+                        <td>content: string</td>
+                        <td>Sets the markdown content to preview</td>
+                    </tr>
+                    <tr>
+                        <td>getContent</td>
+                        <td>none</td>
+                        <td>Gets the current markdown content</td>
+                    </tr>
+                    <tr>
+                        <td>configure</td>
+                        <td>options: EditorMDPreviewOptions</td>
+                        <td>Configures the preview with custom options</td>
+                    </tr>
+                    <tr>
+                        <td>getPageCount</td>
+                        <td>none</td>
+                        <td>Gets the total number of pages</td>
+                    </tr>
+                    <tr>
+                        <td>getCurrentPage</td>
+                        <td>none</td>
+                        <td>Gets the current page number</td>
+                    </tr>
+                    <tr>
+                        <td>goToPage</td>
+                        <td>pageNumber: number</td>
+                        <td>Navigates to a specific page</td>
+                    </tr>
+                    <tr>
+                        <td>nextPage</td>
+                        <td>none</td>
+                        <td>Goes to the next page</td>
+                    </tr>
+                    <tr>
+                        <td>previousPage</td>
+                        <td>none</td>
+                        <td>Goes to the previous page</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Page Sizes">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Size</th>
+                        <th>Dimensions (inches)</th>
+                        <th>Dimensions (pixels @ 72 DPI)</th>
+                        <th>Common Use</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>a4</td>
+                        <td>8.27" × 11.69"</td>
+                        <td>595 × 842px</td>
+                        <td>International standard, Europe</td>
+                    </tr>
+                    <tr>
+                        <td>a5</td>
+                        <td>5.83" × 8.27"</td>
+                        <td>420 × 595px</td>
+                        <td>Booklets, small publications</td>
+                    </tr>
+                    <tr>
+                        <td>letter</td>
+                        <td>8.5" × 11"</td>
+                        <td>612 × 792px</td>
+                        <td>US standard, North America</td>
+                    </tr>
+                    <tr>
+                        <td>legal</td>
+                        <td>8.5" × 14"</td>
+                        <td>612 × 1008px</td>
+                        <td>Legal documents, contracts</td>
+                    </tr>
+                    <tr>
+                        <td>tabloid</td>
+                        <td>11" × 17"</td>
+                        <td>792 × 1224px</td>
+                        <td>Newspapers, large format</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Margin Options">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Margin</th>
+                        <th>Size</th>
+                        <th>Use Case</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>small</td>
+                        <td>0.5"</td>
+                        <td>Dense layouts, technical documents</td>
+                    </tr>
+                    <tr>
+                        <td>narrow</td>
+                        <td>0.75"</td>
+                        <td>Academic papers, reports</td>
+                    </tr>
+                    <tr>
+                        <td>manuscript</td>
+                        <td>1.0"</td>
+                        <td>Standard manuscript format (default)</td>
+                    </tr>
+                    <tr>
+                        <td>medium</td>
+                        <td>1.0"</td>
+                        <td>General documents</td>
+                    </tr>
+                    <tr>
+                        <td>wide</td>
+                        <td>1.25"</td>
+                        <td>Formal documents, presentations</td>
+                    </tr>
+                    <tr>
+                        <td>large</td>
+                        <td>1.5"</td>
+                        <td>Books, formal publications</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Configuration">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>size</td>
+                        <td>string</td>
+                        <td>a4</td>
+                        <td>Page size preset</td>
+                    </tr>
+                    <tr>
+                        <td>margin</td>
+                        <td>string</td>
+                        <td>manuscript</td>
+                        <td>Margin size preset: small, medium, large, manuscript, narrow, wide</td>
+                    </tr>
+                    <tr>
+                        <td>customMargin</td>
+                        <td>string</td>
+                        <td>undefined</td>
+                        <td>Custom margin value (e.g., "1.5in")</td>
+                    </tr>
+                    <tr>
+                        <td>customWidth</td>
+                        <td>string</td>
+                        <td>undefined</td>
+                        <td>Custom page width</td>
+                    </tr>
+                    <tr>
+                        <td>customHeight</td>
+                        <td>string</td>
+                        <td>undefined</td>
+                        <td>Custom page height</td>
+                    </tr>
+                    <tr>
+                        <td>showPageNumbers</td>
+                        <td>boolean</td>
+                        <td>true</td>
+                        <td>Display page numbers</td>
+                    </tr>
+                    <tr>
+                        <td>showPageBreaks</td>
+                        <td>boolean</td>
+                        <td>true</td>
+                        <td>Display visual page breaks</td>
+                    </tr>
+                    <tr>
+                        <td>fontSize</td>
+                        <td>string</td>
+                        <td>12pt</td>
+                        <td>Font size for content</td>
+                    </tr>
+                    <tr>
+                        <td>lineHeight</td>
+                        <td>string</td>
+                        <td>1.5</td>
+                        <td>Line height for content</td>
+                    </tr>
+                    <tr>
+                        <td>fontFamily</td>
+                        <td>string</td>
+                        <td>Times New Roman, serif</td>
+                        <td>Font family for content</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Markdown Features">
+        <div slot="content">
+            <h4>Supported Markdown Syntax</h4>
+            <ul>
+                <li><strong>Headers:</strong> # ## ### #### ##### ######</li>
+                <li><strong>Emphasis:</strong> *italic* **bold**</li>
+                <li><strong>Lists:</strong> - * + for unordered, 1. 2. 3. for ordered</li>
+                <li><strong>Links:</strong> [text](url)</li>
+                <li><strong>Images:</strong> ![alt](url)</li>
+                <li><strong>Code:</strong> `inline code` and ```code blocks```</li>
+                <li><strong>Blockquotes:</strong> > quoted text</li>
+                <li><strong>Horizontal Rules:</strong> --- or ***</li>
+                <li><strong>Tables:</strong> | column | column |</li>
+            </ul>
+            
+            <h4>Print-Optimized Features</h4>
+            <ul>
+                <li>Automatic page breaks based on content length</li>
+                <li>Print-friendly typography and spacing</li>
+                <li>Proper widow and orphan control</li>
+                <li>Page number positioning</li>
+                <li>Accurate DPI measurements for print</li>
+                <li>Professional document layout</li>
+            </ul>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <h4>Base Styling Variables</h4>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--preview-bg</td>
+                        <td>var(--color-card-bg, #f8f9fa)</td>
+                        <td>Background color for container</td>
+                    </tr>
+                    <tr>
+                        <td>--preview-text</td>
+                        <td>var(--color-text, #333333)</td>
+                        <td>Text color for content</td>
+                    </tr>
+                    <tr>
+                        <td>--preview-border</td>
+                        <td>var(--color-border, #e0e0e0)</td>
+                        <td>Border color for pages</td>
+                    </tr>
+                    <tr>
+                        <td>--preview-shadow</td>
+                        <td>rgba(0, 0, 0, 0.1)</td>
+                        <td>Shadow color for pages</td>
+                    </tr>
+                    <tr>
+                        <td>--preview-page-bg</td>
+                        <td>#ffffff</td>
+                        <td>Background color for individual pages</td>
+                    </tr>
+                    <tr>
+                        <td>--preview-font-family</td>
+                        <td>Times New Roman, serif</td>
+                        <td>Font family for content</td>
+                    </tr>
+                    <tr>
+                        <td>--preview-font-size</td>
+                        <td>12pt</td>
+                        <td>Font size for content</td>
+                    </tr>
+                    <tr>
+                        <td>--preview-line-height</td>
+                        <td>2em</td>
+                        <td>Line height for content</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4>Direct Element Styling</h4>
+            <p>The component exposes all HTML elements for direct CSS styling. You can target any element using standard CSS selectors:</p>
+            
+            <pre><code class="language-css">/* Style headings directly */
+editor-md-preview h1 {
+  font-size: 32px;
+  font-weight: 800;
+  color: #2c3e50;
+  text-align: center;
+  font-family: 'Georgia', serif;
+}
+
+editor-md-preview h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #34495e;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 0.5em;
+}
+
+/* Style paragraphs */
+editor-md-preview p {
+  line-height: 1.6;
+  margin: 0 0 1.2em 0;
+  text-align: justify;
+}
+
+/* Style lists */
+editor-md-preview ul, editor-md-preview ol {
+  margin: 0 0 1em 2em;
+  line-height: 1.5;
+}
+
+/* Style blockquotes */
+editor-md-preview blockquote {
+  border-left: 4px solid #3498db;
+  padding: 0 0 0 1em;
+  margin: 0 0 1em 0;
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+/* Style code blocks */
+editor-md-preview pre {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  padding: 1em;
+  overflow-x: auto;
+}
+
+editor-md-preview code {
+  background: #fff3cd;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+}</code></pre>
+            
+            <h4>Advanced Styling Examples</h4>
+            <pre><code class="language-css">/* Custom theme with specific styling */
+.my-custom-preview {
+  --preview-bg: #f5f5f5;
+  --preview-text: #2c3e50;
+  --preview-border: #bdc3c7;
+}
+
+.my-custom-preview h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #e74c3c;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 0.5em 0;
+}
+
+.my-custom-preview h2 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #3498db;
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 0.3em;
+}
+
+.my-custom-preview p {
+  line-height: 1.7;
+  text-align: justify;
+  margin: 0 0 1.5em 0;
+}
+
+.my-custom-preview blockquote {
+  background: #ecf0f1;
+  border-left: 5px solid #3498db;
+  padding: 1em;
+  margin: 1em 0;
+  border-radius: 0 4px 4px 0;
+}</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Integration with Editor MD">
+        <div slot="content">
+            <h4>Combined Usage</h4>
+            <p>The EditorMDPreview component is designed to work seamlessly with the EditorMD component for a complete markdown editing and preview solution.</p>
+            
+            <pre><code class="language-html">&lt;!-- Split View Example --&gt;
+&lt;split-view&gt;
+    &lt;div slot="left"&gt;
+        &lt;h3&gt;Editor&lt;/h3&gt;
+        &lt;editor-md id="markdown-editor"&gt;&lt;/editor-md&gt;
+    &lt;/div&gt;
+    &lt;div slot="right"&gt;
+        &lt;h3&gt;Preview&lt;/h3&gt;
+        &lt;editor-md-preview id="markdown-preview" size="a4"&gt;&lt;/editor-md-preview&gt;
+    &lt;/div&gt;
+&lt;/split-view&gt;
+
+&lt;script&gt;
+    const editor = document.getElementById('markdown-editor');
+    const preview = document.getElementById('markdown-preview');
+    
+    editor.addEventListener('input', () => {
+        preview.setContent(editor.getContent());
+    });
+&lt;/script&gt;</code></pre>
+            
+            <h4>Real-time Preview with Custom Styling</h4>
+            <p>Connect the editor and preview for real-time markdown rendering with custom styling:</p>
+            <ul>
+                <li>Type in the editor to see live preview</li>
+                <li>Style elements directly with CSS</li>
+                <li>Accurate page sizing for print preparation</li>
+                <li>Professional document layout</li>
+                <li>Print-ready formatting</li>
+            </ul>
+            
+            <h4>Styling the Preview</h4>
+            <pre><code class="language-css">/* Style the preview component - direct element targeting */
+#markdown-preview h1 {
+  font-size: 28px;
+  color: #2c3e50;
+  text-align: center;
+  font-family: 'Georgia', serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 0.5in 0;
+}
+
+#markdown-preview h2 {
+  font-size: 22px;
+  color: #3498db;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 0.5em;
+  text-align: center;
+  text-transform: uppercase;
+  margin: 0 0 0.5in 0;
+}
+
+#markdown-preview p {
+  line-height: 1.6;
+  text-align: justify;
+  margin: 0 0 1.2em 0;
+  text-indent: 0.5in; /* Manuscript format */
+}
+
+#markdown-preview p:first-of-type {
+  text-indent: 0; /* First paragraph no indent */
+}
+
+#markdown-preview blockquote {
+  border-left: 4px solid #3498db;
+  padding: 0 0 0 1em;
+  margin: 1em 0;
+  color: #7f8c8d;
+  font-style: italic;
+}</code></pre>
+        </div>
+    </accordion-component>
+</div>
+
+<style>
+    :root {
+        --preview-bg: var(--color-card-bg, #f8f9fa);
+        --preview-text: var(--color-text, #333333);
+        --preview-border: var(--color-border, #e0e0e0);
+        --preview-shadow: rgba(0, 0, 0, 0.1);
+        --preview-page-bg: #ffffff;
+        --preview-margin-color: #f0f0f0;
+        --preview-font-family: 'Times New Roman', serif;
+        --preview-font-size: 12pt;
+        --preview-line-height: 1.5;
+    }
+
+    /* External h2 styling for manuscript format - higher specificity */
+    .component-content editor-md-preview h2,
+    editor-md-preview h2 {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        color: #000 !important;
+        text-align: center !important;
+        margin: 0 0 0.5in 0 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+    
+    /* Chapter break styling */
+    .component-content editor-md-preview .chapter-break,
+    editor-md-preview .chapter-break {
+        text-align: center !important;
+        margin: 1em 0 !important;
+        font-size: 1.2em !important;
+        color: #666 !important;
+        font-weight: bold !important;
+    }
+    
+    /* Line height control */
+    .component-content editor-md-preview .content,
+    editor-md-preview .content {
+        line-height: 24pt !important;
+    }
+    
+    .component-content editor-md-preview p,
+    editor-md-preview p {
+        line-height: 24pt !important;
+    }
+
+    .custom-preview {
+        --preview-bg: #f5f5f5;
+        --preview-text: #2c3e50;
+        --preview-border: #bdc3c7;
+        --preview-shadow: none; /* Removed shadow */
+        --preview-page-bg: #ffffff;
+        --preview-font-family: 'Georgia', serif;
+        --preview-font-size: 14pt;
+        --preview-line-height: 1.7;
+    }
+    
+    .custom-preview h1 {
+        font-size: 28px;
+        font-weight: 800;
+        color: #e74c3c;
+        text-align: center;
+        margin: 0 0 0.5em 0;
+    }
+    
+    .custom-preview h2 {
+        font-size: 22px;
+        font-weight: 600;
+        color: #3498db;
+        border-bottom: 3px solid #3498db;
+        padding-bottom: 0.3em;
+        margin: 0 0 0.4em 0;
+    }
+    
+    .custom-preview h3 {
+        font-size: 18px;
+        font-weight: 500;
+        color: #2c3e50;
+        margin: 0 0 0.3em 0;
+    }
+    
+    .custom-preview p {
+        line-height: 1.6;
+        text-align: justify;
+        margin: 0 0 1.2em 0;
+    }
+    
+    .custom-preview ul, .custom-preview ol {
+        margin: 0 0 1em 2em;
+        line-height: 1.5;
+    }
+    
+    .custom-preview blockquote {
+        background: #ecf0f1;
+        border-left: 5px solid #3498db;
+        padding: 1em;
+        margin: 1em 0;
+        border-radius: 0 4px 4px 0;
+        color: #7f8c8d;
+        font-style: italic;
+    }
+
+    .example-container {
+        margin-bottom: 20px;
+    }
+
+    .example-container h4 {
+        margin-bottom: 10px;
+        color: var(--color-text);
+    }
+
+    .example-container editor-md-preview {
+        height: 400px;
+        border: 1px solid var(--color-border);
+        border-radius: 4px;
+    }
+</style>

@@ -5,6 +5,11 @@
     width: 300%;
 }
 
+character-plot {
+    --character-plot-gradient-bg: on;      /* 'on' for gradient, 'off' for flat */
+  --character-plot-gradient-darken: 40%; /* percent to darken for gradient end */
+}
+
 </style>
 
 <div class="component-content">
@@ -16,7 +21,7 @@
     <accordion-component title="Examples" open="true">
         <div slot="content">
             <div class="example-container" >
-                <character-plot id="demo-plot" ></character-plot>
+                <character-plot id="demo-plot" minimap="large"></character-plot>
             </div>
             <pre><code class="language-html">&lt;character-plot style="height: 400px; width: 100%;"&gt;&lt;/character-plot&gt;</code></pre>
             <pre><code class="language-javascript">// Add a character programmatically
@@ -152,6 +157,46 @@ plot.load({
                         <td>Background color of the plot area</td>
                     </tr>
                     <tr>
+                        <td>--character-plot-minimap-bg</td>
+                        <td>rgba(255,255,255,0.85)</td>
+                        <td>Background color of the minimap</td>
+                    </tr>
+                    <tr>
+                        <td>--character-plot-minimap-border</td>
+                        <td>1.5px solid #bbb</td>
+                        <td>Border of the minimap</td>
+                    </tr>
+                    <tr>
+                        <td>--character-plot-minimap-border-radius</td>
+                        <td>8px</td>
+                        <td>Border radius of the minimap</td>
+                    </tr>
+                    <tr>
+                        <td>--character-plot-minimap-rect-border</td>
+                        <td>2px solid #444</td>
+                        <td>Border of the viewport rectangle in the minimap</td>
+                    </tr>
+                    <tr>
+                        <td>--character-plot-minimap-rect-radius</td>
+                        <td>4px</td>
+                        <td>Border radius of the viewport rectangle in the minimap</td>
+                    </tr>
+                    <tr>
+                        <td>--character-plot-minimap-color</td>
+                        <td>#888</td>
+                        <td>Default color for minimap shapes (fallback)</td>
+                    </tr>
+                    <tr>
+                        <td>--character-plot-minimap-node-color</td>
+                        <td>#888</td>
+                        <td>Color of nodes in the minimap</td>
+                    </tr>
+                    <tr>
+                        <td>--character-plot-minimap-edge-color</td>
+                        <td>#888</td>
+                        <td>Color of edges in the minimap</td>
+                    </tr>
+                    <tr>
                         <td>--character-plot-circle</td>
                         <td>#b2e3ff</td>
                         <td>Background color of character circles</td>
@@ -192,6 +237,14 @@ plot.load({
     --character-plot-line-style: dashed;
     --character-plot-font-family: 'Segoe UI', Arial, sans-serif;
     --character-plot-font-size: 1.2rem;
+    /* Minimap customization */
+    --character-plot-minimap-bg: #f5f5f5;
+    --character-plot-minimap-border: 2px solid #1976d2;
+    --character-plot-minimap-border-radius: 12px;
+    --character-plot-minimap-rect-border: 2px solid #1976d2;
+    --character-plot-minimap-rect-radius: 6px;
+    --character-plot-minimap-node-color: #1976d2;
+    --character-plot-minimap-edge-color: #1976d2;
 }
 </code></pre>
         </div>

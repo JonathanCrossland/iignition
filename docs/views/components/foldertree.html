@@ -439,3 +439,12 @@ folder-item {
         </div>
     </accordion-component>
 </div> 
+
+<pre><code class="language-javascript">// Listen for order changes on a folder group
+const group = document.querySelector('folder-group');
+group.addEventListener('folder-group-order-changed', e => {
+    const group = e.detail.group;
+    const items = Array.from(group.querySelectorAll('folder-item'));
+    const order = items.map(item => item.textContent.trim());
+    console.log('New order:', order);
+});</code></pre> 

@@ -54,15 +54,24 @@ namespace iignition {
                     if (container instanceof Element){
                         Events.raiseEvent('onViewLoading', { view: ctx.view })
                         container.innerHTML = html;
-                        this.executeScripts(container as HTMLElement);
-                        console.log('View Loaded');
-                        Events.raiseEvent('onViewLoaded', { view: ctx.view, container: container })
+                        
                         
                         // Only update URL if loading into root container
                         if (container.getAttribute('data-viewcontainer') === '') {
-                            history.replaceState({}, '', `#!${ctx.view}`);
-                        }
+                            var querystring = ctx.originalUrl.split('?')[1];
+                            if (querystring == undefined) {
+                                querystring = '';
+                            } else {
+                                querystring = '?' + querystring;
 
+                            }
+                            
+                            history.replaceState(ctx, '', `#!${ctx.view}${querystring}`);
+                        }
+                       
+                        this.executeScripts(container as HTMLElement);
+                        console.log('View Loaded');
+                        Events.raiseEvent('onViewLoaded', { view: ctx.view, container: container })
                         
                         resolve();
                     }

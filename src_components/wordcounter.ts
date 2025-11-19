@@ -114,17 +114,32 @@ class WordCounter extends HTMLElement {
 
     private subscribe() {
         if (!this._target) return;
-        if (this._target instanceof HTMLInputElement || this._target instanceof HTMLTextAreaElement) {
+        
+        const hasValueProperty = 'value' in this._target || 
+                                 this._target instanceof HTMLInputElement || 
+                                 this._target instanceof HTMLTextAreaElement;
+        
+        if (hasValueProperty) {
             this._inputHandler = () => this.updateCount();
             this._target.addEventListener('input', this._inputHandler);
             this._observer = new MutationObserver(() => this.updateCount());
             this._observer.observe(this._target, { attributes: true, attributeFilter: ['value'] });
-            let lastValue = (this._target as HTMLInputElement | HTMLTextAreaElement).value;
+            
+            const getValue = () => {
+                if (this._target instanceof HTMLInputElement || this._target instanceof HTMLTextAreaElement) {
+                    return (this._target as HTMLInputElement | HTMLTextAreaElement).value;
+                }
+                return (this._target as any).value || '';
+            };
+            
+            let lastValue = getValue();
             this._pollInterval = window.setInterval(() => {
-                const current = this._target as HTMLInputElement | HTMLTextAreaElement;
-                if (current && current.value !== lastValue) {
-                    lastValue = current.value;
-                    this.updateCount();
+                if (this._target) {
+                    const currentValue = getValue();
+                    if (currentValue !== lastValue) {
+                        lastValue = currentValue;
+                        this.updateCount();
+                    }
                 }
             }, 200);
         } else {
@@ -140,6 +155,8 @@ class WordCounter extends HTMLElement {
             this._count = 0;
         } else if (this._target instanceof HTMLInputElement || this._target instanceof HTMLTextAreaElement) {
             this._count = WordCounter.countWords(this._target.value);
+        } else if ('value' in this._target) {
+            this._count = WordCounter.countWords((this._target as any).value || '');
         } else {
             this._count = WordCounter.countWords(this._target.textContent || '');
         }

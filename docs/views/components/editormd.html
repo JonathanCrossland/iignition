@@ -1,0 +1,418 @@
+<style>
+    editor-md {
+        /* Base colors */
+        --editor-md-bg: var(--color-card-bg, #1e1e1e);
+        --editor-md-text: var(--color-text, #cccccc);
+        --editor-md-border: var(--color-border, #404040);
+        --editor-md-focus-border: var(--color-primary, #007fd4);
+        --editor-md-placeholder: var(--color-text-muted, #666);
+        
+        /* Typography */
+        --editor-md-font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        --editor-md-font-size: 14px;
+        --editor-md-line-height: 1.6;
+        
+        /* Layout */
+        --editor-md-padding: 12px;
+        --editor-md-border-radius: 4px;
+        
+        width: 100%;
+        height: 100%;
+    }
+</style>
+
+<div class="component-content">
+    <h2>Editor MD Component</h2>
+    <p class="component-description">A markdown editor component with syntax highlighting, keyboard shortcuts, and markdown-specific features. Perfect for writing and editing markdown content with a clean, distraction-free interface.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <div class="example-container">
+                <h4>Basic Markdown Editor</h4>
+                <editor-md id="basic-editor"></editor-md>
+            </div>
+            <div class="example-container">
+                <h4>Custom Styled Editor</h4>
+                <editor-md id="styled-editor" class="custom-editor"></editor-md>
+            </div>
+            <div class="example-container">
+                <h4>Editor with Custom Font</h4>
+                <editor-md id="font-editor" font-family="Georgia, serif" font-size="16px"></editor-md>
+            </div>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <pre><code class="language-html">&lt;!-- Basic Markdown Editor --&gt;
+&lt;editor-md&gt;&lt;/editor-md&gt;
+
+&lt;!-- Custom Styling --&gt;
+&lt;editor-md class="custom-editor"&gt;&lt;/editor-md&gt;
+
+&lt;!-- With Attributes --&gt;
+&lt;editor-md 
+    font-family="Georgia, serif"
+    font-size="16px"
+    line-height="1.8"&gt;
+&lt;/editor-md&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>font-family</td>
+                        <td>string</td>
+                        <td>monospace</td>
+                        <td>Font family for the editor text</td>
+                    </tr>
+                    <tr>
+                        <td>font-size</td>
+                        <td>string</td>
+                        <td>14px</td>
+                        <td>Font size for the editor text</td>
+                    </tr>
+                    <tr>
+                        <td>line-height</td>
+                        <td>string</td>
+                        <td>1.6</td>
+                        <td>Line height for the editor text</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Methods">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Parameters</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>setContent</td>
+                        <td>content: string</td>
+                        <td>Sets the editor content</td>
+                    </tr>
+                    <tr>
+                        <td>getContent</td>
+                        <td>none</td>
+                        <td>Gets the current editor content</td>
+                    </tr>
+                    <tr>
+                        <td>configure</td>
+                        <td>options: EditorMDOptions</td>
+                        <td>Configures the editor with custom options</td>
+                    </tr>
+                    <tr>
+                        <td>focus</td>
+                        <td>none</td>
+                        <td>Focuses the editor</td>
+                    </tr>
+                    <tr>
+                        <td>blur</td>
+                        <td>none</td>
+                        <td>Removes focus from the editor</td>
+                    </tr>
+                    <tr>
+                        <td>setSelection</td>
+                        <td>start: number, end: number</td>
+                        <td>Sets text selection range</td>
+                    </tr>
+                    <tr>
+                        <td>getSelection</td>
+                        <td>none</td>
+                        <td>Gets current text selection</td>
+                    </tr>
+                    <tr>
+                        <td>insertMarkdown</td>
+                        <td>markdown: string</td>
+                        <td>Inserts markdown text at cursor position</td>
+                    </tr>
+                    <tr>
+                        <td>insertHeading</td>
+                        <td>level: number</td>
+                        <td>Inserts heading with specified level (1-6)</td>
+                    </tr>
+                    <tr>
+                        <td>insertList</td>
+                        <td>none</td>
+                        <td>Inserts unordered list item</td>
+                    </tr>
+                    <tr>
+                        <td>insertNumberedList</td>
+                        <td>none</td>
+                        <td>Inserts numbered list item</td>
+                    </tr>
+                    <tr>
+                        <td>insertCodeBlock</td>
+                        <td>none</td>
+                        <td>Inserts code block with markers</td>
+                    </tr>
+                    <tr>
+                        <td>insertQuote</td>
+                        <td>none</td>
+                        <td>Inserts blockquote</td>
+                    </tr>
+                    <tr>
+                        <td>insertHorizontalRule</td>
+                        <td>none</td>
+                        <td>Inserts horizontal rule</td>
+                    </tr>
+                    <tr>
+                        <td>insertLink</td>
+                        <td>text?: string, url?: string</td>
+                        <td>Inserts markdown link</td>
+                    </tr>
+                    <tr>
+                        <td>insertImage</td>
+                        <td>alt?: string, url?: string</td>
+                        <td>Inserts markdown image</td>
+                    </tr>
+                    <tr>
+                        <td>insertTable</td>
+                        <td>rows?: number, cols?: number</td>
+                        <td>Inserts markdown table template</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Configuration">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>fontFamily</td>
+                        <td>string</td>
+                        <td>monospace</td>
+                        <td>Font family for editor text</td>
+                    </tr>
+                    <tr>
+                        <td>fontSize</td>
+                        <td>string</td>
+                        <td>14px</td>
+                        <td>Font size for editor text</td>
+                    </tr>
+                    <tr>
+                        <td>lineHeight</td>
+                        <td>string</td>
+                        <td>1.6</td>
+                        <td>Line height for editor text</td>
+                    </tr>
+                    <tr>
+                        <td>onChange</td>
+                        <td>function</td>
+                        <td>undefined</td>
+                        <td>Callback when content changes</td>
+                    </tr>
+                    <tr>
+                        <td>onSave</td>
+                        <td>function</td>
+                        <td>undefined</td>
+                        <td>Callback when content is saved</td>
+                    </tr>
+                    <tr>
+                        <td>autoSave</td>
+                        <td>boolean</td>
+                        <td>false</td>
+                        <td>Enable automatic saving</td>
+                    </tr>
+                    <tr>
+                        <td>autoSaveInterval</td>
+                        <td>number</td>
+                        <td>5000</td>
+                        <td>Auto-save interval in milliseconds</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Keyboard Shortcuts">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Shortcut</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Tab</td>
+                        <td>Insert 2 spaces for indentation</td>
+                    </tr>
+                    <tr>
+                        <td>Enter</td>
+                        <td>Smart line break (continues lists)</td>
+                    </tr>
+                    <tr>
+                        <td>Ctrl/Cmd + B</td>
+                        <td>Wrap selection in bold (**text**)</td>
+                    </tr>
+                    <tr>
+                        <td>Ctrl/Cmd + I</td>
+                        <td>Wrap selection in italic (*text*)</td>
+                    </tr>
+                    <tr>
+                        <td>Ctrl/Cmd + K</td>
+                        <td>Wrap selection in link ([text](url))</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--editor-md-bg</td>
+                        <td>var(--color-card-bg, #1e1e1e)</td>
+                        <td>Background color</td>
+                    </tr>
+                    <tr>
+                        <td>--editor-md-text</td>
+                        <td>var(--color-text, #cccccc)</td>
+                        <td>Text color</td>
+                    </tr>
+                    <tr>
+                        <td>--editor-md-border</td>
+                        <td>var(--color-border, #404040)</td>
+                        <td>Border color</td>
+                    </tr>
+                    <tr>
+                        <td>--editor-md-focus-border</td>
+                        <td>var(--color-primary, #007fd4)</td>
+                        <td>Focus border color</td>
+                    </tr>
+                    <tr>
+                        <td>--editor-md-font-family</td>
+                        <td>Consolas, Monaco, Courier New, monospace</td>
+                        <td>Font family</td>
+                    </tr>
+                    <tr>
+                        <td>--editor-md-font-size</td>
+                        <td>14px</td>
+                        <td>Font size</td>
+                    </tr>
+                    <tr>
+                        <td>--editor-md-line-height</td>
+                        <td>1.6</td>
+                        <td>Line height</td>
+                    </tr>
+                    <tr>
+                        <td>--editor-md-padding</td>
+                        <td>12px</td>
+                        <td>Editor padding</td>
+                    </tr>
+                    <tr>
+                        <td>--editor-md-border-radius</td>
+                        <td>4px</td>
+                        <td>Border radius</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Markdown Features">
+        <div slot="content">
+            <h4>Supported Markdown Syntax</h4>
+            <ul>
+                <li><strong>Headers:</strong> # ## ### #### ##### ######</li>
+                <li><strong>Emphasis:</strong> *italic* **bold**</li>
+                <li><strong>Lists:</strong> - * + for unordered, 1. 2. 3. for ordered</li>
+                <li><strong>Links:</strong> [text](url)</li>
+                <li><strong>Images:</strong> ![alt](url)</li>
+                <li><strong>Code:</strong> `inline code` and ```code blocks```</li>
+                <li><strong>Blockquotes:</strong> > quoted text</li>
+                <li><strong>Horizontal Rules:</strong> --- or ***</li>
+                <li><strong>Tables:</strong> | column | column |</li>
+            </ul>
+            
+            <h4>Smart Features</h4>
+            <ul>
+                <li>Automatic list continuation on Enter</li>
+                <li>Tab indentation for code and lists</li>
+                <li>Paste handling (strips HTML, preserves plain text)</li>
+                <li>Auto-save functionality</li>
+                <li>Keyboard shortcuts for common formatting</li>
+            </ul>
+        </div>
+    </accordion-component>
+</div>
+
+<style>
+    :root {
+        --editor-md-bg: var(--color-card-bg, #1e1e1e);
+        --editor-md-text: var(--color-text, #cccccc);
+        --editor-md-border: var(--color-border, #404040);
+        --editor-md-focus-border: var(--color-primary, #007fd4);
+        --editor-md-placeholder: var(--color-text-muted, #666);
+        --editor-md-font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        --editor-md-font-size: 14px;
+        --editor-md-line-height: 1.6;
+        --editor-md-padding: 12px;
+        --editor-md-border-radius: 4px;
+    }
+
+    .custom-editor {
+        --editor-md-bg: #2d2d2d;
+        --editor-md-text: #f8f8f2;
+        --editor-md-border: #555;
+        --editor-md-focus-border: #ff79c6;
+        --editor-md-font-family: 'Fira Code', 'Consolas', monospace;
+        --editor-md-font-size: 15px;
+        --editor-md-line-height: 1.7;
+    }
+
+    .example-container {
+        margin-bottom: 20px;
+    }
+
+    .example-container h4 {
+        margin-bottom: 10px;
+        color: var(--color-text);
+    }
+
+    .example-container editor-md {
+        height: 200px;
+        border: 1px solid var(--color-border);
+        border-radius: 4px;
+    }
+</style>

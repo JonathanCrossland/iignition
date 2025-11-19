@@ -92,6 +92,16 @@ namespace iignition
         private processViewAndHash(url: string): void {
             const stdReg = /\/$/;
             
+            debugger;
+
+            if (url.includes('?')) {
+                const [baseUrl, queryString] = url.split('?');
+                const params = new URLSearchParams(queryString);
+                if (this.data==undefined) { this.data = {}; }
+                params.forEach((value, key) => {
+                    this.data[key] = value;
+                });
+            }
 
             url = url.split('?')[0]; // Remove querystring
 
@@ -122,6 +132,11 @@ namespace iignition
             }
             
             this.view = this.parts.join('/').replace(stdReg, '/').replace(/\/\./, '.');
+
+
+           
+
+
             console.info(this);
         }
     }

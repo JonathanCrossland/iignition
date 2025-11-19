@@ -108,7 +108,10 @@ namespace iignition
                 params.forEach((value, key) => {
                     dataset.data[key] = value;
                 });
-                url = baseUrl;
+                if ($i.Options.staticUrl == true) {
+                    url = baseUrl;
+                }
+                
             }
 
             Object.assign(dataset, link.dataset);

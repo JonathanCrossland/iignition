@@ -1,0 +1,308 @@
+<div class="component-content">
+    <h2>AMMERSE Set Component</h2>
+    <p class="component-description">A visual component for displaying AMMERSE (Agile, Minimal, Maintainable, Environmental, Reachable, Solvable, Extensible) weight values in a grid layout.</p>
+
+    <accordion-component title="Examples" open="true">
+        <div slot="content">
+            <div class="example-container">
+                <h4>Basic AMMERSE Set</h4>
+                <ammerse-set id="basic-set" title="My Weights" values="0.5,1,1,1,1,1,0"></ammerse-set>
+                
+                <h4>AMMERSE Set without Title</h4>
+                <ammerse-set id="no-title-set" values="0.8,0.6,0.9,0.7,0.5,0.8,0.3"></ammerse-set>
+                
+                <h4>Default Values</h4>
+                <ammerse-set id="default-set" title="Default"></ammerse-set>
+            </div>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Usage">
+        <div slot="content">
+            <pre><code class="language-html">&lt;!-- Basic usage with title and values --&gt;
+&lt;ammerse-set title="My Weights" values="0.5,1,1,1,1,1,0"&gt;&lt;/ammerse-set&gt;
+
+&lt;!-- Without title --&gt;
+&lt;ammerse-set values="0.8,0.6,0.9,0.7,0.5,0.8,0.3"&gt;&lt;/ammerse-set&gt;
+
+&lt;!-- Default values (all zeros) --&gt;
+&lt;ammerse-set title="Default"&gt;&lt;/ammerse-set&gt;</code></pre>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Properties">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>title</td>
+                        <td>string</td>
+                        <td>none</td>
+                        <td>Optional title displayed above the AMMERSE grid</td>
+                    </tr>
+                    <tr>
+                        <td>values</td>
+                        <td>string</td>
+                        <td>"0,0,0,0,0,0,0"</td>
+                        <td>Comma-separated values for A, Mi, M, E, R, S, Ex weights (range: -1 to 1)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="AMMERSE Values">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Symbol</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>A</td>
+                        <td>Agile</td>
+                        <td>Flexibility and adaptability to changing requirements</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Mi</td>
+                        <td>Minimal</td>
+                        <td>Simplicity and avoidance of unnecessary complexity</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>M</td>
+                        <td>Maintainable</td>
+                        <td>Clean, readable, and well-structured code</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>E</td>
+                        <td>Environmental</td>
+                        <td>Adherence to coding standards and best practices</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>R</td>
+                        <td>Reachable</td>
+                        <td>Feasible and achievable within project constraints</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>S</td>
+                        <td>Solvable</td>
+                        <td>Directly addresses the specific problem or requirement</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Ex</td>
+                        <td>Extensible</td>
+                        <td>Designed for future modifications and additions</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Styling">
+        <div slot="content">
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>CSS Variable</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--container-gap</td>
+                        <td>0px</td>
+                        <td>Gap between grid elements</td>
+                    </tr>
+                    <tr>
+                        <td>--header-font-size</td>
+                        <td>1em</td>
+                        <td>Font size for the title header</td>
+                    </tr>
+                    <tr>
+                        <td>--header-font-weight</td>
+                        <td>bold</td>
+                        <td>Font weight for the title header</td>
+                    </tr>
+                    <tr>
+                        <td>--header-padding</td>
+                        <td>.5em</td>
+                        <td>Padding for the title header</td>
+                    </tr>
+                    <tr>
+                        <td>--header-border-color</td>
+                        <td>#444</td>
+                        <td>Border color for the title header</td>
+                    </tr>
+                    <tr>
+                        <td>--header-color</td>
+                        <td>#888</td>
+                        <td>Text color for the title header</td>
+                    </tr>
+                    <tr>
+                        <td>--header-height</td>
+                        <td>auto</td>
+                        <td>Height of the title header</td>
+                    </tr>
+                    <tr>
+                        <td>--header-line-height</td>
+                        <td>1.4em</td>
+                        <td>Line height for the title header</td>
+                    </tr>
+                    <tr>
+                        <td>--header-margin-bottom</td>
+                        <td>0.5em</td>
+                        <td>Margin below the title header</td>
+                    </tr>
+                    <tr>
+                        <td>--box-border-color</td>
+                        <td>#444</td>
+                        <td>Border color for value boxes</td>
+                    </tr>
+                    <tr>
+                        <td>--box-padding</td>
+                        <td>10px</td>
+                        <td>Padding for value boxes</td>
+                    </tr>
+                    <tr>
+                        <td>--symbol-font-size</td>
+                        <td>1.2em</td>
+                        <td>Font size for AMMERSE symbols</td>
+                    </tr>
+                    <tr>
+                        <td>--symbol-font-weight</td>
+                        <td>bold</td>
+                        <td>Font weight for AMMERSE symbols</td>
+                    </tr>
+                    <tr>
+                        <td>--symbol-color</td>
+                        <td>#444</td>
+                        <td>Color for AMMERSE symbols</td>
+                    </tr>
+                    <tr>
+                        <td>--symbol-hover-color</td>
+                        <td>#666</td>
+                        <td>Color for AMMERSE symbols on hover</td>
+                    </tr>
+                    <tr>
+                        <td>--value-font-size</td>
+                        <td>1em</td>
+                        <td>Font size for weight values</td>
+                    </tr>
+                    <tr>
+                        <td>--value-color</td>
+                        <td>#ddd</td>
+                        <td>Color for weight values</td>
+                    </tr>
+                    <tr>
+                        <td>--value-hover-color</td>
+                        <td>#fff</td>
+                        <td>Color for weight values on hover</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </accordion-component>
+</div>
+
+<style>
+    .component-content {
+        background-color: var(--color-card-bg);
+        border-radius: var(--border-radius-md);
+        padding: var(--spacing-lg);
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+
+    .component-description {
+        color: var(--color-text-light);
+        margin-bottom: var(--spacing-lg);
+        max-width: 100%;
+    }
+
+    .example-container {
+        background-color: var(--color-background);
+        padding: var(--spacing-lg);
+        border-radius: var(--border-radius-md);
+        margin-top: var(--spacing-md);
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .example-container h4 {
+        margin-top: var(--spacing-md);
+        margin-bottom: var(--spacing-sm);
+        color: var(--color-text);
+    }
+
+    .example-container h4:first-child {
+        margin-top: 0;
+    }
+
+    pre {
+        background: var(--color-background);
+        padding: var(--spacing-md);
+        border-radius: var(--border-radius-sm);
+        overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    code {
+        color: var(--color-text);
+        font-family: monospace;
+        overflow-wrap: break-word;
+    }
+
+    .props-table {
+        width: 100%;
+        border-collapse: collapse;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .props-table th,
+    .props-table td {
+        padding: var(--spacing-sm) var(--spacing-md);
+        text-align: left;
+        border-bottom: 1px solid var(--color-border);
+        word-break: break-word;
+    }
+
+    .props-table th {
+        color: var(--color-primary);
+    }
+</style>
+
+<script>
+    $i.ready(function(){
+        $i.SEO.update({
+            title: "AMMERSE Set Component",
+            description: "A visual component for displaying AMMERSE weight values in a grid layout",
+            keywords: "ammerse, set, weights, agile, minimal, maintainable, environmental, reachable, solvable, extensible"
+        });
+    });
+</script> 

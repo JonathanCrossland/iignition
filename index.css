@@ -1126,50 +1126,50 @@ progress-bar {
 }
 
 /* Content Typography */
-.component-content h1,
-.component-content h2,
-.component-content h3,
-.component-content h4,
-.component-content h5,
-.component-content h6 {
+.component-content > h1,
+.component-content > h2,
+.component-content > h3,
+.component-content > h4,
+.component-content > h5,
+.component-content > h6 {
     color: var(--color-text-light);
     margin-top: var(--spacing-lg);
     margin-bottom: var(--spacing-sm);
     line-height: 1.2;
 }
 
-.component-content h1:first-child,
-.component-content h2:first-child,
-.component-content h3:first-child,
-.component-content h4:first-child,
-.component-content h5:first-child,
-.component-content h6:first-child {
+.component-content > h1:first-child,
+.component-content > h2:first-child,
+.component-content > h3:first-child,
+.component-content > h4:first-child,
+.component-content > h5:first-child,
+.component-content > h6:first-child {
     margin-top: 0;
 }
 
-.component-content h1 { font-size: var(--font-size-2xl); }
-.component-content h2 { font-size: var(--font-size-xl); }
-.component-content h3 { font-size: var(--font-size-lg); }
-.component-content h4 { 
+.component-content > h1 { font-size: var(--font-size-2xl); }
+.component-content > h2 { font-size: var(--font-size-xl); }
+.component-content > h3 { font-size: var(--font-size-lg); }
+.component-content > h4 { 
     font-size: var(--font-size-base);
     font-weight: 600;
     color: var(--color-primary);
 }
-.component-content h5 { font-size: var(--font-size-sm); }
-.component-content h6 { font-size: var(--font-size-sm); }
+.component-content > h5 { font-size: var(--font-size-sm); }
+.component-content > h6 { font-size: var(--font-size-sm); }
 
-.component-content p {
+.component-content > p {
     margin-bottom: var(--spacing-sm);
     line-height: 1.6;
 }
 
-.component-content p:last-child {
+.component-content > p:last-child {
     margin-bottom: 0;
 }
 
 /* Code blocks and pre */
-.component-content pre,
-.component-content code {
+.component-content > pre,
+.component-content > code {
     margin: var(--spacing-sm) 0;
     line-height: 1.5;
 }
@@ -1179,12 +1179,12 @@ progress-bar {
 }
 
 @media (max-width: 768px) {
-    .component-content h1,
-    .component-content h2,
-    .component-content h3,
-    .component-content h4,
-    .component-content h5,
-    .component-content h6 {
+    .component-content >  h1,
+    .component-content > h2,
+    .component-content > h3,
+    .component-content > h4,
+    .component-content > h5,
+    .component-content > h6 {
         margin-top: var(--spacing-md);
         margin-bottom: var(--spacing-xs);
     }

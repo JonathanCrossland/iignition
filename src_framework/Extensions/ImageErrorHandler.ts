@@ -54,6 +54,7 @@ module iignition {
             const img = event.target;
             const originalSrc = img.src;
 
+            if (originalSrc == '') return
             // Check if we're on localhost and have a domainRoot
             if (window.location.hostname === 'localhost' && $i.Options.domainRoot) {
                 // Create URL objects to compare paths
@@ -82,8 +83,9 @@ module iignition {
 
                 // If we have a new path to try
                 if (shouldRetry) {
+                    
                     // Construct new URL with the corrected path
-                    const newUrl = new URL(imgUrl);
+                    const newUrl = new URL(originalSrc);
                     newUrl.pathname = newPath;
                     
                     // Try loading with the new path

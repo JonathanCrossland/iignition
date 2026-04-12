@@ -9,7 +9,7 @@
         --preview-margin-color: #f0f0f0;
         --preview-font-family: 'Times New Roman', serif;
         --preview-font-size: 12pt;
-        --preview-line-height: 24pt;
+        --preview-line-height: 1.5;
         
         width: 100%;
         height: 100%;
@@ -75,10 +75,32 @@
     <accordion-component title="Examples" open="true">
         <div slot="content">
             <div class="example-container">
-                <h4>Basic A4 Preview</h4>
-                <editor-md-preview id="basic-preview" size="a4" margin="manuscript" style="height:100vh">
+                <div class="print-style-controls">
+                    <label for="print-style-select">Print style:</label>
+                    <select id="print-style-select" data-print-style-target="main-preview">
+                        <option value="">Custom (size/margin attributes)</option>
+                        <option value="US Paperback" selected>US Paperback (6×9")</option>
+                        <option value="A4 Manuscript">A4 Manuscript</option>
+                    </select>
+                    <label for="header-option-select">Header:</label>
+                    <select id="header-option-select" data-header-footer-target="main-preview" data-type="header">
+                        <option value="none">None</option>
+                        <option value="page-title-chapter" selected>Page | Title | Chapter</option>
+                        <option value="title-chapter">Title | Chapter</option>
+                    </select>
+                    <label for="footer-option-select">Footer:</label>
+                    <select id="footer-option-select" data-header-footer-target="main-preview" data-type="footer">
+                        <option value="none">None</option>
+                        <option value="page-title-chapter" selected>Page | Title | Chapter</option>
+                        <option value="title-chapter">Title | Chapter</option>
+                    </select>
+                    <button type="button" id="print-preview-btn" data-print-target="main-preview">Print</button>
+                </div>
+                <editor-md-preview id="main-preview" print-style="US Paperback" header-option="page-title-chapter" footer-option="page-title-chapter" style="height:100vh">
                     # Agra-Black
-                    
+
+                    ## The Delivery
+
 The paving slabs in front of the grand estate home, were a little uneven. Workers laid it during the mansions' construction back in 1740, in what was known in the trade as a basket weave pattern. It was pleasant to look at, but not remarkable. What *was* remarkable is that it meant *'Insert Rug Here'* in Caspiodatisk, the language spoken by the two driving the van. The very van which jolted under heavy braking and now halted on those uneven slabs. 
                     The van had a Damask pattern woven on the rear sides and on the back doors. The name 'Agra-Black' in a calligraphy script, with block letters; *Silk Rug Company* ran on its side, a little larger than one would expect a signage professional with a keen eye would recommend. The doors opened. A man, smaller than average, hopped out into the light rain. He wore a New York printed cap and a black rain poncho. There was something odd about him. His nose, large and slightly hooked, dominated his face. His ears looked like it was clipped on and if you looked closely, indeed it was. A metal band ran around the back of his head like a spring, clamping two plastic ears in place. He let out what sounded like a medieval jingle, with a throaty and nasal overtone whistle. He wore a leg brace, the kind where one leg is slightly shorter, and he limped to the back of the van, opening the double doors.
                     The second man appeared from the other side of the van. He was the same height as the first, had the same plastic ears and if you knew anything about the Caspiodates, you would know that they looked much the same and only they could tell each other apart. The second man whistled a short and stunted tune, prompting the first man to climb into the van before both emerging, carrying a silk rug. The rug, despite being rolled up, was clearly splendid, with dark maroons and reds and the trademarked fine gold fringe. 
@@ -107,11 +129,15 @@ The paving slabs in front of the grand estate home, were a little uneven. Worker
                     York gave a little wave and an awkward nod. Whiiii scowled, picking up speed which came as a surprise to York, who almost fell.
                     
                     The footman greeted them at the back entrance, "This way."
-                    
+
+                    ## The Grand Room
+
                     They followed the footman through a kitchen, a long hallway and then up some tight stairs. They walked along what was a servants' passage and exited into a grand room, out of a bookshelf's secret door.
                     
                     "Over here, gentleman." The footman entered the room and waved his arm to gesture they enter, which they did, clumsily. Whiiii jabbed a whistle and they set the rug down, in the open cleared area, rolling it out. The room had a gold chandelier, oil paintings of horses, with amazing wooden floors and a grand dining table with 18 chairs, moved to the side.
                     
+                    ## The Invasion
+
                     As the rug settled into place, immediately four house staff, picked up the large dining table and set it on the rug, another ensuring it was exactly central to the chandelier.
                     
                     One of the rug's corners got kicked and turned over by one of the staff, to which York flung himself to the corner, setting it straight.
@@ -366,10 +392,42 @@ The paving slabs in front of the grand estate home, were a little uneven. Worker
                     
                     "We can't get out what appears to be a large room," declared the lead soldier.
                 </editor-md-preview>
+                <script>
+                (function () {
+                    var sel = document.getElementById('print-style-select');
+                    if (sel) {
+                        var targetId = sel.getAttribute('data-print-style-target');
+                        sel.addEventListener('change', function () {
+                            var preview = document.getElementById(targetId);
+                            if (preview) preview.printStyle = sel.value || '';
+                        });
+                    }
+                    ['header-option-select', 'footer-option-select'].forEach(function (id) {
+                        var s = document.getElementById(id);
+                        if (s) {
+                            var targetId = s.getAttribute('data-header-footer-target');
+                            var type = s.getAttribute('data-type');
+                            s.addEventListener('change', function () {
+                                var preview = document.getElementById(targetId);
+                                if (preview && type === 'header') preview.headerOption = s.value;
+                                if (preview && type === 'footer') preview.footerOption = s.value;
+                            });
+                        }
+                    });
+                    var printBtn = document.getElementById('print-preview-btn');
+                    if (printBtn) {
+                        printBtn.addEventListener('click', function () {
+                            var targetId = printBtn.getAttribute('data-print-target');
+                            var preview = document.getElementById(targetId);
+                            if (preview && typeof preview.print === 'function') preview.print();
+                        });
+                    }
+                })();
+                </script>
             </div>
             <div class="example-container">
                 <h4>US Letter with Large Margins</h4>
-                <editor-md-preview id="letter-preview" size="letter" margin="manuscript" show-page-numbers="true">
+                <editor-md-preview id="letter-preview" size="US-Letter" margin="1" show-page-numbers="true">
 # US Letter Document
 
 This document uses US Letter size with large margins to demonstrate the different page formats available.
@@ -414,7 +472,7 @@ This demonstrates the full capabilities of the EditorMDPreview component with pr
             </div>
             <div class="example-container">
                 <h4>Custom Styled Preview</h4>
-                <editor-md-preview id="styled-preview" class="custom-preview" size="a5" margin="narrow">
+                <editor-md-preview id="styled-preview" class="custom-preview" size="A5" margin="0.75">
 # Custom Styled Document
 
 This preview demonstrates **direct element styling** - you can style any element using standard CSS selectors.
@@ -539,14 +597,32 @@ This document demonstrates **bold text**, *italic text*, and `inline code`.
                     <tr>
                         <td>size</td>
                         <td>string</td>
-                        <td>a4</td>
-                        <td>Page size: a4, a5, letter, legal, tabloid</td>
+                        <td>A4</td>
+                        <td>Page size: A4, A5, US-Letter, Legal, Tabloid, US-Trade-Paperback, Hagaki</td>
                     </tr>
                     <tr>
                         <td>margin</td>
                         <td>string</td>
-                        <td>manuscript</td>
-                        <td>Margin size: small, medium, large, manuscript, narrow, wide</td>
+                        <td>1</td>
+                        <td>Margin size in inches: 0.25, 0.5, 0.75, 1, 1.25, 1.5</td>
+                    </tr>
+                    <tr>
+                        <td>print-style</td>
+                        <td>string</td>
+                        <td>''</td>
+                        <td>Print preset: 'US Paperback', 'A4 Manuscript', or '' for custom size/margin</td>
+                    </tr>
+                    <tr>
+                        <td>header-option</td>
+                        <td>string</td>
+                        <td>none</td>
+                        <td>Header: left page = "page | title", right page = "chapter | page". Title page (p.1) never has header.</td>
+                    </tr>
+                    <tr>
+                        <td>footer-option</td>
+                        <td>string</td>
+                        <td>none</td>
+                        <td>Footer: left page = "page | title", right page = "chapter | page". Shown on title page.</td>
                     </tr>
                     <tr>
                         <td>show-page-numbers</td>
@@ -610,6 +686,11 @@ This document demonstrates **bold text**, *italic text*, and `inline code`.
                         <td>Configures the preview with custom options</td>
                     </tr>
                     <tr>
+                        <td>print</td>
+                        <td>none</td>
+                        <td>Opens print dialog. Hides other content, sets @page size, scales for print DPI.</td>
+                    </tr>
+                    <tr>
                         <td>getPageCount</td>
                         <td>none</td>
                         <td>Gets the total number of pages</td>
@@ -636,6 +717,45 @@ This document demonstrates **bold text**, *italic text*, and `inline code`.
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </accordion-component>
+
+    <accordion-component title="Print Style Presets">
+        <div slot="content">
+            <p>Use <code>print-style</code> for pixel-perfect formats suited to Affinity/print. Presets set page size, margins, font, and line height.</p>
+            <table class="props-table">
+                <thead>
+                    <tr>
+                        <th>Preset</th>
+                        <th>Page</th>
+                        <th>Margins</th>
+                        <th>Typography</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>US Paperback</td>
+                        <td>6" × 9"</td>
+                        <td>0.75"</td>
+                        <td>Garamond 11pt, 1.43 line-height (~36 lines/page), justified, 1em paragraph indent</td>
+                    </tr>
+                    <tr>
+                        <td>A4 Manuscript</td>
+                        <td>A4 (8.27" × 11.69")</td>
+                        <td>1"</td>
+                        <td>Times New Roman 12pt, 2× line-height (font-dependent), 0.5" paragraph indent</td>
+                    </tr>
+                </tbody>
+            </table>
+            <pre><code class="language-html">&lt;!-- Attribute --&gt;
+&lt;editor-md-preview print-style="US Paperback"&gt;...&lt;/editor-md-preview&gt;
+
+&lt;!-- Property --&gt;
+&lt;script&gt;
+var preview = document.getElementById('my-preview');
+preview.printStyle = 'A4 Manuscript';  // switch to manuscript
+preview.printStyle = '';               // custom (use size/margin)
+&lt;/script&gt;</code></pre>
         </div>
     </accordion-component>
 
@@ -681,6 +801,12 @@ This document demonstrates **bold text**, *italic text*, and `inline code`.
                         <td>792 × 1224px</td>
                         <td>Newspapers, large format</td>
                     </tr>
+                    <tr>
+                        <td>US-Trade-Paperback</td>
+                        <td>6" × 9"</td>
+                        <td>432 × 648px</td>
+                        <td>US trade paperback, novels</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -688,42 +814,43 @@ This document demonstrates **bold text**, *italic text*, and `inline code`.
 
     <accordion-component title="Margin Options">
         <div slot="content">
+            <p>Use the <code>margin</code> attribute with inch values: 0.25, 0.5, 0.75, 1, 1.25, 1.5</p>
             <table class="props-table">
                 <thead>
                     <tr>
-                        <th>Margin</th>
+                        <th>Attribute value</th>
                         <th>Size</th>
                         <th>Use Case</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>small</td>
+                        <td>0.25</td>
+                        <td>0.25"</td>
+                        <td>Minimal margins</td>
+                    </tr>
+                    <tr>
+                        <td>0.5</td>
                         <td>0.5"</td>
                         <td>Dense layouts, technical documents</td>
                     </tr>
                     <tr>
-                        <td>narrow</td>
+                        <td>0.75</td>
                         <td>0.75"</td>
-                        <td>Academic papers, reports</td>
+                        <td>US trade paperback, academic papers</td>
                     </tr>
                     <tr>
-                        <td>manuscript</td>
+                        <td>1</td>
                         <td>1.0"</td>
                         <td>Standard manuscript format (default)</td>
                     </tr>
                     <tr>
-                        <td>medium</td>
-                        <td>1.0"</td>
-                        <td>General documents</td>
-                    </tr>
-                    <tr>
-                        <td>wide</td>
+                        <td>1.25</td>
                         <td>1.25"</td>
                         <td>Formal documents, presentations</td>
                     </tr>
                     <tr>
-                        <td>large</td>
+                        <td>1.5</td>
                         <td>1.5"</td>
                         <td>Books, formal publications</td>
                     </tr>
@@ -1105,15 +1232,15 @@ editor-md-preview code {
         font-weight: bold !important;
     }
     
-    /* Line height control */
+    /* Line height control - uses custom property so presets (1.43, 2, etc.) apply */
     .component-content editor-md-preview .content,
     editor-md-preview .content {
-        line-height: 24pt !important;
+        line-height: var(--preview-line-height) !important;
     }
     
     .component-content editor-md-preview p,
     editor-md-preview p {
-        line-height: 24pt !important;
+        line-height: var(--preview-line-height) !important;
     }
 
     .custom-preview {
@@ -1170,6 +1297,29 @@ editor-md-preview code {
         border-radius: 0 4px 4px 0;
         color: #7f8c8d;
         font-style: italic;
+    }
+
+    .print-style-controls {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .print-style-controls label {
+        font-weight: 500;
+    }
+
+    .print-style-controls select,
+    .print-style-controls button {
+        padding: 6px 12px;
+        border: 1px solid var(--color-border, #e0e0e0);
+        border-radius: 4px;
+        background: var(--color-card-bg, #fff);
+        font-size: 14px;
+    }
+    .print-style-controls button {
+        cursor: pointer;
     }
 
     .example-container {

@@ -3,9 +3,11 @@
    Usage examples shown after the class.
 */
 
-type PageSizeKey = 'A4' | 'A5' | 'US-Letter' | 'Legal' | 'Tabloid';
+type PageSizeKey = 'A4' | 'A5' | 'US-Letter' | 'Legal' | 'Tabloid' | 'US-Trade-Paperback';
 type MarginKey = '0.25' | '0.5' | '0.75' | '1' | '1.25' | '1.5';
 type DPIMode = 'screen' | 'fixed72';
+type PrintStyleKey = 'US Paperback' | 'A4 Manuscript' | '';
+type HeaderFooterOption = 'page-title-chapter' | 'title-chapter' | 'none';
 
 const PAGE_SIZES_IN: Record<PageSizeKey, { w: number; h: number }> = {
   'A4': { w: 8.27, h: 11.69 },
@@ -13,26 +15,141 @@ const PAGE_SIZES_IN: Record<PageSizeKey, { w: number; h: number }> = {
   'US-Letter': { w: 8.5, h: 11 },
   'Legal': { w: 8.5, h: 14 },
   'Tabloid': { w: 11, h: 17 },
+  'US-Trade-Paperback': { w: 6, h: 9 },
 };
 
 const MARGINS_IN: Record<MarginKey, number> = {
   '0.25': 0.25,   // 0.25 inch
-  '0.5': 0.5,     // 0.5 inch  
+  '0.5': 0.5,     // 0.5 inch
   '0.75': 0.75,   // 0.75 inch
   '1': 1,         // 1 inch (default)
   '1.25': 1.25,   // 1.25 inch
   '1.5': 1.5,     // 1.5 inch
 };
 
+/** Style preset name -> CSS class (e.g. "US Paperback" -> "us_paperback") */
+function styleKeyToClass(name: PrintStyleKey): string {
+  if (!name) return '';
+  return name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+}
+
+const PRINT_STYLE_PRESETS: Record<Exclude<PrintStyleKey, ''>, { size: PageSizeKey; margin: MarginKey }> = {
+  'US Paperback': { size: 'US-Trade-Paperback', margin: '0.75' },
+  'A4 Manuscript': { size: 'A4', margin: '1' },
+};
+
+/** Computed style for precise layout calculations */
+interface TextLayoutStyle {
+  fontFamily: string;
+  fontSize: string;
+  fontWeight: string;
+  lineHeightPx: number;
+  letterSpacing: string;
+}
+
+/** Canvas-based precise text measurement - avoids DOM layout drift */
+class PrecisionTextMeasurer {
+  private canvas: HTMLCanvasElement;
+  private ctx: CanvasRenderingContext2D;
+  private glyphCache: Map<string, number> = new Map();
+
+  constructor() {
+    this.canvas = document.createElement('canvas');
+    const ctx = this.canvas.getContext('2d');
+    if (!ctx) throw new Error('Canvas 2d context unavailable');
+    this.ctx = ctx;
+  }
+
+  measureText(text: string, style: TextLayoutStyle): number {
+    this.ctx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    return this.ctx.measureText(text).width;
+  }
+
+  getWordWidth(word: string, style: TextLayoutStyle): number {
+    const cacheKey = `${word}|${style.fontFamily}|${style.fontSize}|${style.fontWeight}`;
+    if (!this.glyphCache.has(cacheKey)) {
+      this.glyphCache.set(cacheKey, this.measureText(word, style));
+    }
+    return this.glyphCache.get(cacheKey)!;
+  }
+
+  getSpaceWidth(style: TextLayoutStyle): number {
+    return this.getWordWidth(' ', style);
+  }
+
+  wrapTextToLines(text: string, availableWidthPx: number, style: TextLayoutStyle): string[] {
+    return this.wrapTextToLinesCanvas(text, availableWidthPx, style);
+  }
+
+  private wrapTextToLinesCanvas(text: string, availableWidthPx: number, style: TextLayoutStyle): string[] {
+    const lines: string[] = [];
+    const spaceWidth = this.getSpaceWidth(style);
+    const words = text.split(/(\s+)/);
+    let currentLine = '';
+    let currentWidth = 0;
+
+    for (let i = 0; i < words.length; i++) {
+      const word = words[i];
+      const isSpace = /^\s+$/.test(word);
+      const wordWidth = isSpace ? spaceWidth * word.length : this.getWordWidth(word, style);
+
+      if (currentWidth + wordWidth <= availableWidthPx) {
+        currentLine += word;
+        currentWidth += wordWidth;
+      } else {
+        if (currentLine.trim().length > 0) {
+          lines.push(currentLine.replace(/\s+$/, ''));
+        }
+        if (isSpace) {
+          currentLine = '';
+          currentWidth = 0;
+        } else {
+          if (wordWidth > availableWidthPx) {
+            const chars = word.split('');
+            let chunk = '';
+            let chunkWidth = 0;
+            for (const c of chars) {
+              const cw = this.getWordWidth(c, style);
+              if (chunkWidth + cw <= availableWidthPx) {
+                chunk += c;
+                chunkWidth += cw;
+              } else {
+                if (chunk) lines.push(chunk);
+                chunk = c;
+                chunkWidth = cw;
+              }
+            }
+            currentLine = chunk;
+            currentWidth = chunkWidth;
+          } else {
+            currentLine = word;
+            currentWidth = wordWidth;
+          }
+        }
+      }
+    }
+    if (currentLine.trim().length > 0) {
+      lines.push(currentLine.replace(/\s+$/, ''));
+    }
+    return lines;
+  }
+}
+
 class EditorMDPreview extends HTMLElement {
-  static get observedAttributes() { return ['size', 'margin', 'dpi-mode', 'markdown']; }
+  static get observedAttributes() { return ['size', 'margin', 'dpi-mode', 'markdown', 'print-style', 'header-option', 'footer-option']; }
 
   private pagesPanel!: HTMLElement;
   private _size: PageSizeKey = 'A4';
   private _margin: MarginKey = '1';
   private _dpiMode: DPIMode = 'screen';
+  private _isPrinting = false;
   private _markdown: string = '';
+  private _printStyle: PrintStyleKey = '';
+  private _headerOption: HeaderFooterOption = 'none';
+  private _footerOption: HeaderFooterOption = 'none';
   private measurementBox: HTMLElement | null = null;
+  private _printStyleEl: HTMLStyleElement | null = null;
+  private textMeasurer: PrecisionTextMeasurer = new PrecisionTextMeasurer();
 
     constructor() {
         super();
@@ -63,14 +180,11 @@ class EditorMDPreview extends HTMLElement {
       style.id = 'editor-md-preview-styles';
       style.textContent = `
         editor-md-preview { 
-          display: block; 
-          box-sizing: border-box; 
-          font-family: Georgia, "Times New Roman", serif;
-          /* CSS isolation to prevent external style inheritance */
           all: initial;
           display: block;
           box-sizing: border-box;
           font-family: Georgia, "Times New Roman", serif;
+          --preview-line-height: 1.5;
         }
         editor-md-preview .viewport {
                 width: 100%;
@@ -88,6 +202,7 @@ class EditorMDPreview extends HTMLElement {
           gap: 24px;
           justify-content: center;
           align-items: flex-start;
+          width: 100%;
         }
         editor-md-preview .page {
           background: var(--preview-page-bg, #ffffff);
@@ -95,24 +210,53 @@ class EditorMDPreview extends HTMLElement {
           border: 1px solid var(--preview-border, rgba(0,0,0,0.06));
                 position: relative;
           box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
         }
-        editor-md-preview .content {
-                box-sizing: border-box;
-                overflow: hidden;
-          color: var(--preview-text, #333333);
-                font-family: var(--preview-font-family, 'Times New Roman', serif);
-                font-size: var(--preview-font-size, 12pt);
-          /* line-height removed - controlled by external CSS */
-          /* Complete style isolation for content area */
+        editor-md-preview .page-body {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          min-height: 0;
+          overflow: hidden;
+        }
+        editor-md-preview .page-header,
+        editor-md-preview .page-footer {
+          flex-shrink: 0;
+          font-size: 0.85em;
+          line-height: 1.4;
+          color: var(--preview-text, #333);
+          font-family: var(--preview-font-family, inherit);
+          padding: 0.25em 0;
+          border-bottom: 1px solid var(--preview-border, rgba(0,0,0,0.1));
+        }
+        editor-md-preview .page[data-page-side="left"] .page-header,
+        editor-md-preview .page[data-page-side="left"] .page-footer {
+          text-align: left;
+        }
+        editor-md-preview .page[data-page-side="right"] .page-header,
+        editor-md-preview .page[data-page-side="right"] .page-footer {
+          text-align: right;
+        }
+        editor-md-preview .page-footer {
+          border-bottom: none;
+          border-top: 1px solid var(--preview-border, rgba(0,0,0,0.1));
+        }
+        editor-md-preview .page-header {
+          border-top: none;
+        }
+        editor-md-preview .preview-content {
           all: unset;
           display: block;
+          flex: 1;
           box-sizing: border-box;
           overflow: hidden;
           color: var(--preview-text, #333333);
           font-family: var(--preview-font-family, 'Times New Roman', serif);
           font-size: var(--preview-font-size, 12pt);
+          line-height: var(--preview-line-height, 1.5);
         }
-        editor-md-preview .content * { 
+        editor-md-preview .preview-content * { 
           box-sizing: border-box; 
         }
         /* CSS isolation - prevent external style inheritance */
@@ -147,6 +291,44 @@ class EditorMDPreview extends HTMLElement {
           color: inherit;
           text-indent: 0;
         }
+
+        /* --- Print style presets (pixel-perfect for Affinity/print) --- */
+
+        /* US Trade Paperback 6x9: professional novel typography, ~36 lines per page */
+        editor-md-preview.us_paperback {
+          --preview-font-family: Garamond, "EB Garamond", "Cormorant Garamond", Georgia, serif;
+          --preview-font-size: 11pt;
+          --preview-line-height: 1.43;
+          --preview-text-align: justify;
+          --preview-paragraph-indent: 1em;
+        }
+        editor-md-preview.us_paperback .preview-content {
+          font-family: var(--preview-font-family);
+          font-size: var(--preview-font-size);
+          line-height: var(--preview-line-height);
+          text-align: var(--preview-text-align);
+        }
+        editor-md-preview.us_paperback .preview-content p {
+          text-indent: var(--preview-paragraph-indent);
+        }
+
+        /* A4 Manuscript: 12pt Times, double-spaced, 0.5in paragraph indent */
+        editor-md-preview.a4_manuscript {
+          --preview-font-family: "Times New Roman", Times, serif;
+          --preview-font-size: 12pt;
+          --preview-line-height: 2;
+          --preview-text-align: left;
+          --preview-paragraph-indent: 0.5in;
+        }
+        editor-md-preview.a4_manuscript .preview-content {
+          font-family: var(--preview-font-family);
+          font-size: var(--preview-font-size);
+          line-height: var(--preview-line-height);
+          text-align: var(--preview-text-align);
+        }
+        editor-md-preview.a4_manuscript .preview-content p {
+          text-indent: var(--preview-paragraph-indent);
+        }
       `;
       document.head.appendChild(style);
     }
@@ -154,6 +336,12 @@ class EditorMDPreview extends HTMLElement {
     if (!this.pagesPanel) {
       console.error('Could not find .pages element in component');
     }
+  }
+
+  private applyPrintStyleClass() {
+    this.classList.remove('us_paperback', 'a4_manuscript');
+    const cls = styleKeyToClass(this._printStyle);
+    if (cls) this.classList.add(cls);
   }
 
   connectedCallback() {
@@ -165,13 +353,26 @@ class EditorMDPreview extends HTMLElement {
     const marginAttr = this.getAttribute('margin');
     const dpiAttr = this.getAttribute('dpi-mode');
     const mdAttr = this.getAttribute('markdown');
+    const printStyleAttr = this.getAttribute('print-style');
 
-    console.log('Attributes:', { sizeAttr, marginAttr, dpiAttr, mdAttr });
+    console.log('Attributes:', { sizeAttr, marginAttr, dpiAttr, mdAttr, printStyleAttr });
 
-    if (sizeAttr && (sizeAttr in PAGE_SIZES_IN)) this._size = sizeAttr as PageSizeKey;
-    if (marginAttr && (marginAttr in MARGINS_IN)) this._margin = marginAttr as MarginKey;
+    if (printStyleAttr && printStyleAttr in PRINT_STYLE_PRESETS) {
+      this._printStyle = printStyleAttr as Exclude<PrintStyleKey, ''>;
+      const preset = PRINT_STYLE_PRESETS[this._printStyle];
+      this._size = preset.size;
+      this._margin = preset.margin;
+      this.applyPrintStyleClass();
+    } else {
+      if (sizeAttr && (sizeAttr in PAGE_SIZES_IN)) this._size = sizeAttr as PageSizeKey;
+      if (marginAttr && (marginAttr in MARGINS_IN)) this._margin = marginAttr as MarginKey;
+    }
     if (dpiAttr && (dpiAttr === 'screen' || dpiAttr === 'fixed72')) this._dpiMode = dpiAttr as DPIMode;
     if (mdAttr) this._markdown = mdAttr;
+    const headerAttr = this.getAttribute('header-option');
+    const footerAttr = this.getAttribute('footer-option');
+    if (headerAttr === 'page-title-chapter' || headerAttr === 'title-chapter' || headerAttr === 'none') this._headerOption = headerAttr;
+    if (footerAttr === 'page-title-chapter' || footerAttr === 'title-chapter' || footerAttr === 'none') this._footerOption = footerAttr;
 
     // Read text content from inside the component tags (like the documentation)
     if (!this._markdown) {
@@ -213,15 +414,37 @@ class EditorMDPreview extends HTMLElement {
 
   attributeChangedCallback(name: string, oldV: any, newV: any) {
     if (oldV === newV) return;
-    if (name === 'size' && newV && (newV in PAGE_SIZES_IN)) this._size = newV;
-    if (name === 'margin' && newV && (newV in MARGINS_IN)) this._margin = newV;
-    if (name === 'dpi-mode' && (newV === 'screen' || newV === 'fixed72')) this._dpiMode = newV;
-    if (name === 'markdown') this._markdown = newV || '';
+    if (name === 'print-style') {
+      if (newV && newV in PRINT_STYLE_PRESETS) {
+        this._printStyle = newV as Exclude<PrintStyleKey, ''>;
+        const preset = PRINT_STYLE_PRESETS[this._printStyle];
+        this._size = preset.size;
+        this._margin = preset.margin;
+      } else {
+        this._printStyle = '';
+      }
+      this.applyPrintStyleClass();
+    } else if (name === 'size' && newV && (newV in PAGE_SIZES_IN) && !this._printStyle) {
+      this._size = newV;
+    } else if (name === 'margin' && newV && (newV in MARGINS_IN) && !this._printStyle) {
+      this._margin = newV;
+    } else if (name === 'dpi-mode' && (newV === 'screen' || newV === 'fixed72')) {
+      this._dpiMode = newV;
+    } else if (name === 'markdown') {
+      this._markdown = newV || '';
+    } else if (name === 'header-option' && (newV === 'page-title-chapter' || newV === 'title-chapter' || newV === 'none')) {
+      this._headerOption = newV as HeaderFooterOption;
+    } else if (name === 'footer-option' && (newV === 'page-title-chapter' || newV === 'title-chapter' || newV === 'none')) {
+      this._footerOption = newV as HeaderFooterOption;
+    }
     this.render();
   }
 
   // ---------- Utilities ----------
   private getCSSPxPerInch(): number {
+    // Printing is defined in browsers as 1in = 96 CSS px. Force that for pagination so the
+    // generated page pixel sizes match the print engine and don't get auto-shrunk (~50% on retina).
+    if (this._isPrinting) return 96;
     if (this._dpiMode === 'fixed72') return 72;
     // screen mode: create temporary element width:1in and read its offsetWidth (CSS pixels per inch)
     const el = document.createElement('div');
@@ -240,22 +463,51 @@ class EditorMDPreview extends HTMLElement {
   }
 
   private parseCSSValue(value: string): number {
-    // Parse CSS values like '2em', '12pt', '16px', '1.5'
     const num = parseFloat(value);
     if (value.includes('em')) {
-      // Convert em to pixels (1em = font-size)
       const fontSize = this.parseCSSValue(getComputedStyle(this).getPropertyValue('--preview-font-size') || '12pt');
       return num * fontSize;
     } else if (value.includes('pt')) {
-      // Convert points to pixels (1pt = 1.33px at 96 DPI)
       return num * 1.33;
     } else if (value.includes('px')) {
       return num;
     } else {
-      // Assume it's a multiplier (like 1.5)
       const fontSize = this.parseCSSValue(getComputedStyle(this).getPropertyValue('--preview-font-size') || '12pt');
       return num * fontSize;
     }
+  }
+
+  private getTextLayoutStyleForNode(node: HTMLElement, measurementBox: HTMLElement): TextLayoutStyle {
+    const clone = node.cloneNode(false) as HTMLElement;
+    clone.textContent = 'M';
+    measurementBox.innerHTML = '';
+    measurementBox.appendChild(clone);
+    const style = this.getTextLayoutStyleFromElement(clone);
+    measurementBox.removeChild(clone);
+    return style;
+  }
+
+  private getTextLayoutStyleFromElement(el: HTMLElement): TextLayoutStyle {
+    const cs = getComputedStyle(el);
+    const fontFamily = cs.fontFamily || 'Georgia, "Times New Roman", serif';
+    const fontSize = cs.fontSize || '12pt';
+    const fontWeight = cs.fontWeight || '400';
+    const lineHeightVal = (cs.lineHeight || '1.5').trim();
+    let lineHeightPx: number;
+    if (lineHeightVal === 'normal') {
+      lineHeightPx = this.parseCSSValue(fontSize) * 1.2;
+    } else if (/^\d+(\.\d+)?(px|pt|em)$/.test(lineHeightVal)) {
+      lineHeightPx = this.parseCSSValue(lineHeightVal);
+    } else {
+      lineHeightPx = this.parseCSSValue(fontSize) * (parseFloat(lineHeightVal) || 1.5);
+    }
+    return {
+      fontFamily,
+      fontSize,
+      fontWeight,
+      lineHeightPx: Math.ceil(lineHeightPx),
+      letterSpacing: cs.letterSpacing || 'normal',
+    };
   }
 
   // ---------- Markdown -> DOM (lightweight, supports requested tags) ----------
@@ -392,6 +644,7 @@ class EditorMDPreview extends HTMLElement {
   private ensureMeasurementBox(pageContentWidthPx: number) {
     if (this.measurementBox) return;
     const box = document.createElement('div');
+    box.className = 'preview-content';
     box.style.position = 'absolute';
     box.style.left = '-99999px';
     box.style.top = '-99999px';
@@ -399,13 +652,12 @@ class EditorMDPreview extends HTMLElement {
     box.style.width = `${pageContentWidthPx}px`;
     box.style.boxSizing = 'border-box';
     box.style.whiteSpace = 'normal';
-    
     // Use actual CSS variables for measurement to match visible pages
     const computedStyle = getComputedStyle(this);
     box.style.fontFamily = computedStyle.getPropertyValue('--preview-font-family') || 'Georgia, "Times New Roman", serif';
     box.style.fontSize = computedStyle.getPropertyValue('--preview-font-size') || '12pt';
     box.style.lineHeight = computedStyle.getPropertyValue('--preview-line-height') || '2em';
-    document.body.appendChild(box);
+    this.appendChild(box);
     this.measurementBox = box;
   }
 
@@ -421,17 +673,22 @@ class EditorMDPreview extends HTMLElement {
     const clone = node.cloneNode(false) as HTMLElement;
     // copy computed styles that affect layout (we will copy the most important ones)
     const cs = getComputedStyle(node);
-    
-    // Essential typography styles
-    clone.style.fontFamily = cs.fontFamily;
-    clone.style.fontSize = cs.fontSize;
-    clone.style.fontWeight = cs.fontWeight;
-    clone.style.fontStyle = cs.fontStyle;
-    clone.style.lineHeight = cs.lineHeight;
-    clone.style.letterSpacing = cs.letterSpacing;
-    clone.style.wordSpacing = cs.wordSpacing;
-    clone.style.whiteSpace = cs.whiteSpace;
-    clone.style.textIndent = cs.textIndent;
+    // When node is detached, its computed typography is wrong (browser defaults). Skip typography
+    // so clone inherits from parent (measurement box or preview-content) which has correct styles.
+    const useTypography = node.isConnected;
+
+    // Essential typography styles (skip when detached - inherit from parent)
+    if (useTypography) {
+      clone.style.fontFamily = cs.fontFamily;
+      clone.style.fontSize = cs.fontSize;
+      clone.style.fontWeight = cs.fontWeight;
+      clone.style.fontStyle = cs.fontStyle;
+      clone.style.lineHeight = cs.lineHeight;
+      clone.style.letterSpacing = cs.letterSpacing;
+      clone.style.wordSpacing = cs.wordSpacing;
+      clone.style.whiteSpace = cs.whiteSpace;
+      clone.style.textIndent = cs.textIndent;
+    }
     
     // All margin and padding properties
     clone.style.marginTop = cs.marginTop;
@@ -471,22 +728,60 @@ class EditorMDPreview extends HTMLElement {
     return ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'blockquote', 'pre'].includes(tag);
   }
 
-  private splitTextNodeByWords(node: HTMLElement, availableHeightPx: number, pageContentPx: number): { taken: HTMLElement; remainder: HTMLElement | null } {
-    // Build clones progressively adding words until adding one more word would overflow availableHeightPx
-    if (!this.measurementBox) throw new Error('measurementBox missing');
+  /**
+   * Wrap text to lines using DOM layout so wrapping matches the browser exactly.
+   * Uses a clone of the node so text-indent, margins, and all inherited styles match.
+   * Avoids canvas measurement drift that causes short last lines.
+   */
+  private wrapTextToLinesDOM(node: HTMLElement, text: string, availableWidthPx: number, style: TextLayoutStyle): string[] {
+    if (!this.measurementBox) return this.textMeasurer.wrapTextToLines(text, availableWidthPx, style);
+    const words = text.split(/\s+/).filter(Boolean);
+    if (words.length === 0) return [];
+    const lineHeightPx = style.lineHeightPx;
+    const lines: string[] = [];
+    const probe = this.cloneWithSameStyles(node);
+    probe.style.width = `${availableWidthPx}px`;
+    probe.style.maxWidth = `${availableWidthPx}px`;
+    probe.style.boxSizing = 'border-box';
+    probe.style.position = 'absolute';
+    probe.style.left = '-99999px';
+    probe.style.top = '-99999px';
+    probe.style.visibility = 'hidden';
+    this.measurementBox.appendChild(probe);
+    let currentWords: string[] = [];
+    for (const word of words) {
+      const testWords = currentWords.length ? [...currentWords, word] : [word];
+      const testText = testWords.join(' ');
+      probe.textContent = testText;
+      // text-indent only applies to the first line of the paragraph; we replace content each
+      // iteration so the probe always shows "first line" - must disable indent for lines 2+
+      if (lines.length > 0) probe.style.textIndent = '0';
+      const h = probe.getBoundingClientRect().height;
+      if (h > lineHeightPx && currentWords.length > 0) {
+        lines.push(currentWords.join(' '));
+        currentWords = [word];
+      } else {
+        currentWords = testWords;
+      }
+    }
+    if (currentWords.length > 0) lines.push(currentWords.join(' '));
+    this.measurementBox.removeChild(probe);
+    return lines;
+  }
 
+  /**
+   * Split text block using DOM-based line wrapping (matches browser layout).
+   * Uses wrapTextToLinesDOM for accurate wrapping, then takes lines that fit.
+   */
+  private splitTextNodeByWords(node: HTMLElement, availableHeightPx: number, pageContentPx: number): { taken: HTMLElement | null; remainder: HTMLElement | null } {
     const text = node.textContent || '';
-    console.log('Splitting text:', text.substring(0, 50) + '...', 'Available height:', availableHeightPx);
     if (!text.trim()) {
-      // empty node
       const emptyClone = this.cloneWithSameStyles(node);
       emptyClone.textContent = '';
       return { taken: emptyClone, remainder: null };
     }
 
-    // For code/pre blocks we must preserve whitespace - split by characters if necessary
     const isPre = node.tagName.toLowerCase() === 'pre' || node.querySelector('code');
-
     const words = isPre ? text.split('') : text.split(/\s+/).filter(Boolean);
     if (words.length === 0) {
       const clone = this.cloneWithSameStyles(node);
@@ -494,30 +789,87 @@ class EditorMDPreview extends HTMLElement {
       return { taken: clone, remainder: null };
     }
 
-    // Function to build element from subset of words
     const build = (countWords: number) => {
       const el = this.cloneWithSameStyles(node);
       if (isPre) {
         el.textContent = words.slice(0, countWords).join('');
       } else {
-        // reinsert spaces between words to approximate original spacing
         const slice = words.slice(0, countWords).join(' ');
         el.textContent = slice + (countWords < words.length ? ' ' : '');
       }
       return el;
     };
 
-    // quick check: if whole node fits, return as taken
-    this.measurementBox.innerHTML = '';
-    const fullNode = this.cloneWithSameStyles(node);
-    fullNode.textContent = text;
-    this.measurementBox.appendChild(fullNode);
-    const fullH = this.measurementBox.getBoundingClientRect().height;
-    if (fullH <= availableHeightPx) {
-      return { taken: fullNode, remainder: null };
+    if (isPre) {
+      return this.splitPreBlock(node, text, words, availableHeightPx, pageContentPx, build);
     }
 
-    // binary search the largest prefix that fits
+    this.ensureMeasurementBox(pageContentPx);
+    const style = this.measurementBox
+      ? this.getTextLayoutStyleForNode(node, this.measurementBox)
+      : this.getTextLayoutStyleFromElement(this);
+    const lines = this.wrapTextToLinesDOM(node, text, pageContentPx, style);
+    const lineHeightPx = style.lineHeightPx;
+    const safeAvailable = Math.max(0, availableHeightPx - lineHeightPx);
+    const maxLines = Math.floor(safeAvailable / lineHeightPx);
+    if (maxLines <= 0) {
+      const remainderEl = this.cloneWithSameStyles(node);
+      remainderEl.textContent = text;
+      remainderEl.style.marginTop = '0';
+      return { taken: null, remainder: remainderEl };
+    }
+
+    let takeCountLines = Math.min(lines.length, maxLines);
+    const remainderLineCount = lines.length - takeCountLines;
+
+    if (remainderLineCount === 1 && takeCountLines > 1) {
+      takeCountLines -= 1;
+    } else if (takeCountLines > 1) {
+      const lastLineWordCount = lines[takeCountLines - 1].split(/\s+/).filter(Boolean).length;
+      if (lastLineWordCount <= 2 && remainderLineCount > 0) {
+        takeCountLines -= 1;
+      }
+    }
+    if (takeCountLines === 1 && remainderLineCount > 1) {
+      const remainderEl = this.cloneWithSameStyles(node);
+      remainderEl.textContent = text;
+      remainderEl.style.marginTop = '0';
+      return { taken: null, remainder: remainderEl };
+    }
+
+    const linesForPage = lines.slice(0, takeCountLines);
+    const remainderLines = lines.slice(takeCountLines);
+    const takenText = linesForPage.join(' ');
+    const remainderText = remainderLines.join(' ');
+
+    const takenEl = this.cloneWithSameStyles(node);
+    takenEl.textContent = takenText;
+    const remainderEl = remainderText.trim() ? this.cloneWithSameStyles(node) : null;
+    if (remainderEl) {
+      remainderEl.textContent = remainderText.trim();
+      remainderEl.style.marginTop = '0';
+    }
+    return { taken: takenEl, remainder: remainderEl };
+  }
+
+  private splitPreBlock(
+    node: HTMLElement,
+    text: string,
+    words: string[],
+    availableHeightPx: number,
+    pageContentPx: number,
+    build: (n: number) => HTMLElement
+  ): { taken: HTMLElement | null; remainder: HTMLElement | null } {
+    if (!this.measurementBox) throw new Error('measurementBox missing');
+    this.ensureMeasurementBox(pageContentPx);
+    const safeAvailable = Math.max(0, availableHeightPx - 2);
+    this.measurementBox.innerHTML = '';
+    const fullNode = build(words.length);
+    fullNode.textContent = text;
+    this.measurementBox.appendChild(fullNode);
+    if (this.measurementBox.getBoundingClientRect().height <= safeAvailable) {
+      return { taken: fullNode, remainder: null };
+    }
     let low = 0, high = words.length, best = 0;
     while (low <= high) {
       const mid = Math.floor((low + high) / 2);
@@ -525,43 +877,35 @@ class EditorMDPreview extends HTMLElement {
       const candidate = build(mid);
       this.measurementBox.innerHTML = '';
       this.measurementBox.appendChild(candidate);
-      const h = this.measurementBox.getBoundingClientRect().height;
-      if (h <= availableHeightPx) {
+      if (this.measurementBox.getBoundingClientRect().height <= safeAvailable) {
         best = mid;
         low = mid + 1;
       } else {
         high = mid - 1;
       }
     }
-
-    // If best=0, nothing fits on an empty page (force at least 1 word to avoid infinite loop)
     const takeCount = best > 0 ? best : 1;
     const takenEl = build(takeCount);
-
-    const remainderText = isPre
-      ? words.slice(takeCount).join('')
-      : words.slice(takeCount).join(' ');
-
+    const remainderText = words.slice(takeCount).join('');
     const remainderEl = remainderText ? this.cloneWithSameStyles(node) : null;
     if (remainderEl) {
       remainderEl.textContent = remainderText;
-      // Reset margin-top for remainder since it continues on a new page
       remainderEl.style.marginTop = '0';
     }
-
     return { taken: takenEl, remainder: remainderEl };
   }
 
   private async paginateAndRenderFromDom(domRoot: HTMLElement) {
-    // compute dimensions
     const pxPerInch = this.getCSSPxPerInch();
     const pageDims = PAGE_SIZES_IN[this._size];
     const pageW = this.inToPx(pageDims.w);
     const pageH = this.inToPx(pageDims.h);
     const marginPx = this.inToPx(MARGINS_IN[this._margin]);
+    const lineHeightPx = this.getTextLayoutStyleFromElement(this).lineHeightPx;
+    const bottomPadding = Math.max(marginPx - lineHeightPx, marginPx / 2);
 
     const contentW = pageW - marginPx * 2;
-    const contentH = pageH - marginPx * 2;
+    const contentH = pageH - marginPx - bottomPadding;
     
     // Get actual CSS values for calculations
     const computedStyle = getComputedStyle(this);
@@ -577,18 +921,17 @@ class EditorMDPreview extends HTMLElement {
     this.pagesPanel.innerHTML = '';
     console.log('Pages panel after clearing:', this.pagesPanel.innerHTML);
 
-    // create first visible page and its content container
     const makeVisiblePage = () => {
       const page = document.createElement('div');
       page.className = 'page';
       page.style.width = `${pageW}px`;
       page.style.height = `${pageH}px`;
-      page.style.padding = `${marginPx}px`;
+      page.style.padding = `${marginPx}px ${marginPx}px ${bottomPadding}px ${marginPx}px`;
       page.style.boxSizing = 'border-box';
       const content = document.createElement('div');
-      content.className = 'content';
+      content.className = 'preview-content';
       content.style.width = '100%';
-      content.style.height = `calc(100% - ${marginPx/2}px)`;
+      content.style.height = '100%';
       content.style.overflow = 'hidden';
       content.style.boxSizing = 'border-box';
       page.appendChild(content);
@@ -673,15 +1016,17 @@ class EditorMDPreview extends HTMLElement {
               while (remainderLi) {
                 const available = contentH - usedHeightOnPage;
                 const { taken, remainder } = this.splitTextNodeByWords(remainderLi, available, contentW);
-                
-                // wrap taken in list container
+                if (!taken) {
+                  pushNewPage();
+                  remainderLi = remainder;
+                  continue;
+                }
                 const wrapList = document.createElement(tag);
                 const takenLi = document.createElement('li');
                 takenLi.innerHTML = taken.innerHTML || taken.textContent || '';
                 wrapList.appendChild(takenLi);
                 currentContentEl.appendChild(wrapList);
                 const hTaken = measureHeight(wrapList);
-                // Account for margins on the first part of split list item
                 const takenCs = getComputedStyle(taken);
                 const takenMarginTop = parseFloat(takenCs.marginTop) || 0;
                 const takenMarginBottom = parseFloat(takenCs.marginBottom) || 0;
@@ -689,10 +1034,7 @@ class EditorMDPreview extends HTMLElement {
                 usedHeightOnPage += totalTakenH;
 
                 remainderLi = remainder;
-                if (remainderLi) {
-                  // new page
-                  pushNewPage();
-                }
+                if (remainderLi) pushNewPage();
               }
             } else {
               // doesn't fit current page but fits empty page
@@ -733,42 +1075,21 @@ class EditorMDPreview extends HTMLElement {
               continue;
             }
             const { taken, remainder: r } = this.splitTextNodeByWords(remainder, available, contentW);
-            // append taken
-            console.log('Adding to page:', taken.textContent?.substring(0, 50) + '...');
-            console.log('Taken element:', taken.outerHTML);
-            console.log('currentContentEl before append:', currentContentEl);
-            console.log('currentContentEl node type:', currentContentEl.nodeType);
-            console.log('currentContentEl tag name:', currentContentEl.tagName);
-            console.log('currentContentEl children count before:', currentContentEl.children.length);
-            
-            // Append the taken element to the DOM
+            if (!taken) {
+              pushNewPage();
+              remainder = r;
+              continue;
+            }
             currentContentEl.appendChild(taken.cloneNode(true));
             const hTaken = measureHeight(taken);
-            // Account for margins only on the first part of a split block
             const takenCs = getComputedStyle(taken);
             const takenMarginTop = parseFloat(takenCs.marginTop) || 0;
             const takenMarginBottom = parseFloat(takenCs.marginBottom) || 0;
             const totalTakenH = hTaken + takenMarginTop + takenMarginBottom;
             usedHeightOnPage += totalTakenH;
-            
-            console.log('currentContentEl children count after:', currentContentEl.children.length);
-            console.log('Content after adding:', currentContentEl.innerHTML.substring(0, 200) + '...');
-            
-            // Verify the element is actually in the DOM
-            const isInDOM = currentContentEl.contains(taken);
-            console.log('Element is in DOM:', isInDOM);
-            console.log('Element parent:', taken.parentElement);
 
             remainder = r;
-            if (remainder) {
-              console.log('Remainder exists, pushing new page:', remainder.textContent?.substring(0, 50) + '...');
-              pushNewPage();
-              console.log('After pushNewPage, remainder will be processed in next iteration');
-              // Continue processing the remainder on the new page
-              continue;
-            } else {
-              console.log('No remainder, splitting complete for this block');
-            }
+            if (remainder) { pushNewPage(); continue; }
           }
         } else {
           // Non-splittable block (e.g. table in future): if it doesn't fit on empty page, we still append it to new page and allow overflow
@@ -789,36 +1110,75 @@ class EditorMDPreview extends HTMLElement {
 
   // ---------- Alternative rendering approach (improved) ----------
   private paginateAndRenderFromDomImproved(domRoot: HTMLElement, pageWidth: number, pageHeight: number, marginPx: number) {
-    // Clear existing pages
     this.pagesPanel.innerHTML = '';
-    
-    const contentHeight = pageHeight - marginPx * 2;
+    const lineHeightPx = this.getTextLayoutStyleFromElement(this).lineHeightPx;
+    const bottomPadding = Math.max(marginPx - lineHeightPx, marginPx / 2);
+    const headerFooterHeight = this._headerOption !== 'none' || this._footerOption !== 'none' ? Math.ceil(lineHeightPx * 1.5) : 0;
+    const headerHeight = this._headerOption !== 'none' ? headerFooterHeight : 0;
+    const footerHeight = this._footerOption !== 'none' ? headerFooterHeight : 0;
+    const contentHeight = pageHeight - marginPx - bottomPadding - headerHeight - footerHeight;
     const contentWidth = pageWidth - marginPx * 2;
-    
+
+    const title = (() => {
+      const h1 = domRoot.querySelector('h1');
+      return h1 ? (h1.textContent || '').trim() : '';
+    })();
+
     // Ensure measurement box for accurate measurements
     this.ensureMeasurementBox(contentWidth);
     if (!this.measurementBox) throw new Error('measurement box creation failed');
 
-    // Utility to create a new page
-    const createNewPage = () => {
+    let pageNumber = 0;
+
+    // Page 1 = title page = first right page. Odd = right (chapter | page), even = left (page | title).
+    const formatHeaderFooter = (opt: HeaderFooterOption, pageNum: number, chapter: string, isHeader: boolean): string => {
+      if (opt === 'none') return '';
+      if (isHeader && pageNum === 1) return ''; // Title page never has header
+      const isRight = pageNum % 2 === 1;
+      if (isRight) return chapter ? `${chapter} | ${pageNum}` : String(pageNum);
+      return title ? `${pageNum} | ${title}` : String(pageNum);
+    };
+
+    const createNewPage = (chapter: string): { content: HTMLElement; page: HTMLElement; headerEl: HTMLElement | null; footerEl: HTMLElement | null } => {
+      pageNumber += 1;
       const page = document.createElement('div');
       page.className = 'page';
+      page.dataset.pageSide = pageNumber % 2 === 1 ? 'right' : 'left'; // Page 1 = title page = right
       page.style.width = `${pageWidth}px`;
       page.style.height = `${pageHeight}px`;
-      page.style.padding = `${marginPx}px`;
+      page.style.padding = `${marginPx}px ${marginPx}px ${bottomPadding}px ${marginPx}px`;
       page.style.boxSizing = 'border-box';
-      
+
+      const headerText = formatHeaderFooter(this._headerOption, pageNumber, chapter, true);
+      const headerEl = this._headerOption !== 'none' && headerText
+        ? (() => { const h = document.createElement('div'); h.className = 'page-header'; h.textContent = headerText; return h; })()
+        : null;
+      const footerText = formatHeaderFooter(this._footerOption, pageNumber, chapter, false);
+      const footerEl = this._footerOption !== 'none' && footerText
+        ? (() => { const f = document.createElement('div'); f.className = 'page-footer'; f.textContent = footerText; return f; })()
+        : null;
+
+      const body = document.createElement('div');
+      body.className = 'page-body';
+      body.style.flex = '1';
+      body.style.minHeight = '0';
+      body.style.display = 'flex';
+      body.style.flexDirection = 'column';
+      body.style.overflow = 'hidden';
+
+      if (headerEl) page.appendChild(headerEl);
       const content = document.createElement('div');
-      content.className = 'content';
-      content.style.width = '100%';
-    
-      content.style.height = `calc(100% - ${marginPx/2}px)`;
-      content.style.overflow = 'visible';
+      content.className = 'preview-content';
+      content.style.flex = '1';
+      content.style.minHeight = '0';
+      content.style.overflow = 'hidden';
       content.style.boxSizing = 'border-box';
-      page.appendChild(content);
-      
+      body.appendChild(content);
+      page.appendChild(body);
+      if (footerEl) page.appendChild(footerEl);
+
       this.pagesPanel.appendChild(page);
-      return content;
+      return { content, page, headerEl, footerEl };
     };
 
     // Utility to measure content height accurately
@@ -889,65 +1249,91 @@ class EditorMDPreview extends HTMLElement {
       return wouldOverflow;
     };
 
-    let currentContent = createNewPage();
+    let currentChapter = '';
+    let result = createNewPage(currentChapter);
+    let currentContent = result.content;
+    let currentHeaderEl = result.headerEl;
+    let currentFooterEl = result.footerEl;
+    let currentPageNumber = pageNumber;
     let usedHeight = 0;
+
+    const updateHeaderFooter = (chapter: string) => {
+      if (currentHeaderEl) currentHeaderEl.textContent = formatHeaderFooter(this._headerOption, currentPageNumber, chapter, true);
+      if (currentFooterEl) currentFooterEl.textContent = formatHeaderFooter(this._footerOption, currentPageNumber, chapter, false);
+    };
 
     // Process block elements (not individual text nodes)
     const blocks = Array.from(domRoot.children) as HTMLElement[];
-    
+
     for (const block of blocks) {
+      const tag = block.tagName.toLowerCase();
+      if (tag === 'h2') currentChapter = (block.textContent || '').trim();
+
       // Test if adding this block would cause overflow
       if (!wouldCauseOverflow(block, currentContent, contentHeight)) {
         // Block fits - add it to current page
         const clone = this.cloneWithSameStyles(block);
         clone.innerHTML = block.innerHTML;
         currentContent.appendChild(clone);
-        
-        // Update used height by measuring the actual content
+        if (tag === 'h2') updateHeaderFooter(currentChapter);
         usedHeight = measureContentHeight(currentContent);
       } else {
         // Block doesn't fit - need to handle splitting
-        console.log('Block does not fit, checking if splittable:', block.tagName.toLowerCase());
-        if (this.isTextLike(block.tagName.toLowerCase())) {
-          // For text-like blocks, split by words
+        console.log('Block does not fit, checking if splittable:', tag);
+        if (this.isTextLike(tag)) {
           console.log('Splitting text-like block:', block.textContent?.substring(0, 50) + '...');
           let remainder: HTMLElement | null = block;
-          
+
           while (remainder) {
             const availableHeight = contentHeight - usedHeight;
             if (availableHeight <= 0) {
-              // Need new page
-              currentContent = createNewPage();
+              result = createNewPage(currentChapter);
+              currentContent = result.content;
+              currentHeaderEl = result.headerEl;
+              currentFooterEl = result.footerEl;
+              currentPageNumber = pageNumber;
               usedHeight = 0;
               continue;
             }
-            
+
             const { taken, remainder: newRemainder } = this.splitTextNodeByWords(remainder, availableHeight, contentWidth);
-            
-            // Add the taken portion
+            if (!taken) {
+              result = createNewPage(currentChapter);
+              currentContent = result.content;
+              currentHeaderEl = result.headerEl;
+              currentFooterEl = result.footerEl;
+              currentPageNumber = pageNumber;
+              usedHeight = 0;
+              remainder = newRemainder;
+              continue;
+            }
             const takenClone = this.cloneWithSameStyles(taken);
             takenClone.innerHTML = taken.innerHTML || taken.textContent || '';
             currentContent.appendChild(takenClone);
-            
-            // Update used height by measuring the actual content
             usedHeight = measureContentHeight(currentContent);
-            
             remainder = newRemainder;
             if (remainder) {
-              // Continue on new page
-              currentContent = createNewPage();
+              result = createNewPage(currentChapter);
+              currentContent = result.content;
+              currentHeaderEl = result.headerEl;
+              currentFooterEl = result.footerEl;
+              currentPageNumber = pageNumber;
               usedHeight = 0;
             }
           }
         } else {
-          // Non-splittable block - force to new page
-          console.log('Non-splittable block, forcing to new page:', block.tagName.toLowerCase());
-          currentContent = createNewPage();
+          console.log('Non-splittable block, forcing to new page:', tag);
+          result = createNewPage(currentChapter);
+          currentContent = result.content;
+          currentHeaderEl = result.headerEl;
+          currentFooterEl = result.footerEl;
+          currentPageNumber = pageNumber;
           usedHeight = 0;
-          
+
           const clone = this.cloneWithSameStyles(block);
           clone.innerHTML = block.innerHTML;
           currentContent.appendChild(clone);
+          if (tag === 'h2') updateHeaderFooter(currentChapter);
           usedHeight = measureContentHeight(currentContent);
         }
       }
@@ -956,6 +1342,135 @@ class EditorMDPreview extends HTMLElement {
     // Cleanup measurement box
     this.cleanupMeasurementBox();
   }
+
+  /** Print only the pages. Hides other content, sets @page size. Print uses display px/in (e.g. 192 on retina), so scale up by pxPerInch/96 to match paper. */
+  public print() {
+    const dims = PAGE_SIZES_IN[this._size]; // e.g., { w: 8.5, h: 11 } for letter
+    const sizeCss = `${dims.w}in ${dims.h}in`;
+    
+    const cleanup = () => {
+        document.body.classList.remove('editor-md-preview-printing');
+        this.classList.remove('editor-md-preview-print-target');
+        if (this._printStyleEl && this._printStyleEl.parentNode) {
+            this._printStyleEl.parentNode.removeChild(this._printStyleEl);
+            this._printStyleEl = null;
+        }
+        this._isPrinting = false;
+        // Restore on-screen pagination after printing.
+        this.render();
+    };
+
+    window.addEventListener('afterprint', cleanup, { once: true });
+
+    document.body.classList.add('editor-md-preview-printing');
+    this.classList.add('editor-md-preview-print-target');
+
+    // Re-paginate specifically for print at 96 CSS px/in.
+    this._isPrinting = true;
+    this.render();
+
+    this._printStyleEl = document.createElement('style');
+    this._printStyleEl.id = 'editor-md-preview-print-styles';
+    this._printStyleEl.textContent = `
+        @media print {
+            /* Set the physical page size */
+            @page { 
+                size: ${sizeCss};
+                margin: 0 !important;
+            }
+            
+            /* Hide everything except our preview */
+            html, body { 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                background: white;
+                overflow: visible !important;
+            }
+            
+            body.editor-md-preview-printing * { 
+                visibility: hidden !important; 
+            }
+            
+            /* Show only the preview component */
+            body.editor-md-preview-printing editor-md-preview.editor-md-preview-print-target,
+            body.editor-md-preview-printing editor-md-preview.editor-md-preview-print-target .viewport,
+            body.editor-md-preview-printing editor-md-preview.editor-md-preview-print-target .pages,
+            body.editor-md-preview-printing editor-md-preview.editor-md-preview-print-target .page,
+            body.editor-md-preview-printing editor-md-preview.editor-md-preview-print-target .page * {
+                visibility: visible !important;
+                background: white;
+            }
+            
+            /* Position the preview for printing */
+            body.editor-md-preview-printing editor-md-preview.editor-md-preview-print-target {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            /* Viewport becomes a simple block container */
+            body.editor-md-preview-printing editor-md-preview.editor-md-preview-print-target .viewport {
+                display: block !important;
+                overflow: visible !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: none !important;
+            }
+            
+            /* Pages container stacks pages (no scaling) */
+            body.editor-md-preview-printing editor-md-preview.editor-md-preview-print-target .pages {
+                margin: 0 !important;
+                padding: 0 !important;
+                display: block !important;
+                gap: 0 !important;
+                transform: none !important;
+            }
+            
+            /* Each page prints on its own sheet */
+            body.editor-md-preview-printing editor-md-preview.editor-md-preview-print-target .page {
+                page-break-after: always;
+                page-break-inside: avoid;
+                overflow: hidden;
+                margin: 0 !important;
+                box-sizing: border-box !important;
+                box-shadow: none !important;
+                border: none !important;
+                outline: none !important;
+            }
+
+            /* Hide any “page surround” frame in print */
+            body.editor-md-preview-printing editor-md-preview.editor-md-preview-print-target,
+            body.editor-md-preview-printing editor-md-preview.editor-md-preview-print-target .viewport,
+            body.editor-md-preview-printing editor-md-preview.editor-md-preview-print-target .pages,
+            body.editor-md-preview-printing editor-md-preview.editor-md-preview-print-target .page {
+                box-shadow: none !important;
+                border: none !important;
+                outline: none !important;
+                background: white !important;
+            }
+            
+            /* Last page doesn't force a break */
+            body.editor-md-preview-printing editor-md-preview.editor-md-preview-print-target .page:last-child {
+                page-break-after: auto;
+            }
+            
+            /* Ensure content stays within margins */
+            body.editor-md-preview-printing editor-md-preview.editor-md-preview-print-target .page * {
+                max-width: 100%;
+                word-wrap: break-word;
+            }
+        }
+    `;
+    
+    document.head.appendChild(this._printStyleEl);
+    
+    // Force a reflow before printing
+    window.setTimeout(() => {
+        window.print();
+    }, 100);
+}
 
   // ---------- Public render ----------
   public render() {
@@ -991,7 +1506,47 @@ class EditorMDPreview extends HTMLElement {
 
   get markdown() {
     return this._markdown;
+  }
+
+  /** Set print style preset: 'US Paperback', 'A4 Manuscript', or '' for custom. */
+  set printStyle(name: PrintStyleKey) {
+    this._printStyle = name;
+    if (name && name in PRINT_STYLE_PRESETS) {
+      const preset = PRINT_STYLE_PRESETS[name as Exclude<PrintStyleKey, ''>];
+      this._size = preset.size;
+      this._margin = preset.margin;
+      this.setAttribute('print-style', name);
+    } else {
+      this.removeAttribute('print-style');
     }
+    this.applyPrintStyleClass();
+    this.render();
+  }
+
+  get printStyle(): PrintStyleKey {
+    return this._printStyle;
+  }
+
+  /** Header content: 'page-title-chapter' | 'title-chapter' | 'none' */
+  get headerOption(): HeaderFooterOption {
+    return this._headerOption;
+  }
+  set headerOption(v: HeaderFooterOption) {
+    this._headerOption = v;
+    this.setAttribute('header-option', v);
+    this.render();
+  }
+
+  /** Footer content: 'page-title-chapter' | 'title-chapter' | 'none' */
+  get footerOption(): HeaderFooterOption {
+    return this._footerOption;
+  }
+  set footerOption(v: HeaderFooterOption) {
+    this._footerOption = v;
+    this.setAttribute('footer-option', v);
+    this.render();
+  }
+
 }
 
 customElements.define('editor-md-preview', EditorMDPreview);

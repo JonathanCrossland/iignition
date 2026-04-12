@@ -92,7 +92,7 @@ namespace iignition
         private processViewAndHash(url: string): void {
             const stdReg = /\/$/;
             
-            debugger;
+            
 
             if (url.includes('?')) {
                 const [baseUrl, queryString] = url.split('?');
@@ -114,10 +114,13 @@ namespace iignition
             this.isHash = false;
             if (url.includes('#!')) {
                 this.hash = '#!' + url.split('#!')[1].replace(stdReg, '/');
-            } else {
+            } 
+            else if (url && url.trim() !== '' && (url.includes('/') || url.startsWith($i.Options.viewPath))) {
+                this.hash = '#!' + url.replace(stdReg, '/');
+            }
+            else {
                 this.hash = '#!' + this.root;
             }
-
             this.parts = this.hash.replace('#!', '').split('/');
             if (this.parts[0] != $i.Options.viewPath) {
                 this.parts.splice(0, 0, $i.Options.viewPath);

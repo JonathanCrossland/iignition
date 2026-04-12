@@ -59,7 +59,8 @@ namespace iignition {
                         if (valueNodes.includes(nodeName)) {
                             let inputElement: HTMLInputElement = dataElement as HTMLInputElement;
                             if (inputElement.type == 'checkbox') {
-                                inputElement.checked = (value == true || value == 1) ? true : false;
+                                const v = value as unknown;
+                                inputElement.checked = v === true || v === 1;
                             } else {
                                 inputElement.value = String(value);
                             }
